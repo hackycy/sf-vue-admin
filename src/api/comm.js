@@ -7,3 +7,11 @@ export function getCaptchaImg(query) {
     params: query
   })
 }
+
+export function login(data) {
+  return request({
+    url: '/login',
+    method: 'post',
+    data
+  })
+}

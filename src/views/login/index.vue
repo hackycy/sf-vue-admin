@@ -177,7 +177,12 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('user/login', this.loginForm)
+          this.$store.dispatch('user/login', {
+            verifyCode: this.loginForm.captcha,
+            username: this.loginForm.username,
+            password: this.loginForm.password,
+            captchaId: this.captchaId
+          })
             .then(() => {
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
               this.loading = false
