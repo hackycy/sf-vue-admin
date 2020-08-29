@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getCaptchaImg(query) {
   return request({
-    url: '/comm/captcha/img',
+    url: '/captcha/img',
     method: 'get',
     params: query
   })
