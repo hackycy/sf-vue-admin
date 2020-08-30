@@ -15,3 +15,9 @@ export function login(data) {
     data
   })
 }
+
+export function permmenu() {
+  return request({
+    url: '/permmenu'
+  })
+}

@@ -1,36 +1,76 @@
-import { asyncRoutes, constantRoutes } from '@/router'
+import { constantRoutes } from '@/router'
+import Layout from '@/layout'
 
 /**
  * Use meta.role to determine if the current user has permission
  * @param roles
  * @param route
  */
-function hasPermission(roles, route) {
-  if (route.meta && route.meta.roles) {
-    return roles.some(role => route.meta.roles.includes(role))
-  } else {
-    return true
-  }
-}
+// function hasPermission(roles, route) {
+//   if (route.meta && route.meta.roles) {
+//     return roles.some(role => route.meta.roles.includes(role))
+//   } else {
+//     return true
+//   }
+// }
 
 /**
  * Filter asynchronous routing tables by recursion
  * @param routes asyncRoutes
  * @param roles
  */
-export function filterAsyncRoutes(routes, roles) {
+export function filterAsyncRoutes(routes) {
   const res = []
 
   routes.forEach(route => {
     const tmp = { ...route }
-    if (hasPermission(roles, tmp)) {
-      if (tmp.children) {
-        tmp.children = filterAsyncRoutes(tmp.children, roles)
+    // if (hasPermission(roles, tmp)) {
+    //   if (tmp.children) {
+    //     tmp.children = filterAsyncRoutes(tmp.children, roles)
+    //   }
+    //   res.push(tmp)
+    // }
+    if (tmp.type !== 2) {
+      // 非权限，只需要目录或菜单
+      if (!tmp.parentId) {
+        // 根目录
+        // routes.forEach(second)
+        // const childrenRoute = filerAsyncChildrenRoutes(routes, tmp.id)
+        const realRoute = {
+          path: tmp.router,
+          component: Layout,
+          meta: {
+            title: tmp.name
+          }
+          // children: childrenRoute
+        }
+        res.push(realRoute)
       }
-      res.push(tmp)
     }
   })
 
+  return res
+}
+
+export function filerAsyncChildrenRoutes(routes, parentId) {
+  const res = []
+  routes.forEach(route => {
+    const tmp = { ...route }
+    if (tmp.type !== 2) {
+      if (tmp.parentId === parentId) {
+        let childrenRoute
+        if (tmp.type === 0) {
+          childrenRoute = filerAsyncChildrenRoutes(routes, tmp.id)
+        }
+        const realRoute = {
+          path: tmp.router,
+          children: childrenRoute
+          // component: () => import(`@/views/${tmp.viewPath}`)
+        }
+        res.push(realRoute)
+      }
+    }
+  })
   return res
 }
 
@@ -47,14 +87,10 @@ const mutations = {
 }
 
 const actions = {
-  generateRoutes({ commit }, roles) {
+  generateRoutes({ commit }, menus) {
     return new Promise(resolve => {
-      let accessedRoutes
-      if (roles.includes('admin')) {
-        accessedRoutes = asyncRoutes || []
-      } else {
-        accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
-      }
+      // 转换
+      const accessedRoutes = filterAsyncRoutes(menus)
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)
     })
