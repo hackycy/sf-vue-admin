@@ -124,6 +124,18 @@ export const constantRoutes = [
   }
 ]
 
+// const files = require
+//   .context('@/', true, /^.\/(views).*(vue)/)
+//   .keys()
+//   .map((e) => {
+//     return e.substr(2)
+//   })
+
+export const routeMap = {
+  'views/charts/keyboard.vue': () => import('@/views/dashboard/index'),
+  'views/excel/select-excel.vue': () => import('@/views/dashboard/index')
+}
+
 /**
  * asyncRoutes
  * the routes that need to be dynamically loaded based on user roles

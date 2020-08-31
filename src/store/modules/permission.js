@@ -1,5 +1,6 @@
 import { constantRoutes } from '@/router'
 import Layout from '@/layout'
+import { map } from '@/router/_import'
 
 /**
  * Use meta.role to determine if the current user has permission
@@ -23,50 +24,61 @@ export function filterAsyncRoutes(routes) {
   const res = []
 
   routes.forEach(route => {
-    const tmp = { ...route }
     // if (hasPermission(roles, tmp)) {
     //   if (tmp.children) {
     //     tmp.children = filterAsyncRoutes(tmp.children, roles)
     //   }
     //   res.push(tmp)
     // }
-    if (tmp.type !== 2) {
+    if (route.type !== 2) {
       // 非权限，只需要目录或菜单
-      if (!tmp.parentId) {
+      if (!route.parentId) {
         // 根目录
         // routes.forEach(second)
-        // const childrenRoute = filerAsyncChildrenRoutes(routes, tmp.id)
+        const childrenRoute = filerAsyncChildrenRoutes(routes, route.id)
         const realRoute = {
-          path: tmp.router,
+          path: route.router,
           component: Layout,
-          meta: {
-            title: tmp.name
-          }
-          // children: childrenRoute
+          meta: { title: route.name, icon: route.icon },
+          children: childrenRoute
         }
         res.push(realRoute)
       }
     }
   })
-
+  console.log(res)
   return res
 }
 
 export function filerAsyncChildrenRoutes(routes, parentId) {
   const res = []
   routes.forEach(route => {
-    const tmp = { ...route }
-    if (tmp.type !== 2) {
-      if (tmp.parentId === parentId) {
+    if (route.type !== 2) {
+      if (route.parentId === parentId) {
         let childrenRoute
-        if (tmp.type === 0) {
-          childrenRoute = filerAsyncChildrenRoutes(routes, tmp.id)
+        if (route.type === 0) {
+          childrenRoute = filerAsyncChildrenRoutes(routes, route.id)
         }
+        console.log('>>>>>>>>>>>>>>>>>>>')
+        console.log(map[route.viewPath])
+        console.log(route.viewPath)
+        console.log('>>>>>>>>>>>>>>>>>>>')
         const realRoute = {
-          path: tmp.router,
-          children: childrenRoute
-          // component: () => import(`@/views/${tmp.viewPath}`)
+          path: route.router,
+          children: childrenRoute,
+          meta: {
+            title: route.name,
+            icon: route.icon
+          },
+          component: map[route.viewPath]
         }
+        // if (route.viewPath) {
+        //   console.log('>>>>>>> divider >>>>>>>>>')
+        //   console.log(map['views/dashboard/index'])
+        //   console.log('>>>>>>> dynamic >>>>>>>>>')
+        //   console.log(map[route.viewPath])
+        //   console.log('>>>>>>> divider >>>>>>>>>')
+        // }
         res.push(realRoute)
       }
     }
