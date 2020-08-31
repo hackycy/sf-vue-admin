@@ -1,12 +1,11 @@
 import { constantRoutes } from '@/router'
 import Layout from '@/layout'
-import { map } from '@/router/_import'
 
-/**
- * Use meta.role to determine if the current user has permission
- * @param roles
- * @param route
- */
+// /**
+//  * Use meta.role to determine if the current user has permission
+//  * @param roles
+//  * @param route
+//  */
 // function hasPermission(roles, route) {
 //   if (route.meta && route.meta.roles) {
 //     return roles.some(role => route.meta.roles.includes(role))
@@ -36,6 +35,7 @@ export function filterAsyncRoutes(routes) {
         // 根目录
         // routes.forEach(second)
         const childrenRoute = filerAsyncChildrenRoutes(routes, route.id)
+        console.log(childrenRoute)
         const realRoute = {
           path: route.router,
           component: Layout,
@@ -46,7 +46,7 @@ export function filterAsyncRoutes(routes) {
       }
     }
   })
-  console.log(res)
+  // console.log(res)
   return res
 }
 
@@ -59,31 +59,32 @@ export function filerAsyncChildrenRoutes(routes, parentId) {
         if (route.type === 0) {
           childrenRoute = filerAsyncChildrenRoutes(routes, route.id)
         }
-        console.log('>>>>>>>>>>>>>>>>>>>')
-        console.log(map[route.viewPath])
-        console.log(route.viewPath)
-        console.log('>>>>>>>>>>>>>>>>>>>')
+        // console.log('>>>>>>>>>>>>>>>>>>>')
+        // console.log(routerMap[route.viewPath])
+        // console.log(route.viewPath)
+        // console.log('>>>>>>>>>>>>>>>>>>>')
         const realRoute = {
           path: route.router,
           children: childrenRoute,
           meta: {
             title: route.name,
             icon: route.icon
-          },
-          component: map[route.viewPath]
+          }
         }
-        // if (route.viewPath) {
-        //   console.log('>>>>>>> divider >>>>>>>>>')
-        //   console.log(map['views/dashboard/index'])
-        //   console.log('>>>>>>> dynamic >>>>>>>>>')
-        //   console.log(map[route.viewPath])
-        //   console.log('>>>>>>> divider >>>>>>>>>')
-        // }
+        if (route.viewPath) {
+          realRoute['component'] = routerMap[route.viewPath]
+        }
         res.push(realRoute)
       }
     }
   })
   return res
+}
+
+const routerMap = {
+  'views/dashboard/index': () => import('@/views/dashboard/index'),
+  'views/excel/export-excel': () => import('@/views/dashboard/index'),
+  'views/documentation/index': () => import('@/views/documentation/index')
 }
 
 const state = {
