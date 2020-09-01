@@ -80,6 +80,20 @@
       color: $subMenuActiveText !important;
     }
 
+    // .el-menu-item .is-active {
+    //   background-color: $menuActiveBg !important;
+    // }
+
+    // menu active bg
+    & .nest-menu .el-menu-item.is-active {
+      background-color: $menuActiveBg !important;
+    }
+
+    & .el-menu-item.is-active {
+      background-color: $menuActiveBg !important;
+    }
+    
+
     & .nest-menu .el-submenu>.el-submenu__title,
     & .el-submenu .el-menu-item {
       min-width: $sideBarWidth !important;
@@ -89,6 +103,7 @@
         background-color: $subMenuHover !important;
       }
     }
+
   }
 
   .hideSidebar {
