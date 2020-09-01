@@ -1,4 +1,4 @@
-import { constantRoutes } from '@/router'
+import { constantRoutes, NotFoundRoute, asyncRoutesMap } from '@/router'
 import Layout from '@/layout'
 import PlaceHolder from '@/layout/placeholder'
 import { toHump } from '@/utils'
@@ -41,7 +41,7 @@ function filterAsyncRoutes(routes, parentRoute) {
       // routes.forEach(second)
       // const childrenRoute = filerAsyncChildrenRoutes(routes, route.id)
       // console.log(childrenRoute)
-      const component = routerMap[route.viewPath]
+      const component = asyncRoutesMap[route.viewPath]
       if (component) {
         realRoute = {
           path: route.router,
@@ -77,7 +77,7 @@ function filterAsyncRoutes(routes, parentRoute) {
       // 子目录
       if (route.type === 1) {
         // 已经是菜单了，中断递归
-        const component = routerMap[route.viewPath]
+        const component = asyncRoutesMap[route.viewPath]
         if (component) {
           realRoute = {
             path: route.router,
@@ -88,6 +88,7 @@ function filterAsyncRoutes(routes, parentRoute) {
             },
             component
           }
+          console.log(toHump(route.viewPath))
         }
       } else if (route.type === 0) {
         // 如果还是目录，继续递归
@@ -111,14 +112,9 @@ function filterAsyncRoutes(routes, parentRoute) {
       res.push({ ...realRoute })
     }
   })
-  console.log(res)
+  // 404 route must end
+  res.push(NotFoundRoute)
   return res
-}
-
-export const routerMap = {
-  'views/dashboard/index': () => import('@/views/dashboard/index'),
-  'views/excel/export-excel': () => import('@/views/excel/export-excel'),
-  'views/documentation/index': () => import('@/views/documentation/index')
 }
 
 const state = {

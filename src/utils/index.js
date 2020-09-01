@@ -354,13 +354,13 @@ export function removeClass(ele, cls) {
 }
 
 /**
- * /转换驼峰
+ * / _ - 转换成驼峰并将view替换成空字符串
  * @param {*} name name
  */
 export function toHump(name) {
-  return name.replace(/\/(\w)/g, function(all, letter) {
+  return name.replace(/[\-\/\_](\w)/g, function(all, letter) {
     return letter.toUpperCase()
-  })
+  }).replace('views', '')
 }
 
 /**
