@@ -1,6 +1,3 @@
-/**
- * Created by PanJiaChen on 16/11/18.
- */
 
 /**
  * Parse the time to string
@@ -45,7 +42,7 @@ export function parseTime(time, cFormat) {
   const time_str = format.replace(/{([ymdhisa])+}/g, (result, key) => {
     const value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
-    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value ] }
+    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value] }
     return value.toString().padStart(2, '0')
   })
   return time_str
@@ -354,4 +351,22 @@ export function removeClass(ele, cls) {
     const reg = new RegExp('(\\s|^)' + cls + '(\\s|$)')
     ele.className = ele.className.replace(reg, ' ')
   }
+}
+
+/**
+ * /转换驼峰
+ * @param {*} name name
+ */
+export function toHump(name) {
+  return name.replace(/\/(\w)/g, function(all, letter) {
+    return letter.toUpperCase()
+  })
+}
+
+/**
+ * 驼峰转下划线
+ * @param {*} name name
+ */
+export function toLine(name) {
+  return name.replace(/([A-Z])/g, '_$1').toLowerCase()
 }

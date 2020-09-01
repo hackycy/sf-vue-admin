@@ -1,5 +1,7 @@
 import { constantRoutes } from '@/router'
 import Layout from '@/layout'
+import PlaceHolder from '@/layout/placeholder'
+import { toHump } from '@/utils'
 
 // /**
 //  * Use meta.role to determine if the current user has permission
@@ -19,7 +21,7 @@ import Layout from '@/layout'
  * @param routes asyncRoutes
  * @param roles
  */
-export function filterAsyncRoutes(routes) {
+function filterAsyncRoutes(routes, parentRoute) {
   const res = []
 
   routes.forEach(route => {
@@ -29,61 +31,89 @@ export function filterAsyncRoutes(routes) {
     //   }
     //   res.push(tmp)
     // }
-    if (route.type !== 2) {
-      // 非权限，只需要目录或菜单
-      if (!route.parentId) {
-        // 根目录
-        // routes.forEach(second)
-        const childrenRoute = filerAsyncChildrenRoutes(routes, route.id)
-        console.log(childrenRoute)
-        const realRoute = {
+    if (route.type === 2) {
+      return
+    }
+    // 根级别菜单渲染
+    let realRoute
+    if (!parentRoute && !route.parentId && route.type === 1) {
+      // 根目录
+      // routes.forEach(second)
+      // const childrenRoute = filerAsyncChildrenRoutes(routes, route.id)
+      // console.log(childrenRoute)
+      const component = routerMap[route.viewPath]
+      if (component) {
+        realRoute = {
+          path: route.router,
+          redirect: `${route.router}/index`,
+          component: Layout,
+          children: [
+            {
+              path: 'index',
+              name: toHump(`${route.router}/index`),
+              component,
+              meta: { title: route.name, icon: route.icon }
+            }
+          ]
+        }
+      }
+    } else if (!parentRoute && !route.parentId && route.type === 0) {
+      // 根目录
+      const childRoute = filterAsyncRoutes(routes, route)
+      if (childRoute && childRoute.length > 0) {
+        realRoute = {
           path: route.router,
           component: Layout,
-          meta: { title: route.name, icon: route.icon },
-          children: childrenRoute
-        }
-        res.push(realRoute)
-      }
-    }
-  })
-  // console.log(res)
-  return res
-}
-
-export function filerAsyncChildrenRoutes(routes, parentId) {
-  const res = []
-  routes.forEach(route => {
-    if (route.type !== 2) {
-      if (route.parentId === parentId) {
-        let childrenRoute
-        if (route.type === 0) {
-          childrenRoute = filerAsyncChildrenRoutes(routes, route.id)
-        }
-        // console.log('>>>>>>>>>>>>>>>>>>>')
-        // console.log(routerMap[route.viewPath])
-        // console.log(route.viewPath)
-        // console.log('>>>>>>>>>>>>>>>>>>>')
-        const realRoute = {
-          path: route.router,
-          children: childrenRoute,
+          children: childRoute,
           meta: {
             title: route.name,
             icon: route.icon
           }
         }
-        if (route.viewPath) {
-          realRoute['component'] = routerMap[route.viewPath]
+      }
+    } else if (parentRoute && parentRoute.id === route.parentId) {
+      // 子目录
+      if (route.type === 1) {
+        // 已经是菜单了，中断递归
+        const component = routerMap[route.viewPath]
+        if (component) {
+          realRoute = {
+            path: route.router,
+            name: toHump(route.viewPath),
+            meta: {
+              title: route.name,
+              icon: route.icon
+            },
+            component
+          }
         }
-        res.push(realRoute)
+      } else if (route.type === 0) {
+        // 如果还是目录，继续递归
+        const childRoute = filterAsyncRoutes(routes, route)
+        if (childRoute && childRoute.length > 0) {
+          realRoute = {
+            path: route.router,
+            meta: {
+              title: route.name,
+              icon: route.icon
+            },
+            children: childRoute,
+            component: PlaceHolder
+          }
+        }
       }
     }
+    if (realRoute) {
+      res.push({ ...realRoute })
+    }
   })
+  console.log(res)
   return res
 }
 
-const routerMap = {
+export const routerMap = {
   'views/dashboard/index': () => import('@/views/dashboard/index'),
-  'views/excel/export-excel': () => import('@/views/dashboard/index'),
+  'views/excel/export-excel': () => import('@/views/excel/export-excel'),
   'views/documentation/index': () => import('@/views/documentation/index')
 }
 
@@ -103,7 +133,7 @@ const actions = {
   generateRoutes({ commit }, menus) {
     return new Promise(resolve => {
       // 转换
-      const accessedRoutes = filterAsyncRoutes(menus)
+      const accessedRoutes = filterAsyncRoutes(menus, null)
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)
     })

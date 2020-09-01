@@ -395,12 +395,17 @@ export const asyncRoutes = [
 ]
 
 const createRouter = () => new Router({
-  // mode: 'history', // require service support
+  mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })
 
 const router = createRouter()
+
+/**
+ * 404 page must be placed at the end !!!
+ */
+export const NotFoundRoute = { path: '*', redirect: '/404', hidden: true }
 
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
