@@ -61,8 +61,10 @@ function filterAsyncRoutes(routes, parentRoute) {
       // 根目录
       const childRoute = filterAsyncRoutes(routes, route)
       if (childRoute && childRoute.length > 0) {
+        const redirect = childRoute[0].path
         realRoute = {
           path: route.router,
+          redirect,
           component: Layout,
           children: childRoute,
           meta: {
@@ -90,9 +92,11 @@ function filterAsyncRoutes(routes, parentRoute) {
       } else if (route.type === 0) {
         // 如果还是目录，继续递归
         const childRoute = filterAsyncRoutes(routes, route)
+        const redirect = childRoute[0].path
         if (childRoute && childRoute.length > 0) {
           realRoute = {
             path: route.router,
+            redirect,
             meta: {
               title: route.name,
               icon: route.icon
