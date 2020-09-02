@@ -12,111 +12,137 @@
     </div>
     <div class="menu-content">
       <el-table
-        :data="tableData"
+        :data="menuData"
         size="small"
-        style="width: 100%;margin-bottom: 20px;"
-        :highlight-current-row="true"
+        style="width: 100%;"
         row-key="id"
         border
-        default-expand-all
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
       >
-        <el-table-column prop="date" label="名称" width="140" />
-        <el-table-column prop="name" label="图标" width="80" align="center" />
-        <el-table-column prop="address" label="类型" width="80" align="center" />
-        <el-table-column prop="address" label="节点路由" align="center" />
-        <el-table-column prop="address" label="路由缓存" width="120" align="center" />
-        <el-table-column prop="address" label="文件路径" align="center" />
-        <el-table-column prop="address" label="权限" width="120" align="center" />
-        <el-table-column prop="address" label="排序号" width="80" align="center" />
-        <el-table-column prop="address" label="更新时间" width="140" align="center" />
-        <el-table-column prop="address" label="操作" width="140" align="center" />
+        <el-table-column prop="name" label="名称" width="240">
+          <template slot-scope="scope">
+            <span style="margin-right: 16px">{{ scope.row.name }}</span>
+            <el-tag
+              v-if="!scope.row.isShow && scope.row.type !== 2"
+              type="danger"
+              effect="dark"
+              size="small"
+            >隐藏</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="icon" label="图标" width="80" align="center">
+          <template slot-scope="scope">
+            <svg-icon v-if="scope.row.icon" :icon-class="scope.row.icon" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="type" label="类型" width="80" align="center">
+          <template slot-scope="scope">
+            <el-tag effect="dark">{{ getMenuType(scope.row.type) }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="router" label="节点路由" align="center" width="240" />
+        <el-table-column prop="keepalive" label="路由缓存" width="80" align="center">
+          <template slot-scope="scope">
+            <i v-if="scope.row.keepalive && scope.row.type === 1" class="el-icon-check" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="viewPath" label="文件路径" align="center" width="240" />
+        <el-table-column prop="perms" label="权限" header-align="center">
+          <template slot-scope="scope">
+            <span v-for="i in splitPerms(scope.row.perms)" :key="i" class="perms">{{ i }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="orderNum" label="排序号" width="80" align="center" />
+        <el-table-column prop="updateTime" label="更新时间" width="200" align="center" />
+        <el-table-column prop="address" label="操作" width="160" align="center">
+          <template slot-scope="scope">
+            <el-button size="small" type="text" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button size="small" type="text" @click="handleDelete(scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
   </div>
 </template>
 
 <script>
+
+/**
+ * 处理菜单数据
+ */
+function filterMenu(menus, parentMenu) {
+  const res = []
+  menus.forEach(menu => {
+    // 根级别菜单渲染
+    let realMenu
+    if (!parentMenu && !menu.parentId && menu.type === 1) {
+      // 根菜单
+      realMenu = { ...menu }
+    } else if (!parentMenu && !menu.parentId && menu.type === 0) {
+      // 根目录
+      const childMenu = filterMenu(menus, menu)
+      realMenu = { ...menu }
+      realMenu.children = childMenu
+    } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 1) {
+      // 子菜单下继续找是否有子菜单
+      const childMenu = filterMenu(menus, menu)
+      realMenu = { ...menu }
+      realMenu.children = childMenu
+    } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 0) {
+      // 如果还是目录，继续递归
+      const childMenu = filterMenu(menus, menu)
+      realMenu = { ...menu }
+      realMenu.children = childMenu
+    } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 2) {
+      realMenu = { ...menu }
+    }
+    // add curent route
+    if (realMenu) {
+      res.push(realMenu)
+    }
+  })
+  return res
+}
+
 export default {
   name: 'SystemPermissionMenu',
   data() {
     return {
-      tableData: [{
-        id: 1,
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        id: 2,
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        id: 3,
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄',
-        children: [{
-          id: 31,
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-          id: 32,
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        }]
-      }, {
-        id: 4,
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }],
-      tableData1: [{
-        id: 1,
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        id: 2,
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        id: 3,
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄',
-        hasChildren: true
-      }, {
-        id: 4,
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }]
+      menuData: []
     }
   },
   created() {
-    // console.log(this.$service.sys.menu.list())
+    this.list()
   },
   methods: {
-    load(tree, treeNode, resolve) {
-      setTimeout(() => {
-        resolve([
-          {
-            id: 31,
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-          }, {
-            id: 32,
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-          }
-        ])
-      }, 1000)
+    async list() {
+      const { data } = await this.$service.sys.menu.list()
+      this.menuData = filterMenu(data, null)
+    },
+    getMenuType(type) {
+      switch (type) {
+        case 0:
+          return '目录'
+        case 1:
+          return '菜单'
+        case 2:
+          return '权限'
+      }
+    },
+    splitPerms(perms) {
+      if (perms) {
+        const permsArray = perms.split(',')
+        if (permsArray && permsArray.length > 0) {
+          return permsArray
+        }
+      }
+      return []
+    },
+    handleEdit(item) {
+      // edit
+    },
+    handleDelete(item) {
+      // delete
     }
   }
 }
@@ -132,9 +158,21 @@ export default {
 
   .menu-content {
     th {
-      background-color: #ebeef4;
+      background-color: #ebeef4; //#5f6266
+    }
+    .perms {
+      display: inline-block;
+      background-color: #1890ff;
+      margin-right: 2px;
+      line-height: 18px;
+      padding-left: 8px;
+      padding-right: 8px;
+      border-radius: 14px;
+      color: white;
+      word-wrap: break-word;
+      word-break: break-all;
+      overflow: hidden;
     }
   }
-
 }
 </style>

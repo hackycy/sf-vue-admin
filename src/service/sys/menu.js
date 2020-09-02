@@ -10,6 +10,15 @@ class SysMenuService {
       method: 'get'
     })
   }
+
+  @Permission('update')
+  update(data) {
+    return request({
+      url: '/sys/menu/update',
+      method: 'post',
+      data: data
+    })
+  }
 }
 
 export default SysMenuService
