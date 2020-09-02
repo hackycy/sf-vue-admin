@@ -47,9 +47,9 @@
           </template>
         </el-table-column>
         <el-table-column prop="viewPath" label="文件路径" align="center" width="240" />
-        <el-table-column prop="perms" label="权限" header-align="center">
+        <el-table-column prop="perms" label="权限" header-align="center" width="240">
           <template slot-scope="scope">
-            <span v-for="i in splitPerms(scope.row.perms)" :key="i" class="perms">{{ i }}</span>
+            <el-tag v-for="i in splitPerms(scope.row.perms)" :key="i" effect="dark" class="tag-perm-item">{{ i }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="orderNum" label="排序号" width="80" align="center" />
@@ -160,18 +160,8 @@ export default {
     th {
       background-color: #ebeef4; //#5f6266
     }
-    .perms {
-      display: inline-block;
-      background-color: #1890ff;
-      margin-right: 2px;
-      line-height: 18px;
-      padding-left: 8px;
-      padding-right: 8px;
-      border-radius: 14px;
-      color: white;
-      word-wrap: break-word;
-      word-break: break-all;
-      overflow: hidden;
+    .tag-perm-item {
+      margin-right: 4px;
     }
   }
 }
