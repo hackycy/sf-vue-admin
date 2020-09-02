@@ -20,9 +20,13 @@ import './utils/error-log' // error log
 
 import * as filters from './filters' // global filters
 
+import ServiceRegisterPlugin from './decorator/service'
+
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium' // set element-ui default size
 })
+
+Vue.use(ServiceRegisterPlugin, { store })
 
 // register global utility filters
 Object.keys(filters).forEach(key => {

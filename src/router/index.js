@@ -112,7 +112,7 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/profile/index'),
         name: 'Profile',
-        meta: { title: 'Profile', icon: 'user', noCache: true }
+        meta: { title: '个人资料', icon: 'user', noCache: true }
       }
     ]
   }
@@ -131,7 +131,8 @@ export const constantRoutes = [
 export const asyncRoutesMap = {
   'views/dashboard/index': () => import('@/views/dashboard/index'),
   'views/excel/export-excel': () => import('@/views/excel/export-excel'),
-  'views/documentation/index': () => import('@/views/documentation/index')
+  'views/documentation/index': () => import('@/views/documentation/index'),
+  'views/system/permission/menu': () => import('@/views/system/permission/menu')
 }
 
 const createRouter = () => new Router({
