@@ -1,9 +1,8 @@
-import { Service, Permission } from '@/decorator/service'
+import { Permission } from '@/decorator/service'
 import request from '@/utils/request'
 
-@Service('sys/menu')
 class SysMenuService {
-  @Permission('list')
+  @Permission('sys/menu/list')
   list() {
     return request({
       url: '/sys/menu/list',
@@ -11,7 +10,7 @@ class SysMenuService {
     })
   }
 
-  @Permission('update')
+  @Permission('sys/menu/update')
   update(data) {
     return request({
       url: '/sys/menu/update',

@@ -1,17 +1,12 @@
 <template>
   <div class="menu-container">
     <div class="menu-header">
-      <el-row type="flex">
-        <el-col :span="1">
-          <el-button size="small">刷新</el-button>
-        </el-col>
-        <el-col :span="1">
-          <el-button size="small" type="primary">新增</el-button>
-        </el-col>
-      </el-row>
+      <el-button size="mini" @click="handleRefresh">刷新</el-button>
+      <el-button size="mini" type="primary" @click="handleAdd">新增</el-button>
     </div>
     <div class="menu-content">
       <el-table
+        v-loading="isLoading"
         :data="menuData"
         size="small"
         style="width: 100%;"
@@ -47,30 +42,165 @@
           </template>
         </el-table-column>
         <el-table-column prop="viewPath" label="文件路径" align="center" width="240" />
-        <el-table-column prop="perms" label="权限" header-align="center" width="240">
+        <el-table-column prop="perms" label="权限" header-align="center" width="280">
           <template slot-scope="scope">
-            <el-tag v-for="i in splitPerms(scope.row.perms)" :key="i" effect="dark" size="mini" class="tag-perm-item">{{ i }}</el-tag>
+            <el-tag
+              v-for="i in splitPerms(scope.row.perms)"
+              :key="i"
+              effect="dark"
+              size="mini"
+              class="tag-perm-item"
+            >{{ i }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="orderNum" label="排序号" width="80" align="center" />
-        <el-table-column prop="updateTime" label="更新时间" width="200" align="center" />
-        <el-table-column prop="address" label="操作" width="160" align="center">
+        <el-table-column prop="updateTime" label="更新时间" width="180" align="center" />
+        <el-table-column prop="address" label="操作" width="150" align="center" fixed="right">
           <template slot-scope="scope">
-            <el-button size="small" type="text" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button size="small" type="text" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button size="mini" type="text" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button size="mini" type="text" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
+    <!-- dialog -->
+    <el-dialog
+      title="新增"
+      :visible.sync="editerDialogVisible"
+      center
+      size="mini"
+      custom-class="adder-dialog"
+    >
+      <el-form ref="menuForm" v-model="menuForm" :rules="getMenuTypeRulues()">
+        <el-form-item label="菜单类型" label-width="80px">
+          <el-radio-group v-model="menuForm.type" @change="handleMenuTypeChange">
+            <el-radio :label="0">目录</el-radio>
+            <el-radio :label="1">菜单</el-radio>
+            <el-radio :label="2">权限</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="节点名称" label-width="80px" prop="name">
+          <el-input v-model="menuForm.name" placeholder="请输入节点名称" />
+        </el-form-item>
+        <el-form-item label="上级节点" label-width="80px" prop="parentNodeName">
+          <el-popover placement="bottom-start" width="500">
+            <el-tree
+              :data="menuTree.data"
+              :props="menuTree.props"
+              @node-click="handleMenuNodeClick"
+            />
+            <el-input
+              slot="reference"
+              v-model="menuForm.parentNodeName"
+              placeholder="请选择上级节点"
+              readonly
+            />
+          </el-popover>
+        </el-form-item>
+        <el-form-item v-if="currentMenuType !== 2" label="节点路由" label-width="80px" prop="router">
+          <el-input v-model="menuForm.router" placeholder="请输入节点路由" />
+        </el-form-item>
+        <el-form-item v-if="currentMenuType === 2" label="权限" label-width="80px" prop="perms">
+          <el-cascader
+            v-model="menuForm.perms"
+            separator=":"
+            style="width: 100%;"
+            :options="perms.options"
+            :props="perms.props"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item v-if="currentMenuType !== 2" label="节点图标" label-width="80px" prop="icon">
+          <el-select v-model="menuForm.icon" placeholder="请选择图标" style="width: 100%;">
+            <el-option v-for="item in svgIcons" :key="item" :label="item" :value="item">
+              <span style="float: left; font-size: 16px; color: #444444;">
+                <svg-icon :icon-class="item" class-name="select-icon" />
+              </span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{ item }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="currentMenuType === 1" label="文件路径" label-width="80px" prop="viewPath">
+          <el-select v-model="menuForm.viewPath" placeholder="请选择文件路径" style="width: 100%;">
+            <el-option v-for="item in viewFiles" :key="item" :label="item" :value="item" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="currentMenuType !== 2" label="是否显示" label-width="80px">
+          <el-switch v-model="menuForm.isShow" />
+        </el-form-item>
+        <el-form-item v-if="currentMenuType === 1" label="开启缓存" label-width="80px">
+          <el-switch v-model="menuForm.keepalive" />
+        </el-form-item>
+        <el-form-item label="排序号" label-width="80px">
+          <el-input-number
+            v-model="menuForm.orderNum"
+            controls-position="right"
+            :min="0"
+            style="width: 100%;"
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-row type="flex" justify="end">
+          <el-button size="mini" @click="editerDialogVisible = false">取消</el-button>
+          <el-button type="primary" size="mini" @click="handleSaveMenu">保存</el-button>
+        </el-row>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import * as _ from 'lodash'
+import svgIcons from './svg-icons'
+import viewFiles from './view-path'
 
 /**
- * 处理菜单数据
+ * 遍历获取$service下定义的权限，需要权限的Api必须定义Service且需要使用@Permission定义权限
  */
-function filterMenu(menus, parentMenu) {
+function flatPerms(obj) {
+  let list = []
+  _.keys(obj).forEach(i => {
+    const { permission } = obj[i]
+    if (permission) {
+      list = _.concat(list, [Object.values(permission)].flat())
+    } else {
+      const tmp = flatPerms(obj[i])
+      if (tmp && tmp.length > 0) {
+        list = _.concat(list, flatPerms(obj[i]))
+      }
+    }
+  })
+  return list
+}
+
+/**
+ * 处理权限
+ */
+function filterPerms(index, arr, op) {
+  const key = arr[index]
+  const i = _.findIndex(op, (e) => e.label === key)
+  if (i >= 0) {
+    // 存在则继续遍历
+    filterPerms(index + 1, arr, op[i].children)
+  } else {
+    const isLast = index === arr.length - 1 // 是否为最后一个
+    const value = {
+      value: key,
+      label: key,
+      children: isLast ? null : []
+    }
+    op.push(value)
+    if (!isLast) {
+      filterPerms(index + 1, arr, op[op.length - 1].children || [])
+    }
+  }
+}
+
+/**
+ * 处理菜单数据渲染至表格
+ */
+function filterMenuToTable(menus, parentMenu) {
   const res = []
   menus.forEach(menu => {
     // 根级别菜单渲染
@@ -80,17 +210,17 @@ function filterMenu(menus, parentMenu) {
       realMenu = { ...menu }
     } else if (!parentMenu && !menu.parentId && menu.type === 0) {
       // 根目录
-      const childMenu = filterMenu(menus, menu)
+      const childMenu = filterMenuToTable(menus, menu)
       realMenu = { ...menu }
       realMenu.children = childMenu
     } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 1) {
       // 子菜单下继续找是否有子菜单
-      const childMenu = filterMenu(menus, menu)
+      const childMenu = filterMenuToTable(menus, menu)
       realMenu = { ...menu }
       realMenu.children = childMenu
     } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 0) {
       // 如果还是目录，继续递归
-      const childMenu = filterMenu(menus, menu)
+      const childMenu = filterMenuToTable(menus, menu)
       realMenu = { ...menu }
       realMenu.children = childMenu
     } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 2) {
@@ -98,7 +228,48 @@ function filterMenu(menus, parentMenu) {
     }
     // add curent route
     if (realMenu) {
+      realMenu.mid = menu.id
       res.push(realMenu)
+    }
+  })
+  return res
+}
+
+/**
+ * 渲染菜单至树形控件
+ */
+function filterMenuToTree(menus, parentMenu) {
+  const res = []
+  menus.forEach(menu => {
+    let node
+    if (menu.type === 2) {
+      // 权限直接return
+      return
+    }
+    if (!parentMenu && !menu.parentId && menu.type === 1) {
+      // 根菜单
+      node = { label: menu.name }
+    } else if (!parentMenu && !menu.parentId && menu.type === 0) {
+      // 根目录
+      const childNode = filterMenuToTree(menus, menu)
+      if (childNode && childNode.length > 0) {
+        node = { label: menu.name }
+        node.children = childNode
+      }
+    } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 1) {
+      // 子菜单则停止
+      node = { label: menu.name }
+    } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 0) {
+      // 如果还是目录，继续递归
+      const childNode = filterMenuToTree(menus, menu)
+      if (childNode && childNode.length > 0) {
+        node = { label: menu.name }
+        node.children = childNode
+      }
+    }
+
+    if (node) {
+      res.push(node)
     }
   })
   return res
@@ -108,16 +279,82 @@ export default {
   name: 'SystemPermissionMenu',
   data() {
     return {
-      menuData: []
+      isLoading: true,
+      svgIcons,
+      viewFiles,
+      menuData: [],
+      editerDialogVisible: false,
+      menuForm: {
+        type: 0,
+        name: '',
+        parentId: null,
+        parentNodeName: '',
+        router: '',
+        perms: '',
+        icon: '',
+        orderNum: 0,
+        viewPath: '',
+        isShow: true,
+        keepalive: true
+      },
+      menuFormRules: {
+        catalog: {
+          name: [{ required: true, message: '请输入节点名称', trigger: 'blur' }],
+          router: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
+          parentNodeName: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
+          icon: [{ required: true, message: '请选择图标', trigger: 'blur' }]
+        },
+        menu: {
+          name: [{ required: true, message: '请输入节点名称', trigger: 'blur' }],
+          router: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
+          parentNodeName: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
+          icon: [{ required: true, message: '请选择图标', trigger: 'blur' }],
+          viewPath: [{ required: true, message: '请选择文件地址', trigger: 'blur' }]
+        },
+        perm: {
+          parentNodeName: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
+          name: [{ required: true, message: '请输入节点名称', trigger: 'blur' }],
+          perms: [{ required: true, message: '请选择权限', trigger: 'blur' }]
+        }
+      },
+      currentMenuType: 0,
+      formLabelWidth: '120px',
+      perms: {
+        // 权限
+        props: { multiple: true },
+        options: []
+      },
+      menuTree: {
+        data: [],
+        props: {
+          children: 'children',
+          label: 'label'
+        }
+      }
     }
   },
   created() {
     this.list()
+    this.initPerms()
   },
   methods: {
+    // 初始化权限数据
+    initPerms() {
+      const options = []
+      flatPerms(this.$service).filter((e) => e.includes(':'))
+        .map(e => e.split(':'))
+        .forEach(arr => {
+          filterPerms(0, arr, options)
+        })
+      this.perms.options = options
+    },
     async list() {
       const { data } = await this.$service.sys.menu.list()
-      this.menuData = filterMenu(data, null)
+      this.menuData = filterMenuToTable(data, null)
+      const parentNode = { mid: -1, label: '一级菜单' }
+      parentNode.children = filterMenuToTree(data, null)
+      this.menuTree.data.push(parentNode)
+      this.isLoading = false
     },
     getMenuType(type) {
       switch (type) {
@@ -129,6 +366,16 @@ export default {
           return '权限'
       }
     },
+    getMenuTypeRulues() {
+      switch (this.currentMenuType) {
+        case 0:
+          return this.menuFormRules.catalog
+        case 1:
+          return this.menuFormRules.menu
+        case 2:
+          return this.menuFormRules.perm
+      }
+    },
     splitPerms(perms) {
       if (perms) {
         const permsArray = perms.split(',')
@@ -138,11 +385,30 @@ export default {
       }
       return []
     },
+    handleMenuTypeChange(label) {
+      this.currentMenuType = label
+    },
+    handleMenuNodeClick(data) {
+      this.menuForm.parentId = data.mid
+      this.menuForm.parentNodeName = data.label
+    },
     handleEdit(item) {
       // edit
     },
     handleDelete(item) {
       // delete
+    },
+    handleRefresh(event) {
+      this.isLoading = true
+      this.menuTree.data = []
+      this.menuData = []
+      this.list()
+    },
+    handleAdd(event) {
+      this.editerDialogVisible = true
+    },
+    handleSaveMenu() {
+      //
     }
   }
 }
@@ -153,7 +419,7 @@ export default {
   padding: 15px;
 
   .menu-header {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
   }
 
   .menu-content {
@@ -162,6 +428,15 @@ export default {
     }
     .tag-perm-item {
       margin-right: 4px;
+    }
+  }
+
+  .adder-dialog {
+    padding-left: 10px;
+    padding-right: 10px;
+
+    .select-icon {
+      font-size: 100px;
     }
   }
 }

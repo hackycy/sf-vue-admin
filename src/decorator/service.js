@@ -1,5 +1,6 @@
 /* eslint-disable new-cap */
 import path from 'path'
+
 /**
  * url权限注册
  * @param {String} value info
@@ -9,26 +10,26 @@ export function Permission(value) {
     if (!target.permission) {
       target.permission = {}
     }
-    target.permission[key] = `${target.namespace ? target.namespace + '/' : ''}${value}`.replace('/', ':')
+    target.permission[key] = value.replaceAll('/', ':')
     return descriptor
   }
 }
 
-/**
- * 命名空间前缀注册
- * @param {*} value 命名空间
- */
-export function Service(value) {
-  return function(target) {
-    // 命名
-    if (typeof value === 'string') {
-      target.prototype.namespace = value
-    } else if (value.prototype.toString.call() === '[object Object]') {
-      const { namespace } = value
-      target.prototype.namespace = namespace
-    }
-  }
-}
+// /**
+//  * 命名空间前缀注册
+//  * @param {*} value 命名空间
+//  */
+// export function Service(value) {
+//   return function(target) {
+//     // 命名
+//     if (typeof value === 'string') {
+//       target.prototype.namespace = value
+//     } else if (value.prototype.toString.call() === '[object Object]') {
+//       const { namespace } = value
+//       target.prototype.namespace = namespace
+//     }
+//   }
+// }
 
 export default class ServiceRegisterPlugin { }
 
@@ -56,8 +57,6 @@ ServiceRegisterPlugin.install = function(Vue, options) {
       const list = e.substr(2).split('/')
       const parents = list.slice(0, list.length - 1)
       const name = path.basename(e, '.js')
-
-      console.log(parents)
 
       let curr = modules
       let prev = null
