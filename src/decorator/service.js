@@ -10,7 +10,7 @@ export function Permission(value) {
     if (!target.permission) {
       target.permission = {}
     }
-    target.permission[key] = value.replaceAll('/', ':')
+    target.permission[key] = value.replace(/\//g, ':')
     return descriptor
   }
 }
