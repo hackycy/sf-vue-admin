@@ -301,14 +301,12 @@ export default {
         catalog: {
           name: [{ required: true, message: '请输入节点名称', trigger: 'blur' }],
           router: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
-          parentNodeName: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
-          icon: [{ required: true, message: '请选择图标', trigger: 'blur' }]
+          parentNodeName: [{ required: true, message: '请输入节点路由', trigger: 'blur' }]
         },
         menu: {
           name: [{ required: true, message: '请输入节点名称', trigger: 'blur' }],
           router: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
           parentNodeName: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
-          icon: [{ required: true, message: '请选择图标', trigger: 'blur' }],
           viewPath: [{ required: true, message: '请选择文件地址', trigger: 'blur' }]
         },
         perm: {
