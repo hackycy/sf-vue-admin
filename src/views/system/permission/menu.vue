@@ -49,7 +49,7 @@
         <el-table-column prop="viewPath" label="文件路径" align="center" width="240" />
         <el-table-column prop="perms" label="权限" header-align="center" width="240">
           <template slot-scope="scope">
-            <el-tag v-for="i in splitPerms(scope.row.perms)" :key="i" effect="dark" class="tag-perm-item">{{ i }}</el-tag>
+            <el-tag v-for="i in splitPerms(scope.row.perms)" :key="i" effect="dark" size="mini" class="tag-perm-item">{{ i }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="orderNum" label="排序号" width="80" align="center" />
