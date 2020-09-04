@@ -71,7 +71,6 @@
       :visible.sync="editerDialogVisible"
       center
       size="mini"
-      custom-class="adder-dialog"
       @closed="handleDialogClosed"
     >
       <el-form
@@ -519,7 +518,7 @@ export default {
               this.list()
               this.editerDialogVisible = false
               this.$message({
-                message: '添加成功',
+                message: '保存成功',
                 type: 'success'
               })
             }
@@ -538,7 +537,7 @@ export default {
 }
 </script>
 
-<style lang='scss'>
+<style lang="scss" scoped>
 .menu-container {
   padding: 15px;
 
@@ -555,13 +554,8 @@ export default {
     }
   }
 
-  .adder-dialog {
-    padding-left: 10px;
-    padding-right: 10px;
-
-    .select-icon {
-      font-size: 100px;
-    }
+  .select-icon {
+    font-size: 100px;
   }
 }
 </style>
