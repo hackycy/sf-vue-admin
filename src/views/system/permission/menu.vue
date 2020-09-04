@@ -10,6 +10,7 @@
         :data="menuData"
         size="small"
         style="width: 100%;"
+        :header-cell-style="{ backgroundColor: '#ebeef4' }"
         row-key="id"
         border
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
@@ -25,7 +26,7 @@
             >隐藏</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="icon" label="图标" width="80" align="center">
+        <el-table-column prop="icon" label="图标" width="60" align="center">
           <template slot-scope="scope">
             <svg-icon v-if="scope.row.icon" :icon-class="scope.row.icon" />
           </template>
@@ -546,9 +547,6 @@ export default {
   }
 
   .menu-content {
-    th {
-      background-color: #ebeef4; //#5f6266
-    }
     .tag-perm-item {
       margin-right: 4px;
     }
