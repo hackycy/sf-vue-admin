@@ -1,5 +1,10 @@
 <template>
-  <div class="role-container">角色管理</div>
+  <div class="role-container">
+    <div class="role-header">
+      <el-button size="mini" @click="handleRefresh">刷新</el-button>
+      <el-button size="mini" type="primary" @click="handleAdd">新增</el-button>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -10,6 +15,11 @@ export default {
 
 <style lang="scss" scoped>
 .role-container {
-  padding: 20px;
+  padding: 15px;
+
+  .role-header {
+    margin-bottom: 15px;
+  }
+
 }
 </style>
