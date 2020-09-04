@@ -32,7 +32,7 @@
         </el-table-column>
         <el-table-column prop="type" label="类型" width="80" align="center">
           <template slot-scope="scope">
-            <el-tag effect="dark">{{ getMenuType(scope.row.type) }}</el-tag>
+            <el-tag type="small" effect="dark">{{ getMenuType(scope.row.type) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="router" label="节点路由" align="center" width="240" />
@@ -41,8 +41,8 @@
             <i v-if="scope.row.keepalive && scope.row.type === 1" class="el-icon-check" />
           </template>
         </el-table-column>
-        <el-table-column prop="viewPath" label="文件路径" align="center" width="240" />
-        <el-table-column prop="perms" label="权限" header-align="center" width="280">
+        <el-table-column prop="viewPath" label="文件路径" align="center" width="280" />
+        <el-table-column prop="perms" label="权限" header-align="center" width="300">
           <template slot-scope="scope">
             <el-tag
               v-for="i in splitPerms(scope.row.perms)"
@@ -65,13 +65,16 @@
     </div>
     <!-- dialog -->
     <el-dialog
+      :close-on-press-escape="false"
+      :close-on-click-modal="false"
       title="新增"
       :visible.sync="editerDialogVisible"
       center
       size="mini"
       custom-class="adder-dialog"
+      @closed="handleDialogClosed"
     >
-      <el-form ref="menuForm" v-model="menuForm" :rules="getMenuTypeRulues()">
+      <el-form ref="menuForm" :model="menuForm" :rules="getMenuTypeRulues()">
         <el-form-item label="菜单类型" label-width="80px">
           <el-radio-group v-model="menuForm.type" @change="handleMenuTypeChange">
             <el-radio :label="0">目录</el-radio>
@@ -143,7 +146,7 @@
       <div slot="footer">
         <el-row type="flex" justify="end">
           <el-button size="mini" @click="editerDialogVisible = false">取消</el-button>
-          <el-button type="primary" size="mini" @click="handleSaveMenu">保存</el-button>
+          <el-button type="primary" size="mini" :loading="isSaveLoading" @click="handleSaveMenu">保存</el-button>
         </el-row>
       </div>
     </el-dialog>
@@ -228,7 +231,7 @@ function filterMenuToTable(menus, parentMenu) {
     }
     // add curent route
     if (realMenu) {
-      realMenu.mid = menu.id
+      realMenu.pid = menu.id
       res.push(realMenu)
     }
   })
@@ -252,23 +255,20 @@ function filterMenuToTree(menus, parentMenu) {
     } else if (!parentMenu && !menu.parentId && menu.type === 0) {
       // 根目录
       const childNode = filterMenuToTree(menus, menu)
-      if (childNode && childNode.length > 0) {
-        node = { label: menu.name }
-        node.children = childNode
-      }
+      node = { label: menu.name }
+      node.children = childNode
     } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 1) {
       // 子菜单则停止
       node = { label: menu.name }
     } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 0) {
       // 如果还是目录，继续递归
       const childNode = filterMenuToTree(menus, menu)
-      if (childNode && childNode.length > 0) {
-        node = { label: menu.name }
-        node.children = childNode
-      }
+      node = { label: menu.name }
+      node.children = childNode
     }
 
     if (node) {
+      node.pid = menu.id
       res.push(node)
     }
   })
@@ -284,10 +284,11 @@ export default {
       viewFiles,
       menuData: [],
       editerDialogVisible: false,
+      isSaveLoading: false,
       menuForm: {
         type: 0,
         name: '',
-        parentId: null,
+        parentId: -1,
         parentNodeName: '',
         router: '',
         perms: '',
@@ -349,7 +350,7 @@ export default {
     async list() {
       const { data } = await this.$service.sys.menu.list()
       this.menuData = filterMenuToTable(data, null)
-      const parentNode = { mid: -1, label: '一级菜单' }
+      const parentNode = { pid: -1, label: '一级菜单' }
       parentNode.children = filterMenuToTree(data, null)
       this.menuTree.data.push(parentNode)
       this.isLoading = false
@@ -383,11 +384,42 @@ export default {
       }
       return []
     },
+    joinPerms(perms) {
+      if (_.isEmpty(perms)) {
+        return ''
+      }
+      const arr = perms.map(e => {
+        return _.join(e, ':')
+      })
+      return _.join(arr, ',')
+    },
+    refreshMenu() {
+      this.menuTree.data = []
+      this.menuData = []
+      this.list()
+    },
+    resetMenuFormData() {
+      // reset data
+      this.menuForm = {
+        type: 0,
+        name: '',
+        parentId: -1,
+        parentNodeName: '',
+        router: '',
+        perms: '',
+        icon: '',
+        orderNum: 0,
+        viewPath: '',
+        isShow: true,
+        keepalive: true
+      }
+      this.currentMenuType = 0
+    },
     handleMenuTypeChange(label) {
       this.currentMenuType = label
     },
     handleMenuNodeClick(data) {
-      this.menuForm.parentId = data.mid
+      this.menuForm.parentId = data.pid
       this.menuForm.parentNodeName = data.label
     },
     handleEdit(item) {
@@ -396,17 +428,50 @@ export default {
     handleDelete(item) {
       // delete
     },
+
+    handleDialogClosed() {
+      // 重制表单
+      this.resetMenuFormData()
+    },
     handleRefresh(event) {
       this.isLoading = true
-      this.menuTree.data = []
-      this.menuData = []
-      this.list()
+      this.refreshMenu()
     },
     handleAdd(event) {
       this.editerDialogVisible = true
     },
     handleSaveMenu() {
-      //
+      this.$refs.menuForm.validate(async valid => {
+        if (valid) {
+          const postData = { ...this.menuForm }
+          postData.parentId = this.menuForm.parentId
+          delete postData.parentNodeName
+          if (postData.type === 2) {
+            // 处理权限
+            postData.perms = this.joinPerms(postData.perms)
+          }
+          this.isSaveLoading = true
+          try {
+            const { data } = await this.$service.sys.menu.add(postData)
+            this.isSaveLoading = false
+            if (data) {
+              this.list()
+              this.editerDialogVisible = false
+              this.$message({
+                message: '添加成功',
+                type: 'success'
+              })
+            }
+          } catch (e) {
+            this.isSaveLoading = false
+          }
+        } else {
+          this.$message({
+            message: '请正确填写内容',
+            type: 'warning'
+          })
+        }
+      })
     }
   }
 }

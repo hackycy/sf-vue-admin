@@ -15,7 +15,16 @@ class SysMenuService {
     return request({
       url: '/sys/menu/update',
       method: 'post',
-      data: data
+      data
+    })
+  }
+
+  @Permission('sys/menu/add')
+  add(data) {
+    return request({
+      url: '/sys/menu/add',
+      method: 'post',
+      data
     })
   }
 }

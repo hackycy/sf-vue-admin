@@ -1,4 +1,4 @@
-import { constantRoutes, NotFoundRoute, asyncRoutesMap } from '@/router'
+import { constantRoutes, NotFoundRoute } from '@/router'
 import Layout from '@/layout'
 import PlaceHolder from '@/layout/placeholder'
 import { toHump } from '@/utils'
@@ -13,6 +13,7 @@ function filterAsyncRoutes(routes, parentRoute) {
 
   routes.forEach(route => {
     if (route.type === 2 || !route.isShow) {
+      // 如果是权限或隐藏直接跳过
       return
     }
     // 根级别菜单渲染
@@ -22,7 +23,7 @@ function filterAsyncRoutes(routes, parentRoute) {
       // routes.forEach(second)
       // const childrenRoute = filerAsyncChildrenRoutes(routes, route.id)
       // console.log(childrenRoute)
-      const component = asyncRoutesMap[route.viewPath]
+      const component = require(`@/views/${route.viewPath.replace('views/', '')}`).default
       if (component) {
         realRoute = {
           path: route.router,
@@ -41,19 +42,18 @@ function filterAsyncRoutes(routes, parentRoute) {
     } else if (!parentRoute && !route.parentId && route.type === 0) {
       // 根目录
       const childRoutes = filterAsyncRoutes(routes, route)
+      realRoute = {
+        path: route.router,
+        component: Layout,
+        meta: { title: route.name, icon: route.icon }
+      }
       if (childRoutes && childRoutes.length > 0) {
-        const redirect = childRoutes[0].path
-        realRoute = {
-          path: route.router,
-          redirect,
-          component: Layout,
-          children: childRoutes,
-          meta: { title: route.name, icon: route.icon }
-        }
+        realRoute.redirect = childRoutes[0].path
+        realRoute.children = childRoutes
       }
     } else if (parentRoute && parentRoute.id === route.parentId && route.type === 1) {
       // 子菜单
-      const component = asyncRoutesMap[route.viewPath]
+      const component = require(`@/views/${route.viewPath.replace('views/', '')}`).default
       if (component) {
         realRoute = {
           path: route.router,
@@ -69,18 +69,17 @@ function filterAsyncRoutes(routes, parentRoute) {
     } else if (parentRoute && parentRoute.id === route.parentId && route.type === 0) {
       // 如果还是目录，继续递归
       const childRoute = filterAsyncRoutes(routes, route)
+      realRoute = {
+        path: route.router,
+        meta: {
+          title: route.name,
+          icon: route.icon
+        },
+        component: PlaceHolder
+      }
       if (childRoute && childRoute.length > 0) {
-        const redirect = childRoute[0].path
-        realRoute = {
-          path: route.router,
-          redirect,
-          meta: {
-            title: route.name,
-            icon: route.icon
-          },
-          children: childRoute,
-          component: PlaceHolder
-        }
+        realRoute.redirect = childRoute[0].path
+        realRoute.children = childRoute
       }
     }
     // add curent route
