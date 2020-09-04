@@ -68,6 +68,12 @@
       width: 100% !important;
     }
 
+    // 菜单字体大小
+    .el-menu-item,
+    .el-submenu__title {
+      font-size: 12px;
+    }
+
     // menu hover
     .submenu-title-noDropdown,
     .el-submenu__title {
@@ -92,7 +98,7 @@
     & .el-menu-item.is-active {
       background-color: $menuActiveBg !important;
     }
-    
+
 
     & .nest-menu .el-submenu>.el-submenu__title,
     & .el-submenu .el-menu-item {
