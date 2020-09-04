@@ -1,4 +1,4 @@
-import { constantRoutes, NotFoundRoute } from '@/router'
+import { constantRoutes, NotFoundRoute, asyncRoutesMap } from '@/router'
 import Layout from '@/layout'
 import PlaceHolder from '@/layout/placeholder'
 import { toHump } from '@/utils'
@@ -19,11 +19,11 @@ function filterAsyncRoutes(routes, parentRoute) {
     // 根级别菜单渲染
     let realRoute
     if (!parentRoute && !route.parentId && route.type === 1) {
-      // 根目录
+      // 根菜单
       // routes.forEach(second)
       // const childrenRoute = filerAsyncChildrenRoutes(routes, route.id)
       // console.log(childrenRoute)
-      const component = require(`@/views/${route.viewPath.replace('views/', '')}`).default
+      const component = asyncRoutesMap[route.viewPath]
       if (component) {
         realRoute = {
           path: route.router,
@@ -40,7 +40,7 @@ function filterAsyncRoutes(routes, parentRoute) {
         }
       }
     } else if (!parentRoute && !route.parentId && route.type === 0) {
-      // 根目录
+      // 目录
       const childRoutes = filterAsyncRoutes(routes, route)
       realRoute = {
         path: route.router,
@@ -53,7 +53,7 @@ function filterAsyncRoutes(routes, parentRoute) {
       }
     } else if (parentRoute && parentRoute.id === route.parentId && route.type === 1) {
       // 子菜单
-      const component = require(`@/views/${route.viewPath.replace('views/', '')}`).default
+      const component = asyncRoutesMap[route.viewPath]
       if (component) {
         realRoute = {
           path: route.router,

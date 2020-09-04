@@ -67,16 +67,21 @@
     <el-dialog
       :close-on-press-escape="false"
       :close-on-click-modal="false"
-      title="新增"
+      :title="alertTitle"
       :visible.sync="editerDialogVisible"
       center
       size="mini"
       custom-class="adder-dialog"
       @closed="handleDialogClosed"
     >
-      <el-form ref="menuForm" :model="menuForm" :rules="getMenuTypeRulues()">
+      <el-form
+        ref="menuForm"
+        v-loading="isDialogLoading"
+        :model="menuForm"
+        :rules="getMenuTypeRulues()"
+      >
         <el-form-item label="菜单类型" label-width="80px">
-          <el-radio-group v-model="menuForm.type" @change="handleMenuTypeChange">
+          <el-radio-group v-model="menuForm.type">
             <el-radio :label="0">目录</el-radio>
             <el-radio :label="1">菜单</el-radio>
             <el-radio :label="2">权限</el-radio>
@@ -100,10 +105,10 @@
             />
           </el-popover>
         </el-form-item>
-        <el-form-item v-if="currentMenuType !== 2" label="节点路由" label-width="80px" prop="router">
+        <el-form-item v-if="menuForm.type !== 2" label="节点路由" label-width="80px" prop="router">
           <el-input v-model="menuForm.router" placeholder="请输入节点路由" />
         </el-form-item>
-        <el-form-item v-if="currentMenuType === 2" label="权限" label-width="80px" prop="perms">
+        <el-form-item v-if="menuForm.type === 2" label="权限" label-width="80px" prop="perms">
           <el-cascader
             v-model="menuForm.perms"
             separator=":"
@@ -113,7 +118,7 @@
             clearable
           />
         </el-form-item>
-        <el-form-item v-if="currentMenuType !== 2" label="节点图标" label-width="80px" prop="icon">
+        <el-form-item v-if="menuForm.type !== 2" label="节点图标" label-width="80px" prop="icon">
           <el-select v-model="menuForm.icon" placeholder="请选择图标" style="width: 100%;">
             <el-option v-for="item in svgIcons" :key="item" :label="item" :value="item">
               <span style="float: left; font-size: 16px; color: #444444;">
@@ -123,15 +128,15 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item v-if="currentMenuType === 1" label="文件路径" label-width="80px" prop="viewPath">
+        <el-form-item v-if="menuForm.type === 1" label="文件路径" label-width="80px" prop="viewPath">
           <el-select v-model="menuForm.viewPath" placeholder="请选择文件路径" style="width: 100%;">
             <el-option v-for="item in viewFiles" :key="item" :label="item" :value="item" />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="currentMenuType !== 2" label="是否显示" label-width="80px">
+        <el-form-item v-if="menuForm.type !== 2" label="是否显示" label-width="80px">
           <el-switch v-model="menuForm.isShow" />
         </el-form-item>
-        <el-form-item v-if="currentMenuType === 1" label="开启缓存" label-width="80px">
+        <el-form-item v-if="menuForm.type === 1" label="开启缓存" label-width="80px">
           <el-switch v-model="menuForm.keepalive" />
         </el-form-item>
         <el-form-item label="排序号" label-width="80px">
@@ -280,11 +285,13 @@ export default {
   data() {
     return {
       isLoading: true,
+      dialogMode: 0, // 0为新增，1为编辑
       svgIcons,
       viewFiles,
       menuData: [],
       editerDialogVisible: false,
       isSaveLoading: false,
+      isDialogLoading: false,
       menuForm: {
         type: 0,
         name: '',
@@ -316,7 +323,6 @@ export default {
           perms: [{ required: true, message: '请选择权限', trigger: 'blur' }]
         }
       },
-      currentMenuType: 0,
       formLabelWidth: '120px',
       perms: {
         // 权限
@@ -330,6 +336,11 @@ export default {
           label: 'label'
         }
       }
+    }
+  },
+  computed: {
+    alertTitle: function() {
+      return this.dialogMode === 0 ? '新增' : '编辑'
     }
   },
   created() {
@@ -366,7 +377,7 @@ export default {
       }
     },
     getMenuTypeRulues() {
-      switch (this.currentMenuType) {
+      switch (this.menuForm.type) {
         case 0:
           return this.menuFormRules.catalog
         case 1:
@@ -413,23 +424,15 @@ export default {
         isShow: true,
         keepalive: true
       }
-      this.currentMenuType = 0
-    },
-    handleMenuTypeChange(label) {
-      this.currentMenuType = label
     },
     handleMenuNodeClick(data) {
       this.menuForm.parentId = data.pid
       this.menuForm.parentNodeName = data.label
     },
-    handleEdit(item) {
-      // edit
-    },
-    handleDelete(item) {
-      // delete
-    },
-
     handleDialogClosed() {
+      if (this.isDialogLoading) {
+        this.isDialogLoading = false
+      }
       // 重制表单
       this.resetMenuFormData()
     },
@@ -438,7 +441,59 @@ export default {
       this.refreshMenu()
     },
     handleAdd(event) {
+      this.dialogMode = 0
       this.editerDialogVisible = true
+    },
+    async handleEdit(item) {
+      // edit
+      this.dialogMode = 1
+      this.editerDialogVisible = true
+      this.isDialogLoading = true
+      try {
+        const { data } = await this.$service.sys.menu.info({ menuId: item.id })
+        if (data) {
+          const tmp = { ...data }
+          delete tmp.createTime
+          delete tmp.updateTime
+          if (!data.parentId) {
+            tmp.parentId = -1
+          }
+          if (tmp.type === 2) {
+            // 处理权限
+            const arr = this.splitPerms(tmp.perms)
+            tmp.perms = arr.map(e => {
+              return e.split(':')
+            })
+          }
+          tmp.parentNodeName = data.name
+          this.menuForm = { ...tmp }
+          this.isDialogLoading = false
+        }
+      } catch (e) {
+        this.editerDialogVisible = false
+      }
+    },
+    handleDelete(item) {
+      // delete
+      this.$confirm('此操作将永久删除且无法还原, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        const { code } = await this.$service.sys.menu.delete({ menuId: item.id })
+        if (code === 200) {
+          this.$message({
+            type: 'success',
+            message: '删除成功'
+          })
+          this.list()
+        }
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
+        })
+      })
     },
     handleSaveMenu() {
       this.$refs.menuForm.validate(async valid => {
@@ -452,7 +507,13 @@ export default {
           }
           this.isSaveLoading = true
           try {
-            const { data } = await this.$service.sys.menu.add(postData)
+            let res
+            if (this.dialogMode === 1) {
+              res = await this.$service.sys.menu.update(postData)
+            } else if (this.dialogMode === 0) {
+              res = await this.$service.sys.menu.add(postData)
+            }
+            const { data } = res
             this.isSaveLoading = false
             if (data) {
               this.list()

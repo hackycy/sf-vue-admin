@@ -19,10 +19,28 @@ class SysMenuService {
     })
   }
 
+  @Permission('sys/menu/info')
+  info(query) {
+    return request({
+      url: '/sys/menu/info',
+      method: 'get',
+      params: query
+    })
+  }
+
   @Permission('sys/menu/add')
   add(data) {
     return request({
       url: '/sys/menu/add',
+      method: 'post',
+      data
+    })
+  }
+
+  @Permission('sys/menu/delete')
+  delete(data) {
+    return request({
+      url: '/sys/menu/delete',
       method: 'post',
       data
     })

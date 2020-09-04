@@ -118,13 +118,6 @@ export const constantRoutes = [
   }
 ]
 
-// const files = require
-//   .context('@/', true, /^.\/(views).*(vue)/)
-//   .keys()
-//   .map((e) => {
-//     return e.substr(2)
-//   })
-
 /**
  * asyncRoutesMap
  */
@@ -133,7 +126,8 @@ export const asyncRoutesMap = {
   'views/excel/export-excel': () => import('@/views/excel/export-excel'),
   'views/documentation/index': () => import('@/views/documentation/index'),
   'views/system/permission/menu': () => import('@/views/system/permission/menu'),
-  'views/clipboard/index': () => import('@/views/clipboard/index')
+  'views/clipboard/index': () => import('@/views/clipboard/index'),
+  'views/charts/keyboard': () => import('@/views/charts/keyboard')
 }
 
 const createRouter = () => new Router({
