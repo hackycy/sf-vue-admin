@@ -70,9 +70,10 @@
       :close-on-click-modal="false"
       :title="alertTitle"
       :visible.sync="editerDialogVisible"
+      destroy-on-close
       center
       size="mini"
-      @closed="handleDialogClosed"
+      @close="handleDialogClosed"
     >
       <el-form
         ref="menuForm"
@@ -245,7 +246,9 @@ export default {
     },
     async list() {
       const { data } = await this.$service.sys.menu.list()
+      // table data
       this.menuData = filterMenuToTable(data, null)
+      // form tree data
       const parentNode = { pid: -1, label: '一级菜单' }
       parentNode.children = filterMenuToTree(data, null)
       this.menuTree.data.push(parentNode)
@@ -274,7 +277,6 @@ export default {
     splitPerms(perms) {
       if (perms) {
         const permsArray = perms.split(',')
-        console.log(permsArray)
         if (permsArray && permsArray.length > 0) {
           return permsArray
         }
@@ -310,9 +312,9 @@ export default {
         isShow: true,
         keepalive: true
       }
-      if (this.$refs.menuForm) {
-        this.$refs.menuForm.resetFields()
-      }
+      // if (this.$refs.menuForm) {
+      //   this.$refs.menuForm.resetFields()
+      // }
     },
     handleMenuNodeClick(data) {
       this.menuForm.parentId = data.pid
@@ -427,6 +429,7 @@ export default {
             message: '请正确填写内容',
             type: 'warning'
           })
+          return false
         }
       })
     }
