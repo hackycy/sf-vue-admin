@@ -396,6 +396,13 @@ export default {
           }
           this.menuForm = { ...tmp }
           this.isDialogLoading = false
+        } else {
+          this.isDialogLoading = false
+          this.editerDialogVisible = false
+          this.$message({
+            type: 'warning',
+            message: '获取菜单信息失败'
+          })
         }
       } catch (e) {
         this.editerDialogVisible = false
@@ -412,14 +419,12 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(async() => {
-        const { code } = await this.$service.sys.menu.delete({ menuId: item.id })
-        if (code === 200) {
-          this.$message({
-            type: 'success',
-            message: '删除成功'
-          })
-          this.handleRefresh()
-        }
+        await this.$service.sys.menu.delete({ menuId: item.id })
+        this.$message({
+          type: 'success',
+          message: '删除成功'
+        })
+        this.handleRefresh()
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -439,22 +444,18 @@ export default {
           }
           this.isSaveLoading = true
           try {
-            let res
             if (this.dialogMode === 1) {
-              res = await this.$service.sys.menu.update(postData)
+              await this.$service.sys.menu.update(postData)
             } else if (this.dialogMode === 0) {
-              res = await this.$service.sys.menu.add(postData)
+              await this.$service.sys.menu.add(postData)
             }
-            const { data } = res
             this.isSaveLoading = false
-            if (data) {
-              this.handleRefresh()
-              this.editerDialogVisible = false
-              this.$message({
-                message: '保存成功',
-                type: 'success'
-              })
-            }
+            this.handleRefresh()
+            this.editerDialogVisible = false
+            this.$message({
+              message: '保存成功',
+              type: 'success'
+            })
           } catch (e) {
             this.isSaveLoading = false
           }
