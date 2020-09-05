@@ -257,7 +257,7 @@ export default {
     }
   },
   created() {
-    this.list()
+    this.handleRefresh()
     this.initPerms()
   },
   methods: {
@@ -418,7 +418,7 @@ export default {
             type: 'success',
             message: '删除成功'
           })
-          this.list()
+          this.handleRefresh()
         }
       }).catch(() => {
         this.$message({
