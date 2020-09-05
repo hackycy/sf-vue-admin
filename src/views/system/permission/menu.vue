@@ -389,6 +389,7 @@ export default {
     splitPerms(perms) {
       if (perms) {
         const permsArray = perms.split(',')
+        console.log(permsArray)
         if (permsArray && permsArray.length > 0) {
           return permsArray
         }
@@ -424,6 +425,9 @@ export default {
         isShow: true,
         keepalive: true
       }
+      if (this.$refs.menuForm) {
+        this.$refs.menuForm.resetFields()
+      }
     },
     handleMenuNodeClick(data) {
       this.menuForm.parentId = data.pid
@@ -452,11 +456,15 @@ export default {
       try {
         const { data } = await this.$service.sys.menu.info({ menuId: item.id })
         if (data) {
-          const tmp = { ...data }
+          const { menu, parentMenu } = data
+          const tmp = { ...menu }
           delete tmp.createTime
           delete tmp.updateTime
-          if (!data.parentId) {
+          if (!parentMenu) {
             tmp.parentId = -1
+            tmp.parentNodeName = '一级菜单'
+          } else {
+            tmp.parentNodeName = parentMenu.name
           }
           if (tmp.type === 2) {
             // 处理权限
@@ -465,12 +473,15 @@ export default {
               return e.split(':')
             })
           }
-          tmp.parentNodeName = data.name
           this.menuForm = { ...tmp }
           this.isDialogLoading = false
         }
       } catch (e) {
         this.editerDialogVisible = false
+        this.$message({
+          type: 'warning',
+          message: '获取菜单信息失败'
+        })
       }
     },
     handleDelete(item) {
