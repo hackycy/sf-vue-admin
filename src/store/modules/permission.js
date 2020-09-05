@@ -2,6 +2,7 @@ import { constantRoutes, NotFoundRoute, asyncRoutesMap } from '@/router'
 import Layout from '@/layout'
 import PlaceHolder from '@/layout/placeholder'
 import { toHump } from '@/utils'
+import { validURL } from '@/utils/validate'
 
 /**
  * Filter asynchronous routing tables by recursion
@@ -20,23 +21,24 @@ function filterAsyncRoutes(routes, parentRoute) {
     let realRoute
     if (!parentRoute && !route.parentId && route.type === 1) {
       // 根菜单
-      // routes.forEach(second)
-      // const childrenRoute = filerAsyncChildrenRoutes(routes, route.id)
-      // console.log(childrenRoute)
-      const component = asyncRoutesMap[route.viewPath]
-      if (component) {
-        realRoute = {
-          path: route.router,
-          redirect: `${route.router}/index`,
-          component: Layout,
-          children: [
-            {
-              path: 'index',
-              name: toHump(route.viewPath),
-              component,
-              meta: { title: route.name, icon: route.icon, noCache: !route.keepalive }
-            }
-          ]
+      if (validURL(route.router)) {
+        realRoute = getExternalLinkRoute(route.router, route.name, route.icon)
+      } else {
+        const component = asyncRoutesMap[route.viewPath]
+        if (component) {
+          realRoute = {
+            path: route.router,
+            redirect: `${route.router}/index`,
+            component: Layout,
+            children: [
+              {
+                path: 'index',
+                name: toHump(route.viewPath),
+                component,
+                meta: { title: route.name, icon: route.icon, noCache: !route.keepalive }
+              }
+            ]
+          }
         }
       }
     } else if (!parentRoute && !route.parentId && route.type === 0) {
@@ -53,17 +55,21 @@ function filterAsyncRoutes(routes, parentRoute) {
       }
     } else if (parentRoute && parentRoute.id === route.parentId && route.type === 1) {
       // 子菜单
-      const component = asyncRoutesMap[route.viewPath]
-      if (component) {
-        realRoute = {
-          path: route.router,
-          name: toHump(route.viewPath),
-          meta: {
-            title: route.name,
-            icon: route.icon,
-            noCache: !route.keepalive
-          },
-          component
+      if (validURL(route.router)) {
+        realRoute = getExternalLinkRoute(route.router, route.name, route.icon)
+      } else {
+        const component = asyncRoutesMap[route.viewPath]
+        if (component) {
+          realRoute = {
+            path: route.router,
+            name: toHump(route.viewPath),
+            meta: {
+              title: route.name,
+              icon: route.icon,
+              noCache: !route.keepalive
+            },
+            component
+          }
         }
       }
     } else if (parentRoute && parentRoute.id === route.parentId && route.type === 0) {
@@ -88,6 +94,22 @@ function filterAsyncRoutes(routes, parentRoute) {
     }
   })
   return res
+}
+
+/**
+ * 获取外联路由
+ */
+function getExternalLinkRoute(path, title, icon) {
+  return {
+    path: 'external-link',
+    component: Layout,
+    children: [
+      {
+        path: path,
+        meta: { title, icon }
+      }
+    ]
+  }
 }
 
 const state = {
