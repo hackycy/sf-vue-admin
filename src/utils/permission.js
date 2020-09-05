@@ -1,5 +1,6 @@
 import store from '@/store'
 import * as _ from 'lodash'
+import { momentParseTime } from '@/utils'
 
 /**
  * @param {Array} value
@@ -72,8 +73,10 @@ export function filterMenuToTable(menus, parentMenu) {
     // 根级别菜单渲染
     let realMenu
     if (!parentMenu && !menu.parentId && menu.type === 1) {
-      // 根菜单
+      // 根菜单，查找该跟菜单下子菜单
+      const childMenu = filterMenuToTable(menus, menu)
       realMenu = { ...menu }
+      realMenu.children = childMenu
     } else if (!parentMenu && !menu.parentId && menu.type === 0) {
       // 根目录
       const childMenu = filterMenuToTable(menus, menu)
@@ -95,6 +98,7 @@ export function filterMenuToTable(menus, parentMenu) {
     // add curent route
     if (realMenu) {
       realMenu.pid = menu.id
+      realMenu.updateTime = momentParseTime(realMenu.updateTime, null)
       res.push(realMenu)
     }
   })
