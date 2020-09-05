@@ -93,6 +93,7 @@
         <el-form-item label="上级节点" label-width="80px" prop="parentNodeName">
           <el-popover placement="bottom-start" width="500">
             <el-tree
+              node-key="pid"
               :data="menuTree.data"
               :props="menuTree.props"
               @node-click="handleMenuNodeClick"
