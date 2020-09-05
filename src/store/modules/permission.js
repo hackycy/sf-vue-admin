@@ -22,7 +22,7 @@ function filterAsyncRoutes(routes, parentRoute) {
     if (!parentRoute && !route.parentId && route.type === 1) {
       // 根菜单
       if (validURL(route.router)) {
-        realRoute = getExternalLinkRoute(route.router, route.name, route.icon)
+        realRoute = getExternalLinkRoute(route.id, route.router, route.name, route.icon)
       } else {
         const component = asyncRoutesMap[route.viewPath]
         if (component) {
@@ -56,7 +56,7 @@ function filterAsyncRoutes(routes, parentRoute) {
     } else if (parentRoute && parentRoute.id === route.parentId && route.type === 1) {
       // 子菜单
       if (validURL(route.router)) {
-        realRoute = getExternalLinkRoute(route.router, route.name, route.icon)
+        realRoute = getExternalLinkRoute(route.id, route.router, route.name, route.icon)
       } else {
         const component = asyncRoutesMap[route.viewPath]
         if (component) {
@@ -99,9 +99,9 @@ function filterAsyncRoutes(routes, parentRoute) {
 /**
  * 获取外联路由
  */
-function getExternalLinkRoute(path, title, icon) {
+function getExternalLinkRoute(id, path, title, icon) {
   return {
-    path: 'external-link',
+    path: `external-link${id}`,
     component: Layout,
     children: [
       {

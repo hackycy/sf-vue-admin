@@ -56,7 +56,7 @@
         </el-table-column>
         <el-table-column prop="orderNum" label="排序号" width="80" align="center" />
         <el-table-column prop="updateTime" label="更新时间" width="180" align="center" />
-        <el-table-column prop="address" label="操作" width="150" align="center" fixed="right">
+        <el-table-column label="操作" width="150" align="center" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" type="text" @click="handleEdit(scope.row)">编辑</el-button>
             <el-button size="mini" type="text" @click="handleDelete(scope.row)">删除</el-button>
@@ -65,12 +65,12 @@
       </el-table>
     </div>
     <!-- dialog -->
+    <!-- destroy-on-close -->
     <el-dialog
       :close-on-press-escape="false"
       :close-on-click-modal="false"
       :title="alertTitle"
       :visible.sync="editerDialogVisible"
-      destroy-on-close
       center
       size="mini"
       @close="handleDialogClosed"
@@ -82,7 +82,7 @@
         :rules="getMenuTypeRulues()"
       >
         <el-form-item label="菜单类型" label-width="80px">
-          <el-radio-group v-model="menuForm.type">
+          <el-radio-group v-model="menuForm.type" @change="handleMenuTypeChange">
             <el-radio :label="0">目录</el-radio>
             <el-radio :label="1">菜单</el-radio>
             <el-radio :label="2">权限</el-radio>
@@ -107,40 +107,67 @@
             />
           </el-popover>
         </el-form-item>
-        <el-form-item v-if="menuForm.type !== 2" label="节点路由" label-width="80px" prop="router">
-          <el-input v-model="menuForm.router" placeholder="请输入节点路由" />
-        </el-form-item>
-        <el-form-item v-if="menuForm.type === 2" label="权限" label-width="80px" prop="perms">
-          <el-cascader
-            v-model="menuForm.perms"
-            separator=":"
-            style="width: 100%;"
-            :options="perms.options"
-            :props="perms.props"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item v-if="menuForm.type !== 2" label="节点图标" label-width="80px" prop="icon">
-          <el-select v-model="menuForm.icon" placeholder="请选择图标" style="width: 100%;">
-            <el-option v-for="item in svgIcons" :key="item" :label="item" :value="item">
-              <span style="float: left; font-size: 16px; color: #444444;">
-                <svg-icon :icon-class="item" class-name="select-icon" />
-              </span>
-              <span style="float: right; color: #8492a6; font-size: 13px">{{ item }}</span>
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="menuForm.type === 1" label="文件路径" label-width="80px" prop="viewPath">
-          <el-select v-model="menuForm.viewPath" placeholder="请选择文件路径" style="width: 100%;">
-            <el-option v-for="item in viewFiles" :key="item" :label="item" :value="item" />
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="menuForm.type !== 2" label="是否显示" label-width="80px">
-          <el-switch v-model="menuForm.isShow" />
-        </el-form-item>
-        <el-form-item v-if="menuForm.type === 1" label="开启缓存" label-width="80px">
-          <el-switch v-model="menuForm.keepalive" />
-        </el-form-item>
+        <!-- 分面板 -->
+        <!-- 目录面板 -->
+        <div v-if="menuForm.type === 0" class="catalog-pane">
+          <el-form-item label="节点路由" label-width="80px" prop="router">
+            <el-input v-model="menuForm.router" placeholder="请输入节点路由" />
+          </el-form-item>
+          <el-form-item label="节点图标" label-width="80px" prop="icon">
+            <el-select v-model="menuForm.icon" placeholder="请选择图标" style="width: 100%;">
+              <el-option v-for="item in svgIcons" :key="item" :label="item" :value="item">
+                <span style="float: left; font-size: 16px; color: #444444;">
+                  <svg-icon :icon-class="item" class-name="select-icon" />
+                </span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item }}</span>
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="是否显示" label-width="80px">
+            <el-switch v-model="menuForm.isShow" />
+          </el-form-item>
+        </div>
+        <!-- 菜单面板 -->
+        <div v-if="menuForm.type === 1" class="menu-pane">
+          <el-form-item label="节点路由" label-width="80px" prop="router">
+            <el-input v-model="menuForm.router" placeholder="请输入节点路由" />
+          </el-form-item>
+          <el-form-item label="节点图标" label-width="80px" prop="icon">
+            <el-select v-model="menuForm.icon" placeholder="请选择图标" style="width: 100%;">
+              <el-option v-for="item in svgIcons" :key="item" :label="item" :value="item">
+                <span style="float: left; font-size: 16px; color: #444444;">
+                  <svg-icon :icon-class="item" class-name="select-icon" />
+                </span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item }}</span>
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="文件路径" label-width="80px" prop="viewPath">
+            <el-select v-model="menuForm.viewPath" placeholder="请选择文件路径" style="width: 100%;">
+              <el-option v-for="item in viewFiles" :key="item" :label="item" :value="item" />
+            </el-select>
+          </el-form-item>
+          <el-form-item v-if="menuForm.type !== 2" label="是否显示" label-width="80px">
+            <el-switch v-model="menuForm.isShow" />
+          </el-form-item>
+          <el-form-item v-if="menuForm.type === 1" label="开启缓存" label-width="80px">
+            <el-switch v-model="menuForm.keepalive" />
+          </el-form-item>
+        </div>
+        <!-- 权限面板 -->
+        <div v-if="menuForm.type === 2" class="perms-pane">
+          <el-form-item label="权限" label-width="80px" prop="perms">
+            <el-cascader
+              v-model="menuForm.perms"
+              separator=":"
+              style="width: 100%;"
+              :options="perms.options"
+              :props="perms.props"
+              clearable
+            />
+          </el-form-item>
+        </div>
+        <!-- 分面板结束 -->
         <el-form-item label="排序号" label-width="80px">
           <el-input-number
             v-model="menuForm.orderNum"
@@ -195,16 +222,16 @@ export default {
         catalog: {
           name: [{ required: true, message: '请输入节点名称', trigger: 'blur' }],
           router: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
-          parentNodeName: [{ required: true, message: '请输入节点路由', trigger: 'blur' }]
+          parentNodeName: [{ required: true, message: '请输入上级节点', trigger: 'blur' }]
         },
         menu: {
           name: [{ required: true, message: '请输入节点名称', trigger: 'blur' }],
           router: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
-          parentNodeName: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
+          parentNodeName: [{ required: true, message: '请输入上级节点', trigger: 'blur' }],
           viewPath: [{ required: true, message: '请选择文件地址', trigger: 'blur' }]
         },
         perm: {
-          parentNodeName: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
+          parentNodeName: [{ required: true, message: '请输入上级节点', trigger: 'blur' }],
           name: [{ required: true, message: '请输入节点名称', trigger: 'blur' }],
           perms: [{ required: true, message: '请选择权限', trigger: 'blur' }]
         }
@@ -312,9 +339,16 @@ export default {
         isShow: true,
         keepalive: true
       }
-      // if (this.$refs.menuForm) {
-      //   this.$refs.menuForm.resetFields()
-      // }
+      if (this.$refs.menuForm) {
+        // this.$refs.menuForm.resetField()
+        this.$refs.menuForm.clearValidate()
+      }
+    },
+    handleMenuTypeChange() {
+      // this.resetMenuFormData()
+      if (this.$refs.menuForm) {
+        this.$refs.menuForm.clearValidate()
+      }
     },
     handleMenuNodeClick(data) {
       this.menuForm.parentId = data.pid
@@ -324,7 +358,7 @@ export default {
       if (this.isDialogLoading) {
         this.isDialogLoading = false
       }
-      // 重制表单
+      // 重置表单
       this.resetMenuFormData()
     },
     handleRefresh(event) {
@@ -414,7 +448,7 @@ export default {
             const { data } = res
             this.isSaveLoading = false
             if (data) {
-              this.list()
+              this.handleRefresh()
               this.editerDialogVisible = false
               this.$message({
                 message: '保存成功',
