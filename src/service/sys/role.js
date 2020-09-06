@@ -18,6 +18,15 @@ class SysMenuService {
       params: query
     })
   }
+
+  @Permission('sys/role/delete')
+  delete(data) {
+    return request({
+      url: '/sys/role/delete',
+      method: 'post',
+      data
+    })
+  }
 }
 
 export default SysMenuService

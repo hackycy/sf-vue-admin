@@ -3,13 +3,15 @@
     <div class="role-header">
       <el-button size="mini" @click="handleRefresh">刷新</el-button>
       <el-button size="mini" type="primary" @click="handleAdd">新增</el-button>
-      <el-button size="mini" type="danger" :disabled="enableMutipleDelete" @click="handleMutipleDelete">删除</el-button>
+      <el-button size="mini" :loading="isDeleteLoading" type="danger" :disabled="enableMutipleDelete" @click="handleMutipleDelete">删除</el-button>
     </div>
     <div class="role-content">
       <el-table
         ref="roleTable"
-        v-loading="isLoading"
+        v-loading="isTableLoading"
         :data="roleData"
+        :loading="true"
+        max-height="700px"
         border
         row-key="id"
         size="small"
@@ -56,11 +58,12 @@ export default {
   name: 'SysPermissionRole',
   data() {
     return {
+      isDeleteLoading: false,
+      isTableLoading: true,
       currentPage: 1,
       pageSizes: [25, 50, 75, 100],
       pageSize: 25,
       totalRoles: 0,
-      isLoading: true,
       role: [],
       multipleSelectionRole: []
     }
@@ -74,11 +77,11 @@ export default {
     this.handleRefresh()
   },
   methods: {
-    async list() {
+    async page() {
       const { data } = await this.$service.sys.role.page({ page: this.currentPage, limit: this.pageSize })
       const { roles, roleTotalCount } = data
       this.totalRoles = roleTotalCount
-      this.isLoading = false
+      this.isTableLoading = false
       if (roles && roleTotalCount) {
         this.roleData = roles.map(e => {
           e.createTime = momentParseTime(e.createTime)
@@ -87,28 +90,73 @@ export default {
         })
       }
     },
+    async delete(roleIds) {
+      this.isDeleteLoading = true
+      try {
+        await this.$service.sys.role.delete({ roleIds })
+        this.handleRefresh()
+        this.$message({
+          type: 'success',
+          message: '删除成功'
+        })
+      } catch (e) {
+        this.$message({
+          type: 'warning',
+          message: '删除角色失败'
+        })
+      }
+      this.isDeleteLoading = false
+    },
     refreshMenu() {
       this.roleData = []
-      this.list()
+      this.page()
     },
     handleRefresh() {
-      this.isLoading = true
+      this.isTableLoading = true
       this.refreshMenu()
     },
     handleAdd() {
       //
     },
-    handleMutipleDelete() {
+    async handleMutipleDelete() {
       // 处理多选删除
+      this.$confirm('此操作将永久删除且无法还原, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        if (this.multipleSelectionRole && this.multipleSelectionRole.length > 0) {
+          const roleIds = this.multipleSelectionRole.map(e => { return e.id })
+          this.delete(roleIds)
+        }
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
+        })
+      })
     },
     handleEdit(row) {
 
     },
-    handleDelete(row) {
-      //
+    async handleDelete(row) {
+      // 处理单选删除
+      this.$confirm('此操作将永久删除且无法还原, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        if (row && row.id) {
+          this.delete([row.id])
+        }
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
+        })
+      })
     },
     handleSelectionChange(val) {
-      console.log(val)
       this.multipleSelectionRole = val
     },
     handleSizeChange(size) {
