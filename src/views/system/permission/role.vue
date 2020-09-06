@@ -35,6 +35,17 @@
         </el-table-column>
       </el-table>
     </div>
+    <div class="role-footer">
+      <el-pagination
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        layout="total, sizes, prev, pager, next"
+        :page-size="pageSize"
+        :total="totalRoles"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </div>
   </div>
 </template>
 
@@ -45,6 +56,10 @@ export default {
   name: 'SysPermissionRole',
   data() {
     return {
+      currentPage: 1,
+      pageSizes: [25, 50, 75, 100],
+      pageSize: 25,
+      totalRoles: 0,
       isLoading: true,
       role: [],
       multipleSelectionRole: []
@@ -60,10 +75,12 @@ export default {
   },
   methods: {
     async list() {
-      const { data } = await this.$service.sys.role.list()
+      const { data } = await this.$service.sys.role.page({ page: this.currentPage, limit: this.pageSize })
+      const { roles, roleTotalCount } = data
+      this.totalRoles = roleTotalCount
       this.isLoading = false
-      if (data) {
-        this.roleData = data.map(e => {
+      if (roles && roleTotalCount) {
+        this.roleData = roles.map(e => {
           e.createTime = momentParseTime(e.createTime)
           e.updateTime = momentParseTime(e.updateTime)
           return e
@@ -93,6 +110,14 @@ export default {
     handleSelectionChange(val) {
       console.log(val)
       this.multipleSelectionRole = val
+    },
+    handleSizeChange(size) {
+      this.pageSize = size
+      this.handleRefresh()
+    },
+    handleCurrentChange(page) {
+      this.currentPage = page
+      this.handleRefresh()
     }
   }
 }
@@ -109,5 +134,9 @@ export default {
   //   max-height: 300px;
   //   overflow: auto;
   // }
+  .role-footer {
+    margin-top: 20px;
+    text-align: end;
+  }
 }
 </style>
