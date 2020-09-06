@@ -48,6 +48,30 @@
         @current-change="handleCurrentChange"
       />
     </div>
+    <el-dialog
+      :close-on-press-escape="false"
+      :close-on-click-modal="false"
+      :title="alertTitle"
+      :visible.sync="editerDialogVisible"
+      center
+      size="mini"
+      @close="handleDialogClosed"
+    >
+      <el-form
+        ref="roleForm"
+        :model="roleForm"
+      >
+        <el-form-item label="节点名称" label-width="80px" prop="name">
+          <el-input v-model="roleForm.type" placeholder="请输入节点名称" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-row type="flex" justify="end">
+          <el-button size="mini" @click="editerDialogVisible = false">取消</el-button>
+          <el-button type="primary" size="mini" :loading="isSaveLoading" @click="handleSaveMenu">保存</el-button>
+        </el-row>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -58,6 +82,8 @@ export default {
   name: 'SysPermissionRole',
   data() {
     return {
+      alertDialogMode: 0, // 0为新增，1为编辑
+      editerDialogVisible: false,
       isDeleteLoading: false,
       isTableLoading: true,
       currentPage: 1,
@@ -65,12 +91,18 @@ export default {
       pageSize: 25,
       totalRoles: 0,
       role: [],
-      multipleSelectionRole: []
+      multipleSelectionRole: [],
+      roleForm: {
+        type: 0
+      }
     }
   },
   computed: {
     enableMutipleDelete() {
       return !(this.multipleSelectionRole && this.multipleSelectionRole.length > 0)
+    },
+    alertTitle() {
+      return this.alertDialogMode === 0 ? '新增' : '编辑'
     }
   },
   created() {
@@ -116,7 +148,8 @@ export default {
       this.refreshMenu()
     },
     handleAdd() {
-      //
+      this.alertDialogMode = 0
+      this.editerDialogVisible = true
     },
     async handleMutipleDelete() {
       // 处理多选删除
