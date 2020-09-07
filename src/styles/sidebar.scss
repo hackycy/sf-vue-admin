@@ -1,7 +1,9 @@
 #app {
 
   .main-container {
-    min-height: 100%;
+    // min-height: 100%;
+    // 固定高度
+    height: 100%;
     transition: margin-left .28s;
     margin-left: $sideBarWidth;
     position: relative;
