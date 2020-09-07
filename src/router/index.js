@@ -124,6 +124,7 @@ export const constantRoutes = [
 export const asyncRoutesMap = {
   'views/system/permission/menu': () => import('@/views/system/permission/menu'),
   'views/system/permission/role': () => import('@/views/system/permission/role'),
+  'views/system/permission/user': () => import('@/views/system/permission/user'),
   // test
   'views/dashboard/index': () => import('@/views/dashboard/index'),
   'views/excel/export-excel': () => import('@/views/excel/export-excel'),
