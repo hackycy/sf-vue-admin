@@ -3,7 +3,13 @@
     <div class="role-header">
       <el-button size="mini" @click="handleRefresh">刷新</el-button>
       <el-button size="mini" type="primary" @click="handleAdd">新增</el-button>
-      <el-button size="mini" :loading="isDeleteLoading" type="danger" :disabled="enableMutipleDelete" @click="handleMutipleDelete">删除</el-button>
+      <el-button
+        size="mini"
+        :loading="isDeleteLoading"
+        type="danger"
+        :disabled="enableMutipleDelete"
+        @click="handleMutipleDelete"
+      >删除</el-button>
     </div>
     <div class="role-content">
       <el-table
@@ -19,11 +25,7 @@
         :header-cell-style="{ backgroundColor: '#ebeef4' }"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column
-          type="selection"
-          width="55"
-          align="center"
-        />
+        <el-table-column type="selection" width="55" align="center" />
         <el-table-column prop="name" label="名称" align="center" />
         <el-table-column prop="label" label="标识" align="center" />
         <el-table-column prop="remark" label="备注" align="center" />
@@ -55,20 +57,69 @@
       :visible.sync="editerDialogVisible"
       center
       size="mini"
+      @open="handleDialogOpen"
       @close="handleDialogClosed"
     >
-      <el-form
-        ref="roleForm"
-        :model="roleForm"
-      >
-        <el-form-item label="节点名称" label-width="80px" prop="name">
-          <el-input v-model="roleForm.type" placeholder="请输入节点名称" />
-        </el-form-item>
-      </el-form>
+      <div v-loading="isDialogLoading" class="dialog-content">
+        <el-form ref="roleForm" :model="roleForm" :rules="roleFormRule">
+          <el-row type="flex" justify="space-between">
+            <el-col :span="12">
+              <el-form-item label="名称" label-width="80px" prop="name">
+                <el-input v-model="roleForm.name" placeholder="请输入角色名称" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="标识" label-width="80px" prop="label">
+                <el-input v-model="roleForm.label" placeholder="请输入角色标识" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-form-item label="备注" label-width="80px">
+            <el-input v-model="roleForm.remark" type="textarea" />
+          </el-form-item>
+          <el-row type="flex" justify="space-between">
+            <el-col :span="12">
+              <el-form-item label="菜单权限" label-width="80px" prop="menus" border>
+                <div
+                  v-loading="isMenuTreeLoading"
+                  class="tree-container"
+                >
+                  <el-tree
+                    ref="menuTree"
+                    :data="menuTree.data"
+                    show-checkbox
+                    node-key="id"
+                    highlight-current
+                    :props="menuTree.props"
+                  />
+                </div>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="数据权限" label-width="80px" prop="dept">
+                <div
+                  v-loading="isDeptTreeLoading"
+                  class="tree-container"
+                >
+                  <el-tree
+                    ref="deptTree"
+                    v-loading="isDeptTreeLoading"
+                    :data="deptTree.data"
+                    show-checkbox
+                    node-key="id"
+                    highlight-current
+                    :props="deptTree.props"
+                  />
+                </div>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+      </div>
       <div slot="footer">
         <el-row type="flex" justify="end">
           <el-button size="mini" @click="editerDialogVisible = false">取消</el-button>
-          <el-button type="primary" size="mini" :loading="isSaveLoading" @click="handleSaveMenu">保存</el-button>
+          <el-button type="primary" size="mini" :loading="isSaveLoading" @click="handleSaveRole">保存</el-button>
         </el-row>
       </div>
     </el-dialog>
@@ -77,6 +128,7 @@
 
 <script>
 import { momentParseTime } from '@/utils'
+import { filterMenuHasPermsToTree, filterDeptToTree } from '@/utils/permission'
 
 export default {
   name: 'SysPermissionRole',
@@ -86,6 +138,10 @@ export default {
       editerDialogVisible: false,
       isDeleteLoading: false,
       isTableLoading: true,
+      isSaveLoading: false,
+      isDialogLoading: false,
+      isMenuTreeLoading: false,
+      isDeptTreeLoading: false,
       currentPage: 1,
       pageSizes: [25, 50, 75, 100],
       pageSize: 25,
@@ -93,7 +149,30 @@ export default {
       role: [],
       multipleSelectionRole: [],
       roleForm: {
-        type: 0
+        roleId: -1,
+        name: '',
+        label: '',
+        remark: '',
+        menus: [],
+        depts: []
+      },
+      roleFormRule: {
+        name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
+        label: [{ required: true, message: '请输入角色标识', trigger: 'blur' }]
+      },
+      menuTree: {
+        data: [],
+        props: {
+          children: 'children',
+          label: 'label'
+        }
+      },
+      deptTree: {
+        data: [],
+        props: {
+          children: 'children',
+          label: 'label'
+        }
       }
     }
   },
@@ -109,6 +188,23 @@ export default {
     this.handleRefresh()
   },
   methods: {
+    async menuList() {
+      // 获取菜单
+      this.isMenuTreeLoading = true
+      const { data } = await this.$service.sys.menu.list()
+      if (data) {
+        this.menuTree.data = filterMenuHasPermsToTree(data, null)
+      }
+      this.isMenuTreeLoading = false
+    },
+    async deptList() {
+      this.isDeptTreeLoading = true
+      const { data } = await this.$service.sys.dept.list()
+      if (data) {
+        this.deptTree.data = filterDeptToTree(data, null)
+      }
+      this.isDeptTreeLoading = false
+    },
     async page() {
       const { data } = await this.$service.sys.role.page({ page: this.currentPage, limit: this.pageSize })
       const { roles, roleTotalCount } = data
@@ -139,17 +235,79 @@ export default {
       }
       this.isDeleteLoading = false
     },
-    refreshMenu() {
+    getMenuTreeCheckedKeys() {
+      return this.$refs.menuTree.getCheckedKeys()
+    },
+    getDeptTreeCheckedKeys() {
+      return this.$refs.deptTree.getCheckedKeys()
+    },
+    refreshRole() {
       this.roleData = []
       this.page()
     },
+    handleDialogOpen() {
+      this.menuList()
+      this.deptList()
+    },
+    handleDialogClosed() {
+      this.resetFormData()
+      this.isSaveLoading = false
+      this.isDialogLoading = false
+      this.isMenuTreeLoading = false
+      this.isDeptTreeLoading = false
+    },
     handleRefresh() {
       this.isTableLoading = true
-      this.refreshMenu()
+      this.refreshRole()
+    },
+    resetFormData() {
+      this.roleForm = {
+        roleId: -1,
+        name: '',
+        label: '',
+        remark: '',
+        menus: [],
+        depts: []
+      }
+      this.menuTree.data = []
+      this.deptTree.data = []
+      if (this.$refs.roleForm) {
+        // this.$refs.menuForm.resetField()
+        this.$refs.roleForm.clearValidate()
+        this.$refs.menuTree.setCheckedKeys([])
+        this.$refs.deptTree.setCheckedKeys([])
+      }
     },
     handleAdd() {
       this.alertDialogMode = 0
       this.editerDialogVisible = true
+    },
+    async handleEdit(row) {
+      this.alertDialogMode = 1
+      this.editerDialogVisible = true
+      this.isDialogLoading = true
+      const { data } = await this.$service.sys.role.info({ roleId: row.id })
+      const { roleInfo, menus, depts } = data
+      this.roleForm.name = roleInfo.name
+      this.roleForm.label = roleInfo.label
+      this.roleForm.remark = roleInfo.remark
+      this.roleForm.roleId = roleInfo.id
+      this.isDialogLoading = false
+      // 更新组件
+      this.$nextTick(() => {
+        if (menus && menus.length > 0) {
+          const menuIds = menus.map(m => {
+            return m.menuId
+          })
+          this.$refs.menuTree.setCheckedKeys(menuIds)
+        }
+        if (depts && depts.length > 0) {
+          const deptIds = depts.map(d => {
+            return d.departmentId
+          })
+          this.$refs.deptTree.setCheckedKeys(deptIds)
+        }
+      })
     },
     async handleMutipleDelete() {
       // 处理多选删除
@@ -169,9 +327,6 @@ export default {
         })
       })
     },
-    handleEdit(row) {
-
-    },
     async handleDelete(row) {
       // 处理单选删除
       this.$confirm('此操作将永久删除且无法还原, 是否继续?', '提示', {
@@ -187,6 +342,37 @@ export default {
           type: 'info',
           message: '已取消操作'
         })
+      })
+    },
+    handleSaveRole() {
+      this.$refs.roleForm.validate(async valid => {
+        if (valid) {
+          this.roleForm.depts = this.getDeptTreeCheckedKeys()
+          this.roleForm.menus = this.getMenuTreeCheckedKeys()
+          this.isSaveLoading = true
+          try {
+            if (this.alertDialogMode === 1) {
+              await this.$service.sys.role.update({ ...this.roleForm })
+            } else if (this.alertDialogMode === 0) {
+              await this.$service.sys.role.add({ ...this.roleForm })
+            }
+            this.isSaveLoading = false
+            this.handleRefresh()
+            this.editerDialogVisible = false
+            this.$message({
+              message: '保存成功',
+              type: 'success'
+            })
+          } catch (e) {
+            this.isSaveLoading = false
+          }
+        } else {
+          this.$message({
+            message: '请正确填写内容',
+            type: 'warning'
+          })
+          return false
+        }
       })
     },
     handleSelectionChange(val) {
@@ -218,6 +404,14 @@ export default {
   .role-footer {
     margin-top: 20px;
     text-align: end;
+  }
+
+  .tree-container {
+    height: 300px;
+    padding-top: 5px;
+    overflow: auto;
+    border-radius: 6px;
+    border: 1px solid #DCDFE6;
   }
 }
 </style>

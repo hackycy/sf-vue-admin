@@ -73,7 +73,7 @@ export function filterMenuToTable(menus, parentMenu) {
     // 根级别菜单渲染
     let realMenu
     if (!parentMenu && !menu.parentId && menu.type === 1) {
-      // 根菜单，查找该跟菜单下子菜单
+      // 根菜单，查找该跟菜单下子菜单，因为可能会包含权限
       const childMenu = filterMenuToTable(menus, menu)
       realMenu = { ...menu }
       realMenu.children = childMenu
@@ -135,7 +135,72 @@ export function filterMenuToTree(menus, parentMenu) {
     }
 
     if (node) {
-      node.pid = menu.id
+      node.id = menu.id
+      res.push(node)
+    }
+  })
+  return res
+}
+
+/**
+ * 渲染菜单至树形控件
+ */
+export function filterMenuHasPermsToTree(menus, parentMenu) {
+  const res = []
+  menus.forEach(menu => {
+    let node
+    if (!parentMenu && !menu.parentId && menu.type === 1) {
+      // 根菜单
+      const childNode = filterMenuHasPermsToTree(menus, menu)
+      node = { label: menu.name }
+      node.children = childNode
+    } else if (!parentMenu && !menu.parentId && menu.type === 0) {
+      // 根目录
+      const childNode = filterMenuHasPermsToTree(menus, menu)
+      node = { label: menu.name }
+      node.children = childNode
+    } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 1) {
+      // 子菜单则停止
+      const childNode = filterMenuHasPermsToTree(menus, menu)
+      node = { label: menu.name }
+      node.children = childNode
+    } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 0) {
+      // 如果还是目录，继续递归
+      const childNode = filterMenuHasPermsToTree(menus, menu)
+      node = { label: menu.name }
+      node.children = childNode
+    } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 2) {
+      // 权限停止递归
+      node = { label: menu.name }
+    }
+
+    if (node) {
+      node.id = menu.id
+      res.push(node)
+    }
+  })
+  return res
+}
+
+/**
+ * 渲染部门列表至树形控件
+ */
+export function filterDeptToTree(depts, parentDept) {
+  const res = []
+  depts.forEach(dept => {
+    let node
+    if (!parentDept) {
+      // 根菜单
+      const childNode = filterDeptToTree(depts, dept)
+      node = { label: dept.name }
+      node.children = childNode
+    } else if (parentDept && parentDept.id === dept.parentId) {
+      const childNode = filterDeptToTree(depts, dept)
+      node = { label: dept.name }
+      node.children = childNode
+    }
+    if (node) {
+      node.id = dept.id
       res.push(node)
     }
   })
