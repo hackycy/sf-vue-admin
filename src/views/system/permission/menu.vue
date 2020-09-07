@@ -94,7 +94,7 @@
         <el-form-item label="上级节点" label-width="80px" prop="parentNodeName">
           <el-popover placement="bottom-start" width="500">
             <el-tree
-              node-key="pid"
+              node-key="id"
               :data="menuTree.data"
               :props="menuTree.props"
               @node-click="handleMenuNodeClick"
@@ -276,7 +276,7 @@ export default {
       // table data
       this.menuData = filterMenuToTable(data, null)
       // form tree data
-      const parentNode = { pid: -1, label: '一级菜单' }
+      const parentNode = { id: -1, label: '一级菜单' }
       parentNode.children = filterMenuToTree(data, null)
       this.menuTree.data.push(parentNode)
       this.isLoading = false
@@ -351,7 +351,7 @@ export default {
       }
     },
     handleMenuNodeClick(data) {
-      this.menuForm.parentId = data.pid
+      this.menuForm.parentId = data.id
       this.menuForm.parentNodeName = data.label
     },
     handleDialogClosed() {
