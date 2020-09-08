@@ -23,6 +23,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/styles/mixin';
+
 .app-main {
   /* 50= navbar  50  */
   // min-height: calc(100vh - 50px);
@@ -31,6 +33,7 @@ export default {
   position: relative;
   // overflow: hidden;
   overflow: auto;
+  @include scrollBar;
 }
 
 .fixed-header+.app-main {
