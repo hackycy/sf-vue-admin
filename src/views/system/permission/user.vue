@@ -232,7 +232,7 @@ export default {
       height: 40px;
       letter-spacing: 1px;
       line-height: 40px;
-      font-size: 16px;
+      font-size: 14px;
       display: flex;
       display: -webkit-flex;
 
@@ -269,7 +269,7 @@ export default {
       }
 
       .dept-tree-node {
-        font-size: 14px;
+        font-size: 15px;
       }
     }
   }
@@ -292,7 +292,7 @@ export default {
       height: 40px;
       line-height: 40px;
       text-align: center;
-      font-size: 16px;
+      font-size: 14px;
     }
 
     .user-option {
@@ -318,7 +318,7 @@ export default {
 .dept-pane-container {
   .dept-tree-content {
     .el-tree-node__content {
-      height: 32px !important;
+      height: 36px !important;
     }
   }
 }
