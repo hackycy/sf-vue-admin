@@ -189,7 +189,7 @@ export function filterDeptToTree(depts, parentDept) {
   const res = []
   depts.forEach(dept => {
     let node
-    if (!parentDept) {
+    if (!parentDept && !dept.parentId) {
       // 根菜单
       const childNode = filterDeptToTree(depts, dept)
       node = { label: dept.name }
