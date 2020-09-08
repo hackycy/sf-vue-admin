@@ -59,8 +59,8 @@
             </template>
           </el-table-column>
           <el-table-column prop="name" label="姓名" align="center" width="150" />
+          <el-table-column prop="departmentName" label="部门名称" align="center" width="120" />
           <el-table-column prop="username" label="登录账号" align="center" width="220" />
-          <!-- <el-table-column prop="password" label="登录密码" align="center" width="120" /> -->
           <el-table-column prop="nickName" label="呢称" width="160" align="center" />
           <el-table-column prop="email" label="邮箱" align="center" width="300" />
           <el-table-column prop="phone" label="手机" align="center" width="300" />
