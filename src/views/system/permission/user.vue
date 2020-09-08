@@ -116,7 +116,7 @@ export default {
           label: 'label'
         }
       },
-      currentDepartmentId: 1,
+      currentDepartmentId: -1,
       multipleSelectionUserList: [],
       users: [],
       userTotalCount: 0,
