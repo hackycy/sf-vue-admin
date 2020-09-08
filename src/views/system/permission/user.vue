@@ -232,7 +232,7 @@ export default {
       height: 40px;
       letter-spacing: 1px;
       line-height: 40px;
-      font-size: 1.1em;
+      font-size: 16px;
       display: flex;
       display: -webkit-flex;
 
@@ -246,7 +246,7 @@ export default {
 
         li {
           cursor: pointer;
-          font-size: 1.3em;
+          font-size: 16px;
           list-style: none;
           padding: 0px;
           margin: 0px;
@@ -269,7 +269,7 @@ export default {
       }
 
       .dept-tree-node {
-        font-size: 1.2em;
+        font-size: 14px;
       }
     }
   }
@@ -292,7 +292,7 @@ export default {
       height: 40px;
       line-height: 40px;
       text-align: center;
-      font-size: 1.1em;
+      font-size: 16px;
     }
 
     .user-option {
