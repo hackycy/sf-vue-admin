@@ -20,11 +20,7 @@
           :expand-on-click-node="false"
           default-expand-all
           @current-change="handleDeptTreeCurrentChange"
-        >
-          <span slot-scope="{ node }" class="dept-tree-node">
-            <span>{{ node.label }}</span>
-          </span>
-        </el-tree>
+        />
       </div>
     </div>
     <div class="user-pane-container">
