@@ -127,10 +127,7 @@ export const asyncRoutesMap = {
   'views/system/permission/user': () => import('@/views/system/permission/user'),
   // test
   'views/dashboard/index': () => import('@/views/dashboard/index'),
-  'views/excel/export-excel': () => import('@/views/excel/export-excel'),
-  'views/documentation/index': () => import('@/views/documentation/index'),
-  'views/clipboard/index': () => import('@/views/clipboard/index'),
-  'views/charts/keyboard': () => import('@/views/charts/keyboard')
+  'views/documentation/index': () => import('@/views/documentation/index')
 }
 
 const createRouter = () => new Router({
