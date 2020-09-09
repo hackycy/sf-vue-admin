@@ -19,6 +19,15 @@ class UserService {
       data
     })
   }
+
+  @Permission('sys/user/add')
+  add(data) {
+    return request({
+      url: '/sys/user/add',
+      method: 'post',
+      data
+    })
+  }
 }
 
 export default UserService

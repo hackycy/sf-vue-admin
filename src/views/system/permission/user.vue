@@ -27,7 +27,7 @@
       <div class="user-header">用户管理</div>
       <div class="user-option">
         <el-button size="mini" @click="handleRefreshUser">刷新</el-button>
-        <el-button size="mini" type="primary" @click="handleAdd">新增</el-button>
+        <el-button size="mini" type="primary" @click="handleAddUser">新增</el-button>
         <el-button
           size="mini"
           type="danger"
@@ -55,7 +55,7 @@
           <el-table-column prop="headImg" label="头像" align="center" width="80">
             <template slot-scope="scope">
               <el-avatar v-if="!scope.row.headImg" size="small" icon="el-icon-user-solid" />
-              <el-avatar v-else icon="el-icon-user-solid" size="small" :src="scope.row.headImg" />
+              <el-avatar v-else size="small" :src="scope.row.headImg" />
             </template>
           </el-table-column>
           <el-table-column prop="name" label="姓名" align="center" width="150" />
@@ -105,10 +105,12 @@ export default {
   name: 'SysPermissionUser',
   data() {
     return {
+      isUserTableLoading: false,
+      editerUserDialogVisible: false,
+      editerUserDialogMode: 0,
+      // 部门Tree
       deptTreeDraggable: false,
       isDeptTreeLoading: false,
-      isUserTableLoading: false,
-      currentUserPage: 1,
       deptTree: {
         data: [],
         props: {
@@ -119,6 +121,8 @@ export default {
       currentDepartmentId: -1,
       multipleSelectionUserList: [],
       users: [],
+      // 分页处理
+      currentUserPage: 1,
       userTotalCount: 0,
       userPageSize: 25
     }
@@ -129,6 +133,9 @@ export default {
     },
     enbaleMultipleTransfer() {
       return !(this.multipleSelectionUserList && this.multipleSelectionUserList.length > 0)
+    },
+    userAlertTitle() {
+      return '新增'
     }
   },
   created() {
@@ -146,7 +153,8 @@ export default {
     },
     async userList() {
       this.isUserTableLoading = true
-      const { data } = await this.$service.sys.user.page({ departmentId: this.currentDepartmentId, page: this.currentUserPage, limit: this.userPageSize })
+      const { data } =
+        await this.$service.sys.user.page({ departmentId: this.currentDepartmentId, page: this.currentUserPage, limit: this.userPageSize })
       const { users, userTotalCount } = data
       if (users) {
         this.users = users
@@ -178,6 +186,13 @@ export default {
     handleRefreshUser() {
       this.users = []
       this.userList()
+    },
+    handleAddUser() {
+      this.editerUserDialogVisible = true
+    },
+    handleSelectUserDeptNodeClick(node) {
+      this.userForm.departmentId = node.id
+      this.userForm.departmentName = node.label
     },
     handleDeptTreeCurrentChange(data) {
       this.currentDepartmentId = data.id
