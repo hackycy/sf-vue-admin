@@ -95,14 +95,19 @@
         />
       </div>
     </div>
+    <user-dialog :visible="editerUserDialogVisible" @cancel="editerUserDialogVisible = false" />
   </div>
 </template>
 
 <script>
 import { filterDeptToTree } from '@/utils/permission'
+import UserDialog from './components/user-dialog'
 
 export default {
   name: 'SysPermissionUser',
+  components: {
+    UserDialog
+  },
   data() {
     return {
       isUserTableLoading: false,
@@ -133,9 +138,6 @@ export default {
     },
     enbaleMultipleTransfer() {
       return !(this.multipleSelectionUserList && this.multipleSelectionUserList.length > 0)
-    },
-    userAlertTitle() {
-      return '新增'
     }
   },
   created() {

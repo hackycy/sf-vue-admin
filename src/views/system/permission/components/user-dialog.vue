@@ -3,7 +3,8 @@
     :close-on-press-escape="false"
     :close-on-click-modal="false"
     :title="userAlertTitle"
-    :visible.sync="editerUserDialogVisible"
+    :visible.sync="visible"
+    :before-close="cancel"
     center
     size="mini"
     @open="handleUserDialogOpen"
@@ -91,7 +92,7 @@
     </div>
     <div slot="footer">
       <el-row type="flex" justify="end">
-        <el-button size="mini" @click="editerUserDialogVisible = false">取消</el-button>
+        <el-button size="mini" @click="cancel">取消</el-button>
         <el-button
           type="primary"
           size="mini"
@@ -117,14 +118,6 @@ export default {
       validator: function(value) {
         return value === 0 || value === 1
       }
-    },
-    onSuccess: {
-      type: Function,
-      default: () => {}
-    },
-    onError: {
-      type: Function,
-      default: () => {}
     },
     visible: {
       type: Boolean,
@@ -198,6 +191,10 @@ export default {
       }
       this.isDeptTreeLoading = false
     },
+    cancel() {
+      // 父组件用于设置dialog隐藏dialog
+      this.$emit('cancel')
+    },
     getUploadheader() {
       return {
         Authorization: getToken()
@@ -227,6 +224,7 @@ export default {
     },
     handleUserDialogOpen() {
       this.roleList()
+      this.deptList()
     },
     handleUserDialogClosed() {
       this.userForm = {
