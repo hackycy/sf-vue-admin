@@ -146,7 +146,7 @@ export default {
     },
     async userList() {
       this.isUserTableLoading = true
-      const { data } = await this.$service.sys.user.page({ departmentId: this.currentDepartmentId })
+      const { data } = await this.$service.sys.user.page({ departmentId: this.currentDepartmentId, page: this.currentUserPage, limit: this.userPageSize })
       const { users, userTotalCount } = data
       if (users) {
         this.users = users
@@ -188,9 +188,11 @@ export default {
     },
     handleSizeChange(val) {
       this.userPageSize = val
+      this.handleRefreshUser()
     },
     handleCurrentChange(val) {
       this.currentUserPage = val
+      this.handleRefreshUser()
     },
     handleMultipleDelete() {
       const userIds = this.multipleSelectionUserList.map(e => { return e.id })
