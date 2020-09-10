@@ -38,7 +38,7 @@ import request from '@/utils/request';
           size="mini"
           :loading="isTransferLoading"
           @click="handleTransferUser"
-        >保存</el-button>
+        >转移</el-button>
       </el-row>
     </div>
   </el-dialog>
