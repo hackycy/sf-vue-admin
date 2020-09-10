@@ -7,19 +7,19 @@
           <li>
             <i class="el-icon-refresh" @click="handleRefreshDept" />
           </li>
-          <li>
-            <i class="el-icon-plus" />
-          </li>
         </ul>
       </div>
       <div v-loading="isDeptTreeLoading" class="dept-tree-content">
         <el-tree
+          style="height: 100%;"
           :data="deptTree.data"
           highlight-current
           node-key="id"
           :expand-on-click-node="false"
           default-expand-all
           @current-change="handleDeptTreeCurrentChange"
+          @node-contextmenu="handleDeptNodeContextMenuEvent"
+          @contextmenu.prevent.native="openContextMenu($event)"
         />
       </div>
     </div>
@@ -110,6 +110,16 @@
       @success="handleTransferUserSuccessEvent"
       @dismiss="editerTransferDialogVisible = false"
     />
+    <!-- 右键菜单 -->
+    <div
+      v-if="contextMenuVisible"
+      :style="{left: contextMenuPosition.left+'px', top: contextMenuPosition.top+'px'}"
+      class="context-menu"
+    >
+      <div class="item"><span>新增</span><i class="el-icon-plus" /></div>
+      <div v-if="currentContextSelectDepartmentId !== -1" class="item"><span>编辑</span><i class="el-icon-edit" /></div>
+      <div v-if="currentContextSelectDepartmentId !== -1" class="item"><span>删除</span><i class="el-icon-delete" /></div>
+    </div>
   </div>
 </template>
 
@@ -126,6 +136,11 @@ export default {
   },
   data() {
     return {
+      contextMenuPosition: {
+        left: 0,
+        top: 0
+      },
+      contextMenuVisible: false,
       editerUserDialogVisible: false,
       editerUserDialogMode: 0,
       editerUserId: -1,
@@ -142,6 +157,7 @@ export default {
         }
       },
       currentDepartmentId: -1,
+      currentContextSelectDepartmentId: -1,
       multipleSelectionUserList: [],
       users: [],
       // 分页处理
@@ -153,10 +169,25 @@ export default {
   },
   computed: {
     enbaleMultipleDelete() {
-      return !(this.multipleSelectionUserList && this.multipleSelectionUserList.length > 0)
+      return !(
+        this.multipleSelectionUserList &&
+        this.multipleSelectionUserList.length > 0
+      )
     },
     enbaleMultipleTransfer() {
-      return !(this.multipleSelectionUserList && this.multipleSelectionUserList.length > 0)
+      return !(
+        this.multipleSelectionUserList &&
+        this.multipleSelectionUserList.length > 0
+      )
+    }
+  },
+  watch: {
+    contextMenuVisible(value) {
+      if (value) {
+        document.body.addEventListener('click', this.closeMenu)
+      } else {
+        document.body.removeEventListener('click', this.closeMenu)
+      }
     }
   },
   created() {
@@ -174,8 +205,11 @@ export default {
     },
     async userList() {
       this.isUserTableLoading = true
-      const { data } =
-        await this.$service.sys.user.page({ departmentId: this.currentDepartmentId, page: this.currentUserPage, limit: this.userPageSize })
+      const { data } = await this.$service.sys.user.page({
+        departmentId: this.currentDepartmentId,
+        page: this.currentUserPage,
+        limit: this.userPageSize
+      })
       const { users, userTotalCount } = data
       if (users) {
         this.users = users
@@ -245,14 +279,16 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(async() => {
-        this.userDelete([row.id])
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消操作'
-        })
       })
+        .then(async() => {
+          this.userDelete([row.id])
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消操作'
+          })
+        })
     },
     handleMultipleDelete() {
       // delete
@@ -260,18 +296,24 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(async() => {
-        const userIds = this.multipleSelectionUserList.map(e => { return e.id })
-        this.userDelete(userIds)
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消操作'
-        })
       })
+        .then(async() => {
+          const userIds = this.multipleSelectionUserList.map((e) => {
+            return e.id
+          })
+          this.userDelete(userIds)
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消操作'
+          })
+        })
     },
     handleMultipleTrensfer() {
-      const userIds = this.multipleSelectionUserList.map(e => { return e.id })
+      const userIds = this.multipleSelectionUserList.map((e) => {
+        return e.id
+      })
       this.editerTransferUserIdList = userIds
       this.editerTransferDialogVisible = true
     },
@@ -279,6 +321,31 @@ export default {
       const { departmentId } = data
       this.currentDepartmentId = departmentId
       this.handleRefreshUser()
+    },
+    handleDeptNodeContextMenuEvent(event, data, node) {
+      this.currentContextSelectDepartmentId = data.id
+      this.openContextMenu(event)
+    },
+    openContextMenu(e) {
+      const menuMinWidth = 200
+      const offsetLeft = this.$el.getBoundingClientRect().left // container margin left
+      const offsetWidth = this.$el.offsetWidth // container width
+      const maxLeft = offsetWidth - menuMinWidth // left boundary
+      const left = e.clientX - offsetLeft + 15 // 15: margin right
+
+      if (left > maxLeft) {
+        this.contextMenuPosition.left = maxLeft
+      } else {
+        this.contextMenuPosition.left = left
+      }
+      this.contextMenuPosition.left = e.clientX + 5
+      this.contextMenuPosition.top = e.clientY + 5
+      this.contextMenuVisible = true
+    },
+    closeMenu() {
+      this.contextMenuVisible = false
+      // reset
+      this.currentContextSelectDepartmentId = -1
     }
   }
 }
@@ -297,17 +364,46 @@ export default {
   display: -webkit-flex;
   flex-direction: row;
 
+  .context-menu {
+    margin: 0;
+    background: #fff;
+    z-index: 3000;
+    position: fixed;
+    // list-style-type: none;
+    padding: 5px 0;
+    font-size: 13px;
+    font-weight: 400;
+    color: #333;
+    box-shadow: 3px 3px 4px 0 rgba(0, 0, 0, .3);
+
+    .item {
+      padding: 10px 12px;
+      cursor: pointer;
+
+      i {
+        margin-left: 55px;
+      }
+
+      &:hover {
+        background: #eee;
+      }
+    }
+  }
+
   .dept-pane-container {
     background-color: white;
     height: 100%;
     width: 300px;
     min-width: 320px;
     border-radius: 4px;
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: column;
 
     .dept-option-header {
       color: #3b4151;
       padding-left: 15px;
-      padding-right: 5px;
+      padding-right: 10px;
       align-items: center;
       height: 40px;
       letter-spacing: 1px;
@@ -344,6 +440,8 @@ export default {
     }
 
     .dept-tree-content {
+      flex-grow: 1;
+
       .el-tree-node__content {
         height: 32px !important;
       }
