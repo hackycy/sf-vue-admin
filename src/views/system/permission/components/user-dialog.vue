@@ -126,7 +126,8 @@ export default {
         return value === 0 || value === 1
       }
     },
-    userId: { // 需要获取的用户ID，编辑模式需要传入
+    userId: {
+      // 需要获取的用户ID，编辑模式需要传入
       type: Number,
       default: -1
     },
@@ -227,22 +228,27 @@ export default {
       this.userForm.departmentName = node.label
     },
     async handleUserDialogOpen() {
+      this.isUserDialogLoading = true
       this.roleList()
       this.deptList()
       if (this.mode === 1) {
-        // 获取用户信息
-        try {
-          this.isUserDialogLoading = true
-          const result = await this.$service.sys.user.info({ userId: this.userId })
-          const { data } = result
-          this.userForm = { ...data }
-          this.isUserDialogLoading = false
-        } catch (e) {
-          this.$message({
-            message: '获取信息失败',
-            type: 'warning'
+        Promise.all([this.roleList(), this.deptList()])
+          .then(async() => {
+            // 获取用户信息
+            const result = await this.$service.sys.user.info({
+              userId: this.userId
+            })
+            const { data } = result
+            this.userForm = { ...data }
+            this.isUserDialogLoading = false
           })
-        }
+          .catch(() => {
+            this.isUserDialogLoading = false
+            this.$message({
+              message: '获取信息失败',
+              type: 'warning'
+            })
+          })
       }
     },
     handleUserDialogClosed() {
