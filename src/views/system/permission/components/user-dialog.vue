@@ -151,8 +151,6 @@ export default {
           label: 'label'
         }
       },
-      currentDepartmentId: -1,
-      multipleSelectionUserList: [],
       roles: [],
       userForm: {
         headImg: '',
