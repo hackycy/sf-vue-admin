@@ -1,5 +1,6 @@
 <template>
   <el-dialog
+    v-el-drag-dialog
     :close-on-press-escape="false"
     :close-on-click-modal="false"
     :title="userAlertTitle"
@@ -109,11 +110,13 @@
 </template>
 
 <script>
+import elDragDialog from '@/directive/el-drag-dialog'
 import { getToken } from '@/utils/auth'
 import { filterDeptToTree } from '@/utils/permission'
 
 export default {
   name: 'SysUserDialog',
+  directives: { elDragDialog },
   props: {
     mode: {
       // 新增模式 0 或 编辑模式 1
