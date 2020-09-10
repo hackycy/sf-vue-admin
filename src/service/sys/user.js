@@ -28,6 +28,24 @@ class UserService {
       data
     })
   }
+
+  @Permission('sys/user/info')
+  info(query) {
+    return request({
+      url: '/sys/user/info',
+      method: 'get',
+      params: query
+    })
+  }
+
+  @Permission('sys/user/update')
+  update(data) {
+    return request({
+      url: '/sys/user/update',
+      method: 'post',
+      data
+    })
+  }
 }
 
 export default UserService

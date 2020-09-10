@@ -27,7 +27,9 @@ router.beforeEach(async(to, from, next) => {
       NProgress.done() // hack: https://github.com/PanJiaChen/vue-element-admin/pull/2939
     } else {
       // determine whether the user has obtained his permission roles through getInfo
+      // 有可能该角色没有任何权限，只能进行浏览菜单
       const hasPerms = store.getters.perms && store.getters.perms.length > 0
+      // const hasRoutes = store.getters.permission_routes && store.getters.permission_routes > 0
       if (hasPerms) {
         next()
       } else {

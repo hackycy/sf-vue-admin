@@ -80,10 +80,7 @@
           <el-row type="flex" justify="space-between">
             <el-col :span="12">
               <el-form-item label="菜单权限" label-width="80px" prop="menus" border>
-                <div
-                  v-loading="isMenuTreeLoading"
-                  class="tree-container"
-                >
+                <div v-loading="isMenuTreeLoading" class="tree-container">
                   <el-tree
                     ref="menuTree"
                     :data="menuTree.data"
@@ -97,10 +94,7 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="数据权限" label-width="80px" prop="dept">
-                <div
-                  v-loading="isDeptTreeLoading"
-                  class="tree-container"
-                >
+                <div v-loading="isDeptTreeLoading" class="tree-container">
                   <el-tree
                     ref="deptTree"
                     v-loading="isDeptTreeLoading"
@@ -236,7 +230,11 @@ export default {
       this.isDeleteLoading = false
     },
     getMenuTreeCheckedKeys() {
-      return this.$refs.menuTree.getCheckedKeys()
+      const childKeys = this.$refs.menuTree.getCheckedKeys()
+      const halfKeys = this.$refs.menuTree.getHalfCheckedKeys()
+      console.log(childKeys)
+      console.log(halfKeys)
+      return [...childKeys, ...halfKeys]
     },
     getDeptTreeCheckedKeys() {
       return this.$refs.deptTree.getCheckedKeys()
@@ -294,20 +292,24 @@ export default {
       this.roleForm.roleId = roleInfo.id
       this.isDialogLoading = false
       // 更新组件
-      this.$nextTick(() => {
-        if (menus && menus.length > 0) {
-          const menuIds = menus.map(m => {
-            return m.menuId
-          })
-          this.$refs.menuTree.setCheckedKeys(menuIds)
-        }
-        if (depts && depts.length > 0) {
-          const deptIds = depts.map(d => {
-            return d.departmentId
-          })
-          this.$refs.deptTree.setCheckedKeys(deptIds)
-        }
-      })
+      if (menus && menus.length > 0) {
+        menus.forEach(m => {
+          this.$refs.menuTree.setChecked(m.menuId, true, false)
+        })
+        // const menuIds = menus.map(m => {
+        //   return m.menuId
+        // })
+        // this.$refs.menuTree.setCheckedKeys(menuIds, true)
+      }
+      if (depts && depts.length > 0) {
+        depts.forEach(d => {
+          this.$refs.deptTree.setChecked(d.departmentId, true, false)
+        })
+        // const deptIds = depts.map(d => {
+        //   return d.departmentId
+        // })
+        // this.$refs.deptTree.setCheckedKeys(deptIds)
+      }
     },
     async handleMutipleDelete() {
       // 处理多选删除
@@ -411,7 +413,7 @@ export default {
     padding-top: 5px;
     overflow: auto;
     border-radius: 6px;
-    border: 1px solid #DCDFE6;
+    border: 1px solid #dcdfe6;
   }
 }
 </style>

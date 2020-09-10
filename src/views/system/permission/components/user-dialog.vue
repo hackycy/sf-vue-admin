@@ -4,7 +4,7 @@
     :close-on-click-modal="false"
     :title="userAlertTitle"
     :visible.sync="visible"
-    :before-close="cancel"
+    :before-close="dismiss"
     center
     size="mini"
     @open="handleUserDialogOpen"
@@ -14,6 +14,7 @@
       <el-form ref="userForm" :model="userForm" :rules="userFormRule">
         <el-form-item label="头像" label-width="80px" prop="headImg">
           <el-upload
+            ref="uploader"
             action="/admin/upload/img"
             list-type="picture-card"
             :headers="getUploadheader()"
@@ -88,11 +89,14 @@
             <el-radio :label="0">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item v-if="mode === 1" label="重置密码" label-width="80px">
+          <el-switch v-model="userForm.resetPassword" />
+        </el-form-item>
       </el-form>
     </div>
     <div slot="footer">
       <el-row type="flex" justify="end">
-        <el-button size="mini" @click="cancel">取消</el-button>
+        <el-button size="mini" @click="dismiss">取消</el-button>
         <el-button
           type="primary"
           size="mini"
@@ -119,6 +123,10 @@ export default {
         return value === 0 || value === 1
       }
     },
+    userId: { // 需要获取的用户ID，编辑模式需要传入
+      type: Number,
+      default: -1
+    },
     visible: {
       type: Boolean,
       required: true
@@ -134,8 +142,6 @@ export default {
     }
     return {
       isUserDialogLoading: false,
-      editerUserDialogVisible: false,
-      editerUserDialogMode: 0,
       isUserSaveLoading: false,
       // 部门
       deptTree: {
@@ -159,7 +165,8 @@ export default {
         email: '',
         phone: '',
         status: 1,
-        roles: []
+        roles: [],
+        resetPassword: false
       },
       userFormRule: {
         name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
@@ -191,10 +198,6 @@ export default {
       }
       this.isDeptTreeLoading = false
     },
-    cancel() {
-      // 父组件用于设置dialog隐藏dialog
-      this.$emit('cancel')
-    },
     getUploadheader() {
       return {
         Authorization: getToken()
@@ -222,9 +225,24 @@ export default {
       this.userForm.departmentId = node.id
       this.userForm.departmentName = node.label
     },
-    handleUserDialogOpen() {
+    async handleUserDialogOpen() {
       this.roleList()
       this.deptList()
+      if (this.mode === 1) {
+        // 获取用户信息
+        try {
+          this.isUserDialogLoading = true
+          const result = await this.$service.sys.user.info({ userId: this.userId })
+          const { data } = result
+          this.userForm = { ...data }
+          this.isUserDialogLoading = false
+        } catch (e) {
+          this.$message({
+            message: '获取信息失败',
+            type: 'warning'
+          })
+        }
+      }
     },
     handleUserDialogClosed() {
       this.userForm = {
@@ -238,10 +256,11 @@ export default {
         email: '',
         phone: '',
         status: 1,
-        roles: []
+        roles: [],
+        resetPassword: false
       }
-      if (this.$refs.userForm) {
-        this.$refs.userForm.this.$refs.roleForm.clearValidate()
+      if (this.$refs.uploader) {
+        this.$refs.uploader.clearFiles()
       }
     },
     handleSaveUser() {
@@ -249,21 +268,26 @@ export default {
         if (valid) {
           try {
             this.isUserSaveLoading = true
-            await this.$service.sys.user.add(this.userForm)
+            if (this.mode === 0) {
+              await this.$service.sys.user.add(this.userForm)
+            } else {
+              await this.$service.sys.user.update(this.userForm)
+            }
             this.isUserSaveLoading = false
-            this.editerUserDialogVisible = false
-            this.handleRefreshUser()
             this.$message({
               message: '添加成功',
               type: 'success'
             })
+            this.success()
           } catch (e) {
             this.isUserSaveLoading = false
             this.$message({
               message: '添加失败',
               type: 'warning'
             })
+            this.fail()
           }
+          this.dismiss()
         } else {
           this.$message({
             message: '请正确填写内容',
@@ -272,6 +296,16 @@ export default {
           return false
         }
       })
+    },
+    dismiss() {
+      // 父组件用于设置dialog隐藏dialog
+      this.$emit('dismiss')
+    },
+    success() {
+      this.$emit('success')
+    },
+    fail() {
+      this.$emit('fail')
     }
   }
 }

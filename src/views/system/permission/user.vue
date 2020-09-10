@@ -38,7 +38,7 @@
           size="mini"
           type="success"
           :disabled="enbaleMultipleTransfer"
-          @click="handleAdd"
+          @click="handleMultipleTrensfer"
         >转移</el-button>
       </div>
       <div class="user-content">
@@ -76,8 +76,8 @@
           </el-table-column>
           <el-table-column fixed="right" label="操作" align="center" width="120">
             <template slot-scope="scope">
-              <el-button type="text" size="small" @click="handleClick(scope.row)">编辑</el-button>
-              <el-button type="text" size="small" @click="handleClick(scope.row)">删除</el-button>
+              <el-button type="text" size="small" @click="handleEditUser(scope.row)">编辑</el-button>
+              <el-button type="text" size="small" @click="handleDeleteUser(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -95,7 +95,14 @@
         />
       </div>
     </div>
-    <user-dialog :visible="editerUserDialogVisible" @cancel="editerUserDialogVisible = false" />
+    <!-- 用户新增编辑弹窗 -->
+    <user-dialog
+      :user-id="editerUserId"
+      :mode="editerUserDialogMode"
+      :visible="editerUserDialogVisible"
+      @success="handleAddUserSuccessEvent"
+      @dismiss="editerUserDialogVisible = false"
+    />
   </div>
 </template>
 
@@ -113,6 +120,7 @@ export default {
       isUserTableLoading: false,
       editerUserDialogVisible: false,
       editerUserDialogMode: 0,
+      editerUserId: -1,
       // 部门Tree
       deptTreeDraggable: false,
       isDeptTreeLoading: false,
@@ -190,7 +198,16 @@ export default {
       this.userList()
     },
     handleAddUser() {
+      this.editerUserDialogMode = 0
       this.editerUserDialogVisible = true
+    },
+    handleEditUser(row) {
+      this.editerUserDialogMode = 1
+      this.editerUserId = row.id
+      this.editerUserDialogVisible = true
+    },
+    handleAddUserSuccessEvent() {
+      this.handleRefreshUser()
     },
     handleSelectUserDeptNodeClick(node) {
       this.userForm.departmentId = node.id
@@ -211,16 +228,46 @@ export default {
       this.currentUserPage = val
       this.handleRefreshUser()
     },
+    handleDeleteUser(row) {
+      // delete
+      this.$confirm('此操作将永久删除且无法还原, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        this.userDelete([row.id])
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
+        })
+      })
+    },
     handleMultipleDelete() {
-      const userIds = this.multipleSelectionUserList.map(e => { return e.id })
-      this.userDelete(userIds)
+      // delete
+      this.$confirm('此操作将永久删除且无法还原, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        const userIds = this.multipleSelectionUserList.map(e => { return e.id })
+        this.userDelete(userIds)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
+        })
+      })
+    },
+    handleMultipleTrensfer() {
+      //
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/mixin";
+@import '@/styles/mixin';
 
 .user-container {
   padding: 10px;
