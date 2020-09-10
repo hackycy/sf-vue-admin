@@ -103,24 +103,34 @@
       @success="handleAddUserSuccessEvent"
       @dismiss="editerUserDialogVisible = false"
     />
+    <transfer-dialog
+      :user-ids="editerTransferUserIdList"
+      :dept-tree="deptTree"
+      :visible="editerTransferDialogVisible"
+      @success="handleTransferUserSuccessEvent"
+      @dismiss="editerTransferDialogVisible = false"
+    />
   </div>
 </template>
 
 <script>
 import { filterDeptToTree } from '@/utils/permission'
 import UserDialog from './components/user-dialog'
+import TransferDialog from './components/transfer-dialog'
 
 export default {
   name: 'SysPermissionUser',
   components: {
-    UserDialog
+    UserDialog,
+    TransferDialog
   },
   data() {
     return {
-      isUserTableLoading: false,
       editerUserDialogVisible: false,
       editerUserDialogMode: 0,
       editerUserId: -1,
+      editerTransferDialogVisible: false,
+      editerTransferUserIdList: [],
       // 部门Tree
       deptTreeDraggable: false,
       isDeptTreeLoading: false,
@@ -135,6 +145,7 @@ export default {
       multipleSelectionUserList: [],
       users: [],
       // 分页处理
+      isUserTableLoading: false,
       currentUserPage: 1,
       userTotalCount: 0,
       userPageSize: 25
@@ -260,7 +271,14 @@ export default {
       })
     },
     handleMultipleTrensfer() {
-      //
+      const userIds = this.multipleSelectionUserList.map(e => { return e.id })
+      this.editerTransferUserIdList = userIds
+      this.editerTransferDialogVisible = true
+    },
+    handleTransferUserSuccessEvent(data) {
+      const { departmentId } = data
+      this.currentDepartmentId = departmentId
+      this.handleRefreshUser()
     }
   }
 }
