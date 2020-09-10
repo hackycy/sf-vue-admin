@@ -7,6 +7,7 @@
     :visible.sync="visible"
     :before-close="dismiss"
     center
+    top="10vh"
     size="mini"
     @open="handleUserDialogOpen"
     @close="handleUserDialogClosed"
