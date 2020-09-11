@@ -177,8 +177,8 @@ export default {
         menu: {
           name: [{ required: true, message: '请输入节点名称', trigger: 'blur' }],
           router: [{ required: true, message: '请输入节点路由', trigger: 'blur' }],
-          parentNodeName: [{ required: true, message: '请输入上级节点', trigger: 'blur' }],
-          viewPath: [{ required: true, message: '请选择文件地址', trigger: 'blur' }]
+          parentNodeName: [{ required: true, message: '请输入上级节点', trigger: 'blur' }]
+          // viewPath: [{ required: true, message: '请选择文件地址', trigger: 'blur' }]
         },
         perm: {
           parentNodeName: [{ required: true, message: '请输入上级节点', trigger: 'blur' }],
@@ -281,7 +281,17 @@ export default {
       })
       return _.join(arr, ',')
     },
-    resetMenuFormData() {
+    handleMenuTypeChange() {
+      if (this.$refs.menuForm) {
+        this.$refs.menuForm.clearValidate()
+      }
+    },
+    handleMenuNodeClick(data) {
+      this.menuForm.parentId = data.id
+      this.menuForm.parentNodeName = data.label
+    },
+    handleDialogClosed() {
+      // 重置表单
       // reset data
       this.menuForm = {
         type: 0,
@@ -301,23 +311,6 @@ export default {
         this.$refs.menuForm.clearValidate()
       }
     },
-    handleMenuTypeChange() {
-      // this.resetMenuFormData()
-      if (this.$refs.menuForm) {
-        this.$refs.menuForm.clearValidate()
-      }
-    },
-    handleMenuNodeClick(data) {
-      this.menuForm.parentId = data.id
-      this.menuForm.parentNodeName = data.label
-    },
-    handleDialogClosed() {
-      if (this.isDialogLoading) {
-        this.isDialogLoading = false
-      }
-      // 重置表单
-      this.resetMenuFormData()
-    },
     handleSaveMenu() {
       this.$refs.menuForm.validate(async valid => {
         if (valid) {
@@ -330,14 +323,12 @@ export default {
           }
           this.isSaveLoading = true
           try {
-            if (this.dialogMode === 1) {
+            if (this.mode === 1) {
               await this.$service.sys.menu.update(postData)
-            } else if (this.dialogMode === 0) {
+            } else if (this.mode === 0) {
               await this.$service.sys.menu.add(postData)
             }
             this.isSaveLoading = false
-            this.handleRefresh()
-            this.editerDialogVisible = false
             this.$message({
               message: '保存成功',
               type: 'success'
