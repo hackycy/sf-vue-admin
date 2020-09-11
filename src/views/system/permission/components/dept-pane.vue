@@ -24,7 +24,7 @@
     <dept-dialog
       :dept-tree="deptTree"
       :visible="editerDeptDialogVisible"
-      @success="handleTransferUserSuccessEvent"
+      @success="handleSaveDeptSuccessEvent"
       @dismiss="editerDeptDialogVisible = false"
     />
     <!-- 右键菜单 -->
@@ -41,7 +41,7 @@
         <span>编辑</span>
         <i class="el-icon-edit" />
       </div>
-      <div v-if="currentContextSelectDepartmentId !== -1" class="item">
+      <div v-if="currentContextSelectDepartmentId !== -1" class="item" @click="handleDeleteDept">
         <span>删除</span>
         <i class="el-icon-delete" />
       </div>
@@ -67,7 +67,7 @@ export default {
       contextMenuVisible: false,
       editerDeptDialogVisible: false,
       // 部门Tree
-      deptTreeDraggable: false,
+      // deptTreeDraggable: false,
       isDeptTreeLoading: false,
       deptTree: {
         data: [],
@@ -76,7 +76,6 @@ export default {
           label: 'label'
         }
       },
-      currentDepartmentId: -1,
       currentContextSelectDepartmentId: -1
     }
   },
@@ -104,6 +103,9 @@ export default {
     handleRefreshDept() {
       this.deptTree.data = []
       this.deptList()
+    },
+    handleSaveDeptSuccessEvent() {
+      this.handleRefreshDept()
     },
     handleDeptTreeCurrentChange(data) {
       this.$emit('current-change', data.id)
@@ -133,18 +135,28 @@ export default {
     handleAddDept() {
       this.editerDeptDialogVisible = true
     },
-    openContextMenu(e) {
-      const menuMinWidth = 200
-      const offsetLeft = this.$el.getBoundingClientRect().left // container margin left
-      const offsetWidth = this.$el.offsetWidth // container width
-      const maxLeft = offsetWidth - menuMinWidth // left boundary
-      const left = e.clientX - offsetLeft + 15 // 15: margin right
-
-      if (left > maxLeft) {
-        this.contextMenuPosition.left = maxLeft
-      } else {
-        this.contextMenuPosition.left = left
+    async handleDeleteDept() {
+      if (this.currentContextSelectDepartmentId !== -1) {
+        await this.$service.sys.dept.delete({ departmentId: this.currentContextSelectDepartmentId })
+        this.$message({
+          message: '删除成功',
+          type: 'success'
+        })
+        this.handleRefreshDept()
       }
+    },
+    openContextMenu(e) {
+      // const menuMinWidth = 200
+      // const offsetLeft = this.$el.getBoundingClientRect().left // container margin left
+      // const offsetWidth = this.$el.offsetWidth // container width
+      // const maxLeft = offsetWidth - menuMinWidth // left boundary
+      // const left = e.clientX - offsetLeft + 15 // 15: margin right
+
+      // if (left > maxLeft) {
+      //   this.contextMenuPosition.left = maxLeft
+      // } else {
+      //   this.contextMenuPosition.left = left
+      // }
       this.contextMenuPosition.left = e.clientX + 5
       this.contextMenuPosition.top = e.clientY + 5
       this.contextMenuVisible = true
@@ -178,18 +190,18 @@ export default {
     z-index: 3000;
     position: fixed;
     // list-style-type: none;
-    padding: 5px 0;
+    // padding: 5px 0;
     font-size: 13px;
     font-weight: 400;
     color: #333;
     box-shadow: 3px 3px 4px 0 rgba(0, 0, 0, 0.3);
 
     .item {
-      padding: 10px 12px;
+      padding: 14px 12px;
       cursor: pointer;
 
       i {
-        margin-left: 55px;
+        margin-left: 65px;
       }
 
       &:hover {

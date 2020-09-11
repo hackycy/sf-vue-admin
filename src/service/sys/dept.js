@@ -10,6 +10,24 @@ class SysDeptService {
     })
   }
 
+  @Permission('sys/dept/add')
+  add(data) {
+    return request({
+      url: '/sys/dept/add',
+      method: 'post',
+      data
+    })
+  }
+
+  @Permission('sys/dept/delete')
+  delete(data) {
+    return request({
+      url: '/sys/dept/delete',
+      method: 'post',
+      data
+    })
+  }
+
   @Permission('sys/dept/transfer')
   transfer(data) {
     return request({

@@ -3,7 +3,7 @@ import request from '@/utils/request';
   <el-dialog
     :close-on-press-escape="false"
     :close-on-click-modal="false"
-    title="编辑"
+    :title="alertTitle"
     :visible.sync="visible"
     :before-close="dismiss"
     top="25vh"
@@ -14,7 +14,7 @@ import request from '@/utils/request';
     <div>
       <el-form ref="deptForm" :model="deptForm" :rules="deptFormRule">
         <el-form-item label="部门名称" label-width="80px" prop="departmentName">
-          <el-input v-model="deptForm.departmentName" placeholder="请输入账号" />
+          <el-input v-model="deptForm.departmentName" placeholder="请输入部门名称" />
         </el-form-item>
         <el-form-item label="上级部门" label-width="80px" prop="parentDepartmentName" style="width: 100%;">
           <el-popover placement="bottom-start" width="500">
@@ -48,9 +48,9 @@ import request from '@/utils/request';
         <el-button
           type="primary"
           size="mini"
-          :loading="isTransferLoading"
-          @click="handleTransferUser"
-        >转移</el-button>
+          :loading="isSaveLoading"
+          @click="handleSave"
+        >保存</el-button>
       </el-row>
     </div>
   </el-dialog>
@@ -60,7 +60,7 @@ import request from '@/utils/request';
 export default {
   name: 'SysDeptDialog',
   props: {
-    mode: {
+    mode: { // 0为新增。1为编辑
       type: Number,
       default: 0,
       validator: function(value) {
@@ -84,14 +84,7 @@ export default {
   },
   data() {
     return {
-      // 部门
-      // deptTree: {
-      //   data: [],
-      //   props: {
-      //     children: 'children',
-      //     label: 'label'
-      //   }
-      // },
+      isSaveLoading: false,
       deptForm: {
         orderNum: 0,
         departmentName: '',
@@ -103,6 +96,11 @@ export default {
           { required: true, message: '请输入部门名称', trigger: 'blur' }
         ]
       }
+    }
+  },
+  computed: {
+    alertTitle() {
+      return this.mode === 0 ? '新增' : '编辑'
     }
   },
   methods: {
@@ -117,26 +115,24 @@ export default {
       //   this.$refs.userForm.this.$refs.roleForm.clearValidate()
       // }
     },
-    handleSelectDeptNodeClick(node) {
-      this.deptForm.parentDepartmentId = node.id
-      this.deptForm.parentDepartmentName = node.label
-    },
-    handleTransferUser() {
-      this.$refs.transferForm.validate(async(valid) => {
+    handleSave() {
+      this.$refs.deptForm.validate(async(valid) => {
         if (valid) {
           try {
-            this.isTransferLoading = true
-            await this.$service.sys.dept.transfer({ userIds: this.userIds, departmentId: this.transferForm.departmentId })
-            this.isTransferLoading = false
+            this.isSaveLoading = true
+            const data = { ...this.deptForm }
+            delete data.parentDepartmentName
+            await this.$service.sys.dept.add(data)
+            this.isSaveLoading = false
             this.$message({
-              message: '转移成功',
+              message: '保存成功',
               type: 'success'
             })
             this.success({ ...this.transferForm })
           } catch (e) {
-            this.isTransferLoading = false
+            this.isSaveLoading = false
             this.$message({
-              message: '转移失败',
+              message: '保存失败',
               type: 'warning'
             })
             this.fail()
@@ -150,6 +146,10 @@ export default {
           return false
         }
       })
+    },
+    handleSelectDeptNodeClick(node) {
+      this.deptForm.parentDepartmentId = node.id
+      this.deptForm.parentDepartmentName = node.label
     },
     dismiss() {
       // 父组件用于设置dialog隐藏dialog
