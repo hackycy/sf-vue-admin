@@ -229,13 +229,13 @@ export default {
       this.userForm.departmentName = node.label
     },
     async handleUserDialogOpen() {
-      this.isUserDialogLoading = true
       this.roleList()
       this.deptList()
       if (this.mode === 1) {
         Promise.all([this.roleList(), this.deptList()])
           .then(async() => {
             // 获取用户信息
+            this.isUserDialogLoading = true
             const result = await this.$service.sys.user.info({
               userId: this.userId
             })
