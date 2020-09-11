@@ -9,6 +9,7 @@ import request from '@/utils/request';
     top="25vh"
     center
     size="mini"
+    @open="handleDialogOpen"
     @close="handleDialogClosed"
   >
     <div>
@@ -20,6 +21,7 @@ import request from '@/utils/request';
           <el-popover placement="bottom-start" width="500">
             <el-tree
               node-key="id"
+              :expand-on-click-node="false"
               :data="deptTree.data"
               :props="deptTree.props"
               @node-click="handleSelectDeptNodeClick"
@@ -104,6 +106,9 @@ export default {
     }
   },
   methods: {
+    handleDialogOpen() {
+
+    },
     handleDialogClosed() {
       this.deptForm = {
         orderNum: 0,

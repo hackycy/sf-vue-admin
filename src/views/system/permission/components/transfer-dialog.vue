@@ -16,6 +16,7 @@ import request from '@/utils/request';
         <el-form-item label="所属部门" label-width="80px" prop="departmentName" style="width: 100%;">
           <el-popover placement="bottom-start" width="500">
             <el-tree
+              :expand-on-click-node="false"
               node-key="id"
               :data="deptTree.data"
               :props="deptTree.props"
