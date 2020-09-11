@@ -93,15 +93,15 @@ export default {
       }
     },
     handleDialogOpen() {
+      if (this.$refs.transferForm) {
+        this.$refs.transferForm.clearValidate()
+      }
       this.deptList()
     },
     handleDialogClosed() {
       this.transferForm = {
         departmentName: '',
         departmentId: -1
-      }
-      if (this.$refs.transferForm) {
-        this.$refs.transferForm.clearValidate()
       }
     },
     handleSelectDeptNodeClick(node) {

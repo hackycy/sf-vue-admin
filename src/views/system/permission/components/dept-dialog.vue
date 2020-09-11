@@ -112,6 +112,9 @@ export default {
   },
   methods: {
     async handleDialogOpen() {
+      if (this.$refs.deptForm) {
+        this.$refs.deptForm.clearValidate()
+      }
       if (this.mode === 1 && this.departmentId !== -1) {
         try {
           this.isEditLoading = true
@@ -140,9 +143,6 @@ export default {
         departmentName: '',
         parentDepartmentId: -1,
         parentDepartmentName: ''
-      }
-      if (this.$refs.deptForm) {
-        this.$refs.deptForm.clearValidate()
       }
     },
     handleSave() {

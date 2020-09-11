@@ -210,6 +210,10 @@ export default {
   },
   methods: {
     async handleDialogOpen() {
+      if (this.$refs.menuForm) {
+        // this.$refs.menuForm.resetField()
+        this.$refs.menuForm.clearValidate()
+      }
       if (this.mode === 1 && this.menuId !== -1) {
         try {
           this.isDialogLoading = true
@@ -242,6 +246,27 @@ export default {
           this.dismiss()
         }
       }
+    },
+    handleDialogClosed() {
+      // 重置表单
+      // reset data
+      this.menuForm = {
+        type: 0,
+        name: '',
+        parentId: -1,
+        parentNodeName: '',
+        router: '',
+        perms: '',
+        icon: '',
+        orderNum: 0,
+        viewPath: '',
+        isShow: true,
+        keepalive: true
+      }
+      // if (this.$refs.menuForm) {
+      //   // this.$refs.menuForm.resetField()
+      //   this.$refs.menuForm.clearValidate()
+      // }
     },
     getViewFiles() {
       return Object.keys(asyncRoutesMap)
@@ -292,27 +317,6 @@ export default {
     handleMenuNodeClick(data) {
       this.menuForm.parentId = data.id
       this.menuForm.parentNodeName = data.label
-    },
-    handleDialogClosed() {
-      // 重置表单
-      // reset data
-      this.menuForm = {
-        type: 0,
-        name: '',
-        parentId: -1,
-        parentNodeName: '',
-        router: '',
-        perms: '',
-        icon: '',
-        orderNum: 0,
-        viewPath: '',
-        isShow: true,
-        keepalive: true
-      }
-      if (this.$refs.menuForm) {
-        // this.$refs.menuForm.resetField()
-        this.$refs.menuForm.clearValidate()
-      }
     },
     handleSaveMenu() {
       this.$refs.menuForm.validate(async valid => {

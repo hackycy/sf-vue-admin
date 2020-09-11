@@ -230,6 +230,9 @@ export default {
       this.userForm.departmentName = node.label
     },
     handleDialogOpen() {
+      if (this.$refs.userForm) {
+        this.$refs.userForm.clearValidate()
+      }
       this.roleList()
       this.deptList()
       if (this.mode === 1) {
@@ -271,9 +274,6 @@ export default {
       }
       if (this.$refs.uploader) {
         this.$refs.uploader.clearFiles()
-      }
-      if (this.$refs.userForm) {
-        this.$refs.userForm.clearValidate()
       }
     },
     handleSaveUser() {

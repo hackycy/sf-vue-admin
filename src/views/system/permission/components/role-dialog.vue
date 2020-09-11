@@ -157,6 +157,10 @@ export default {
       return this.$refs.deptTree.getCheckedKeys()
     },
     handleDialogOpen() {
+      if (this.$refs.roleForm) {
+        // this.$refs.menuForm.resetField()
+        this.$refs.roleForm.clearValidate()
+      }
       if (this.mode === 0) {
         this.menuList()
         this.deptList()
@@ -214,9 +218,7 @@ export default {
       }
       this.menuTree.data = []
       this.deptTree.data = []
-      if (this.$refs.roleForm) {
-        // this.$refs.menuForm.resetField()
-        this.$refs.roleForm.clearValidate()
+      if (this.$refs.menuTree && this.$refs.deptTree) {
         this.$refs.menuTree.setCheckedKeys([])
         this.$refs.deptTree.setCheckedKeys([])
       }
