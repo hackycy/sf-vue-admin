@@ -10,7 +10,7 @@
     top="10vh"
     size="mini"
     @open="handleDialogOpen"
-    @close="handleDialogClosed"
+    @closed="handleDialogClosed"
   >
     <div v-loading="isUserDialogLoading">
       <el-form ref="userForm" :model="userForm" :rules="userFormRule">

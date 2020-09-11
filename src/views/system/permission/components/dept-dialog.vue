@@ -10,7 +10,7 @@ import request from '@/utils/request';
     center
     size="mini"
     @open="handleDialogOpen"
-    @close="handleDialogClosed"
+    @closed="handleDialogClosed"
   >
     <div v-loading="isEditLoading">
       <el-form ref="deptForm" :model="deptForm" :rules="deptFormRule">

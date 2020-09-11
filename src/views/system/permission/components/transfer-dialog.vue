@@ -9,7 +9,7 @@ import request from '@/utils/request';
     center
     size="mini"
     @open="handleDialogOpen"
-    @close="handleDialogClosed"
+    @closed="handleDialogClosed"
   >
     <div>
       <el-form ref="transferForm" :model="transferForm" :rules="transferFormRule">

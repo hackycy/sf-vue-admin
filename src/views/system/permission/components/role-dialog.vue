@@ -8,7 +8,7 @@
     center
     size="mini"
     @open="handleDialogOpen"
-    @close="handleDialogClosed"
+    @closed="handleDialogClosed"
   >
     <div v-loading="isDialogLoading" class="dialog-content">
       <el-form ref="roleForm" :model="roleForm" :rules="roleFormRule">
@@ -157,8 +157,10 @@ export default {
       return this.$refs.deptTree.getCheckedKeys()
     },
     handleDialogOpen() {
-      this.menuList()
-      this.deptList()
+      if (this.mode === 0) {
+        this.menuList()
+        this.deptList()
+      }
       if (this.mode === 1 && this.menuId !== -1) {
         Promise.all([this.menuList(), this.deptList()])
           .then(async() => {
