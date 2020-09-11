@@ -9,6 +9,7 @@
         v-loading="isLoading"
         :data="menuData"
         size="small"
+        default-expand-all
         style="width: 100%;"
         :header-cell-style="{ backgroundColor: '#ebeef4' }"
         row-key="id"
