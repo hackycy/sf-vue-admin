@@ -23,6 +23,8 @@
     </div>
     <dept-dialog
       :dept-tree="deptTree"
+      :mode="editerDeptDialogMode"
+      :department-id="editerDeptDialogDeptId"
       :visible="editerDeptDialogVisible"
       @success="handleSaveDeptSuccessEvent"
       @dismiss="editerDeptDialogVisible = false"
@@ -37,7 +39,7 @@
         <span>新增</span>
         <i class="el-icon-plus" />
       </div>
-      <div v-if="currentContextSelectDepartmentId !== -1" class="item">
+      <div v-if="currentContextSelectDepartmentId !== -1" class="item" @click="handleEditDept">
         <span>编辑</span>
         <i class="el-icon-edit" />
       </div>
@@ -66,6 +68,8 @@ export default {
       },
       contextMenuVisible: false,
       editerDeptDialogVisible: false,
+      editerDeptDialogMode: 0,
+      editerDeptDialogDeptId: -1,
       // 部门Tree
       // deptTreeDraggable: false,
       isDeptTreeLoading: false,
@@ -133,6 +137,12 @@ export default {
       this.openContextMenu(event)
     },
     handleAddDept() {
+      this.editerDeptDialogMode = 0
+      this.editerDeptDialogVisible = true
+    },
+    handleEditDept() {
+      this.editerDeptDialogMode = 1
+      this.editerDeptDialogDeptId = this.currentContextSelectDepartmentId
       this.editerDeptDialogVisible = true
     },
     async handleDeleteDept() {

@@ -12,12 +12,17 @@ import request from '@/utils/request';
     @open="handleDialogOpen"
     @close="handleDialogClosed"
   >
-    <div>
+    <div v-loading="isEditLoading">
       <el-form ref="deptForm" :model="deptForm" :rules="deptFormRule">
         <el-form-item label="部门名称" label-width="80px" prop="departmentName">
           <el-input v-model="deptForm.departmentName" placeholder="请输入部门名称" />
         </el-form-item>
-        <el-form-item label="上级部门" label-width="80px" prop="parentDepartmentName" style="width: 100%;">
+        <el-form-item
+          label="上级部门"
+          label-width="80px"
+          prop="parentDepartmentName"
+          style="width: 100%;"
+        >
           <el-popover placement="bottom-start" width="500">
             <el-tree
               node-key="id"
@@ -47,12 +52,7 @@ import request from '@/utils/request';
     <div slot="footer">
       <el-row type="flex" justify="end">
         <el-button size="mini" @click="dismiss">取消</el-button>
-        <el-button
-          type="primary"
-          size="mini"
-          :loading="isSaveLoading"
-          @click="handleSave"
-        >保存</el-button>
+        <el-button type="primary" size="mini" :loading="isSaveLoading" @click="handleSave">保存</el-button>
       </el-row>
     </div>
   </el-dialog>
@@ -68,6 +68,10 @@ export default {
       validator: function(value) {
         return value === 0 || value === 1
       }
+    },
+    departmentId: {
+      type: Number,
+      default: -1
     },
     deptTree: {
       type: Object,
@@ -87,6 +91,7 @@ export default {
   data() {
     return {
       isSaveLoading: false,
+      isEditLoading: false,
       deptForm: {
         orderNum: 0,
         departmentName: '',
@@ -106,8 +111,25 @@ export default {
     }
   },
   methods: {
-    handleDialogOpen() {
-
+    async handleDialogOpen() {
+      if (this.mode === 1 && this.departmentId !== -1) {
+        try {
+          this.isEditLoading = true
+          const result = await this.$service.sys.dept.info({ departmentId: this.departmentId })
+          const { department, parentDepartment } = result.data
+          this.deptForm.orderNum = department.orderNum
+          this.deptForm.departmentName = department.name
+          if (department.parentId && parentDepartment) {
+            this.deptForm.parentDepartmentId = department.parentId
+            this.deptForm.parentDepartmentName = parentDepartment.name
+          }
+          this.isEditLoading = false
+        } catch (e) {
+          console.error(e)
+          this.fail()
+          this.dismiss()
+        }
+      }
     },
     handleDialogClosed() {
       this.deptForm = {
@@ -127,7 +149,15 @@ export default {
             this.isSaveLoading = true
             const data = { ...this.deptForm }
             delete data.parentDepartmentName
-            await this.$service.sys.dept.add(data)
+            if (this.mode === 0) {
+              await this.$service.sys.dept.add(data)
+            } else {
+              await this.$service.sys.dept.update({
+                id: this.departmentId,
+                name: data.departmentName,
+                parentId: data.parentDepartmentId || -1,
+                orderNum: data.orderNum })
+            }
             this.isSaveLoading = false
             this.$message({
               message: '保存成功',
