@@ -100,9 +100,9 @@ export default {
         departmentName: '',
         departmentId: -1
       }
-      // if (this.$refs.userForm) {
-      //   this.$refs.userForm.this.$refs.roleForm.clearValidate()
-      // }
+      if (this.$refs.transferForm) {
+        this.$refs.transferForm.clearValidate()
+      }
     },
     handleSelectDeptNodeClick(node) {
       this.transferForm.departmentId = node.id

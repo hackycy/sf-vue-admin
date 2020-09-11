@@ -272,6 +272,9 @@ export default {
       if (this.$refs.uploader) {
         this.$refs.uploader.clearFiles()
       }
+      if (this.$refs.userForm) {
+        this.$refs.userForm.clearValidate()
+      }
     },
     handleSaveUser() {
       this.$refs.userForm.validate(async(valid) => {

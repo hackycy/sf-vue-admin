@@ -125,7 +125,7 @@ export default {
           }
           this.isEditLoading = false
         } catch (e) {
-          this.isUserDialogLoading = false
+          this.isEditLoading = false
           this.$message({
             message: '获取信息失败',
             type: 'warning'
@@ -141,9 +141,9 @@ export default {
         parentDepartmentId: -1,
         parentDepartmentName: ''
       }
-      // if (this.$refs.userForm) {
-      //   this.$refs.userForm.this.$refs.roleForm.clearValidate()
-      // }
+      if (this.$refs.deptForm) {
+        this.$refs.deptForm.clearValidate()
+      }
     },
     handleSave() {
       this.$refs.deptForm.validate(async(valid) => {
