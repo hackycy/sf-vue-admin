@@ -35,7 +35,11 @@ function filterAsyncRoutes(routes, parentRoute) {
                 path: 'index',
                 name: toHump(route.viewPath),
                 component,
-                meta: { title: route.name, icon: route.icon, noCache: !route.keepalive }
+                meta: {
+                  title: route.name,
+                  icon: route.icon,
+                  noCache: !route.keepalive
+                }
               }
             ]
           }
@@ -47,6 +51,7 @@ function filterAsyncRoutes(routes, parentRoute) {
       realRoute = {
         path: route.router,
         component: Layout,
+        alwaysShow: true,
         meta: { title: route.name, icon: route.icon }
       }
       if (childRoutes && childRoutes.length > 0) {
@@ -81,6 +86,7 @@ function filterAsyncRoutes(routes, parentRoute) {
           title: route.name,
           icon: route.icon
         },
+        alwaysShow: true,
         component: PlaceHolder
       }
       if (childRoute && childRoute.length > 0) {
