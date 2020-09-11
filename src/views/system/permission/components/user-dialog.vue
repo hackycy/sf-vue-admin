@@ -229,7 +229,7 @@ export default {
       this.userForm.departmentId = node.id
       this.userForm.departmentName = node.label
     },
-    async handleDialogOpen() {
+    handleDialogOpen() {
       this.roleList()
       this.deptList()
       if (this.mode === 1) {
@@ -250,6 +250,7 @@ export default {
               message: '获取信息失败',
               type: 'warning'
             })
+            this.dismiss()
           })
       }
     },

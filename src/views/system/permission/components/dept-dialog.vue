@@ -125,8 +125,11 @@ export default {
           }
           this.isEditLoading = false
         } catch (e) {
-          console.error(e)
-          this.fail()
+          this.isUserDialogLoading = false
+          this.$message({
+            message: '获取信息失败',
+            type: 'warning'
+          })
           this.dismiss()
         }
       }
