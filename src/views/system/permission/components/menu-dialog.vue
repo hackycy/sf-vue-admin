@@ -161,7 +161,7 @@ export default {
         parentId: -1,
         parentNodeName: '',
         router: '',
-        perms: '',
+        perms: [],
         icon: '',
         orderNum: 0,
         viewPath: '',
@@ -205,9 +205,11 @@ export default {
       return this.mode === 0 ? '新增' : '编辑'
     }
   },
+  created() {
+    this.initPerms()
+  },
   methods: {
     async handleDialogOpen() {
-      this.initPerms()
       if (this.mode === 1 && this.menuId !== -1) {
         try {
           this.isDialogLoading = true
@@ -229,6 +231,7 @@ export default {
               return e.split(':')
             })
           }
+          console.log(tmp)
           this.menuForm = { ...tmp }
           this.isDialogLoading = false
         } catch (e) {
