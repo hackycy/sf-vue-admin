@@ -192,10 +192,12 @@
 import * as _ from 'lodash'
 import svgIcons from '@/utils/svg-icons'
 import viewFiles from '@/utils/view-path'
+import elHeightAdaptiveTable from '@/directive/el-table'
 import { flatPerms, filterPerms, filterMenuToTable, filterMenuToTree } from '@/utils/permission'
 
 export default {
   name: 'SystemPermissionMenu',
+  directives: { elHeightAdaptiveTable },
   data() {
     return {
       isLoading: true,
@@ -476,12 +478,19 @@ export default {
 <style lang="scss" scoped>
 .menu-container {
   padding: 15px;
+  height: 100%;
+  display: flex;
+  display: -webkit-flex;
+  flex-direction: column;
 
   .menu-header {
     margin-bottom: 15px;
   }
 
   .menu-content {
+    flex-grow: 1;
+    overflow-y: auto;
+
     .tag-perm-item {
       margin-right: 4px;
     }
