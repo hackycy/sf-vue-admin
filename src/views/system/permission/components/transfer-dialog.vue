@@ -8,6 +8,7 @@ import request from '@/utils/request';
     :before-close="dismiss"
     center
     size="mini"
+    @open="handleDialogOpen"
     @close="handleDialogClosed"
   >
     <div>
@@ -45,14 +46,11 @@ import request from '@/utils/request';
 </template>
 
 <script>
+import { filterDeptToTree } from '@/utils/permission'
 
 export default {
   name: 'SysDeptTransferDialog',
   props: {
-    deptTree: {
-      type: Object,
-      required: true
-    },
     userIds: { // 需要获取的用户ID，编辑模式需要传入
       type: Array,
       default: function() {
@@ -68,13 +66,13 @@ export default {
     return {
       isTransferLoading: false,
       // 部门
-      // deptTree: {
-      //   data: [],
-      //   props: {
-      //     children: 'children',
-      //     label: 'label'
-      //   }
-      // },
+      deptTree: {
+        data: [],
+        props: {
+          children: 'children',
+          label: 'label'
+        }
+      },
       transferForm: {
         departmentName: '',
         departmentId: -1
@@ -87,6 +85,15 @@ export default {
     }
   },
   methods: {
+    async deptList() {
+      const { data } = await this.$service.sys.dept.list()
+      if (data) {
+        this.deptTree.data = filterDeptToTree(data, null)
+      }
+    },
+    handleDialogOpen() {
+      this.deptList()
+    },
     handleDialogClosed() {
       this.transferForm = {
         departmentName: '',

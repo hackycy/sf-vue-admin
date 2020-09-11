@@ -6,13 +6,17 @@ import request from '@/utils/request';
     title="编辑"
     :visible.sync="visible"
     :before-close="dismiss"
+    top="25vh"
     center
     size="mini"
     @close="handleDialogClosed"
   >
     <div>
       <el-form ref="deptForm" :model="deptForm" :rules="deptFormRule">
-        <el-form-item label="上级部门" label-width="80px" prop="departmentName" style="width: 100%;">
+        <el-form-item label="部门名称" label-width="80px" prop="departmentName">
+          <el-input v-model="deptForm.departmentName" placeholder="请输入账号" />
+        </el-form-item>
+        <el-form-item label="上级部门" label-width="80px" prop="parentDepartmentName" style="width: 100%;">
           <el-popover placement="bottom-start" width="500">
             <el-tree
               node-key="id"
@@ -22,11 +26,19 @@ import request from '@/utils/request';
             />
             <el-input
               slot="reference"
-              v-model="transferForm.departmentName"
-              placeholder="请选择所属部门"
+              v-model="deptForm.parentDepartmentName"
+              placeholder="请选择上级部门"
               readonly
             />
           </el-popover>
+        </el-form-item>
+        <el-form-item label="排序" label-width="80px">
+          <el-input-number
+            v-model="deptForm.orderNum"
+            controls-position="right"
+            :min="0"
+            style="width: 100%;"
+          />
         </el-form-item>
       </el-form>
     </div>
@@ -45,10 +57,16 @@ import request from '@/utils/request';
 </template>
 
 <script>
-
 export default {
-  name: 'SysDeptTransferDialog',
+  name: 'SysDeptDialog',
   props: {
+    mode: {
+      type: Number,
+      default: 0,
+      validator: function(value) {
+        return value === 0 || value === 1
+      }
+    },
     deptTree: {
       type: Object,
       required: true
@@ -66,7 +84,6 @@ export default {
   },
   data() {
     return {
-      isTransferLoading: false,
       // 部门
       // deptTree: {
       //   data: [],
@@ -76,29 +93,33 @@ export default {
       //   }
       // },
       deptForm: {
+        orderNum: 0,
         departmentName: '',
-        departmentId: -1
+        parentDepartmentId: -1,
+        parentDepartmentName: ''
       },
       deptFormRule: {
         departmentName: [
-          { required: true, message: '请选择转移的部门', trigger: 'blur' }
+          { required: true, message: '请输入部门名称', trigger: 'blur' }
         ]
       }
     }
   },
   methods: {
     handleDialogClosed() {
-      this.transferForm = {
+      this.deptForm = {
+        orderNum: 0,
         departmentName: '',
-        departmentId: -1
+        parentDepartmentId: -1,
+        parentDepartmentName: ''
       }
       // if (this.$refs.userForm) {
       //   this.$refs.userForm.this.$refs.roleForm.clearValidate()
       // }
     },
     handleSelectDeptNodeClick(node) {
-      this.transferForm.departmentId = node.id
-      this.transferForm.departmentName = node.label
+      this.deptForm.parentDepartmentId = node.id
+      this.deptForm.parentDepartmentName = node.label
     },
     handleTransferUser() {
       this.$refs.transferForm.validate(async(valid) => {

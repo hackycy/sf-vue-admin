@@ -9,8 +9,8 @@
     center
     top="10vh"
     size="mini"
-    @open="handleUserDialogOpen"
-    @close="handleUserDialogClosed"
+    @open="handleDialogOpen"
+    @close="handleDialogClosed"
   >
     <div v-loading="isUserDialogLoading">
       <el-form ref="userForm" :model="userForm" :rules="userFormRule">
@@ -228,7 +228,7 @@ export default {
       this.userForm.departmentId = node.id
       this.userForm.departmentName = node.label
     },
-    async handleUserDialogOpen() {
+    async handleDialogOpen() {
       this.roleList()
       this.deptList()
       if (this.mode === 1) {
@@ -252,7 +252,7 @@ export default {
           })
       }
     },
-    handleUserDialogClosed() {
+    handleDialogClosed() {
       this.userForm = {
         headImg: '',
         departmentName: '',
