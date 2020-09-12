@@ -179,16 +179,25 @@ export default {
             // 更新组件
             if (menus && menus.length > 0) {
               menus.forEach(m => {
-                this.$refs.menuTree.setChecked(m.menuId, true, false)
+                // this.$refs.menuTree.setChecked(m.menuId, true, false)
+                const node = this.$refs.menuTree.getNode(m.menuId)
+                // console.log(node)
+                if (node.isLeaf) {
+                  this.$refs.menuTree.setChecked(node, true)
+                }
               })
               // const menuIds = menus.map(m => {
               //   return m.menuId
               // })
-              // this.$refs.menuTree.setCheckedKeys(menuIds, true)
+              // this.$refs.menuTree.setCheckedKeys(menuIds)
             }
             if (depts && depts.length > 0) {
               depts.forEach(d => {
-                this.$refs.deptTree.setChecked(d.departmentId, true, false)
+                // this.$refs.deptTree.setChecked(d.departmentId, true, false)
+                const node = this.$refs.deptTree.getNode(d.departmentId)
+                if (node.isLeaf) {
+                  this.$refs.deptTree.setChecked(node, true)
+                }
               })
               // const deptIds = depts.map(d => {
               //   return d.departmentId
