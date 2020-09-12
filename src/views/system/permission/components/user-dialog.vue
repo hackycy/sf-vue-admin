@@ -233,13 +233,15 @@ export default {
       if (this.$refs.userForm) {
         this.$refs.userForm.clearValidate()
       }
-      this.roleList()
-      this.deptList()
+      if (this.mode === 0) {
+        this.roleList()
+        this.deptList()
+      }
       if (this.mode === 1) {
+        this.isUserDialogLoading = true
         Promise.all([this.roleList(), this.deptList()])
           .then(async() => {
             // 获取用户信息
-            this.isUserDialogLoading = true
             const result = await this.$service.sys.user.info({
               userId: this.userId
             })

@@ -166,10 +166,10 @@ export default {
         this.deptList()
       }
       if (this.mode === 1 && this.menuId !== -1) {
+        this.isDialogLoading = true
         Promise.all([this.menuList(), this.deptList()])
           .then(async() => {
             // 获取用户信息
-            this.isDialogLoading = true
             const { data } = await this.$service.sys.role.info({ roleId: this.menuId })
             const { roleInfo, menus, depts } = data
             this.roleForm.name = roleInfo.name
