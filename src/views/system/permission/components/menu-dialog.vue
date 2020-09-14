@@ -327,6 +327,8 @@ export default {
           if (postData.type === 2) {
             // 处理权限
             postData.perms = this.joinPerms(postData.perms)
+          } else {
+            delete postData.perms
           }
           this.isSaveLoading = true
           try {
