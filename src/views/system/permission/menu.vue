@@ -6,15 +6,16 @@
     </div>
     <div class="menu-content">
       <el-table
+        ref="menuTable"
         v-loading="isLoading"
         :data="menuData"
         size="small"
-        default-expand-all
         style="width: 100%;"
         :header-cell-style="{ backgroundColor: '#ebeef4' }"
         row-key="id"
         border
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+        @row-click="handleRowClick"
       >
         <el-table-column prop="name" label="名称" width="240">
           <template slot-scope="scope">
@@ -186,6 +187,9 @@ export default {
     },
     handleSaveMenuSuccessEvent() {
       this.handleRefresh()
+    },
+    handleRowClick(row, index, e) {
+      this.$refs.menuTable.toggleRowExpansion(row)
     }
   }
 }
