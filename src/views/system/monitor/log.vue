@@ -20,17 +20,17 @@
         <el-table-column prop="action" show-overflow-tooltip label="请求地址" align="center" />
         <el-table-column prop="createTime" label="操作时间" align="center" />
       </el-table>
-      <div class="log-footer">
-        <el-pagination
-          :current-page="currentPage"
-          :page-sizes="pageSizes"
-          layout="total, sizes, prev, pager, next"
-          :page-size="pageSize"
-          :total="totalLogs"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
+    </div>
+    <div class="log-footer">
+      <el-pagination
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        layout="total, sizes, prev, pager, next"
+        :page-size="pageSize"
+        :total="totalLogs"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
     </div>
   </div>
 </template>
