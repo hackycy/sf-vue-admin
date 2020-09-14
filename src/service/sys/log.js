@@ -10,6 +10,14 @@ class SysLogService {
       method: 'get'
     })
   }
+  @Permission('sys/log/search')
+  search(query) {
+    return request({
+      url: '/sys/log/search',
+      params: query,
+      method: 'get'
+    })
+  }
 }
 
 export default SysLogService

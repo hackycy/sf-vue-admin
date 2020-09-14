@@ -2,6 +2,10 @@
   <div class="log-container">
     <div class="log-header">
       <el-button size="mini" @click="handleRefresh">刷新</el-button>
+      <div>
+        <el-input v-model="searchText" style="width: 300px; margin-right: 10px;" placeholder="请输入请求地址、IP、请求参数" size="mini" clearable />
+        <el-button type="primary" size="mini" icon="el-icon-search" @click="handleSearch">搜索</el-button>
+      </div>
     </div>
     <div class="log-content">
       <el-table
@@ -42,12 +46,14 @@ export default {
   name: 'SystemMonitorLog',
   data() {
     return {
+      isSearch: false,
       isLoading: true,
       logs: [],
       currentPage: 1,
       pageSizes: [50, 100, 150, 200],
       pageSize: 50,
-      totalLogs: 0
+      totalLogs: 0,
+      searchText: ''
     }
   },
   created() {
@@ -60,24 +66,46 @@ export default {
       if (logs && logs.length > 0) {
         this.logs = logs.map(e => { e.createTime = momentParseTime(e.createTime); return e })
         this.totalLogs = count
+      } else {
+        this.totalLogs = 0
       }
       this.isLoading = false
     },
-    refreshMenu() {
+    async search() {
+      const { data } = await this.$service.sys.log.search({ page: this.currentPage, limit: this.pageSize, q: this.searchText })
+      const { logs, count } = data
+      if (logs && logs.length > 0) {
+        this.logs = logs.map(e => { e.createTime = momentParseTime(e.createTime); return e })
+        this.totalLogs = count
+      } else {
+        this.totalLogs = 0
+      }
+      this.isLoading = false
+    },
+    refreshLog() {
+      this.isLoading = true
       this.logs = []
-      this.list()
+      if (this.isSearch) {
+        this.search()
+      } else {
+        this.list()
+      }
+    },
+    async handleSearch() {
+      this.isSearch = true
+      this.refreshLog()
     },
     handleRefresh(event) {
-      this.isLoading = true
-      this.refreshMenu()
+      this.isSearch = false
+      this.refreshLog()
     },
     handleSizeChange(size) {
       this.pageSize = size
-      this.handleRefresh()
+      this.refreshLog()
     },
     handleCurrentChange(page) {
       this.currentPage = page
-      this.handleRefresh()
+      this.refreshLog()
     }
   }
 }
@@ -93,6 +121,10 @@ export default {
 
   .log-header {
     margin-bottom: 15px;
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
 
   .log-content {
