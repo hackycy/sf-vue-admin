@@ -30,6 +30,7 @@
         <el-popover placement="bottom-start" width="500">
           <el-tree
             node-key="id"
+            :expand-on-click-node="false"
             :data="menuTree.data"
             :props="menuTree.props"
             @node-click="handleMenuNodeClick"
