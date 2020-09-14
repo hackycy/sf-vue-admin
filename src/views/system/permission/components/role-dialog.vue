@@ -154,7 +154,9 @@ export default {
       return [...childKeys, ...halfKeys]
     },
     getDeptTreeCheckedKeys() {
-      return this.$refs.deptTree.getCheckedKeys()
+      const childKeys = this.$refs.deptTree.getCheckedKeys()
+      const halfKeys = this.$refs.deptTree.getHalfCheckedKeys()
+      return [...childKeys, ...halfKeys]
     },
     handleDialogOpen() {
       if (this.$refs.roleForm) {
