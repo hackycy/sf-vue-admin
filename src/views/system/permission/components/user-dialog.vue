@@ -283,10 +283,12 @@ export default {
         if (valid) {
           try {
             this.isUserSaveLoading = true
+            const postData = { ...this.userForm }
+            delete postData.departmentName
             if (this.mode === 0) {
-              await this.$service.sys.user.add(this.userForm)
+              await this.$service.sys.user.add(postData)
             } else {
-              await this.$service.sys.user.update(this.userForm)
+              await this.$service.sys.user.update({ id: this.userId, ...postData })
             }
             this.isUserSaveLoading = false
             this.$message({
