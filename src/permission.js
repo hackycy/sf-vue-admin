@@ -1,6 +1,6 @@
-import router from './router'
+import router, { constantRoutes } from './router'
 import store from './store'
-// import { Message } from 'element-ui'
+import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
@@ -29,44 +29,32 @@ router.beforeEach(async(to, from, next) => {
       // determine whether the user has obtained his permission roles through getInfo
       // 有可能该角色没有任何权限，只能进行浏览菜单
       const hasPerms = store.getters.perms && store.getters.perms.length > 0
-      // const hasRoutes = store.getters.permission_routes && store.getters.permission_routes > 0
-      if (hasPerms) {
+      // 必须大于已存在的路由，否则视为无权限路由
+      const hasRoutes = store.getters.permission_routes && store.getters.permission_routes.length > constantRoutes.length
+      if (hasPerms || hasRoutes) {
+        // 正常可能没有权限，但是有些页面不需要权限，只包含路由，那么也可以进行访问
         next()
       } else {
-        // try {
-        //   // get user info
-        //   // note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
-        //   const { menus } = await store.dispatch('user/getInfo')
+        try {
+          // get user info
+          const { menus } = await store.dispatch('user/getInfo')
 
-        //   // generate accessible routes map based on roles
-        //   const accessRoutes = await store.dispatch('permission/generateRoutes', menus)
+          // generate accessible routes map based on roles
+          const accessRoutes = await store.dispatch('permission/generateRoutes', menus)
 
-        //   // dynamically add accessible routes
-        //   router.addRoutes(accessRoutes)
+          // dynamically add accessible routes
+          router.addRoutes(accessRoutes)
 
-        //   // hack method to ensure that addRoutes is complete
-        //   // set the replace: true, so the navigation will not leave a history record
-        //   next({ ...to, replace: true })
-        // } catch (error) {
-        //   // remove token and go to login page to re-login
-        //   await store.dispatch('user/resetToken')
-        //   Message.error(error || 'Has Error')
-        //   next(`/login?redirect=${to.path}`)
-        //   NProgress.done()
-        // }
-        // get user info
-        // note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
-        const { menus } = await store.dispatch('user/getInfo')
-
-        // generate accessible routes map based on roles
-        const accessRoutes = await store.dispatch('permission/generateRoutes', menus)
-
-        // dynamically add accessible routes
-        router.addRoutes(accessRoutes)
-
-        // hack method to ensure that addRoutes is complete
-        // set the replace: true, so the navigation will not leave a history record
-        next({ ...to, replace: true })
+          // hack method to ensure that addRoutes is complete
+          // set the replace: true, so the navigation will not leave a history record
+          next({ ...to, replace: true })
+        } catch (e) {
+          // remove token and go to login page to re-login
+          await store.dispatch('user/resetToken')
+          Message.error(e || '发生未知错误')
+          next(`/login?redirect=${to.path}`)
+          NProgress.done()
+        }
       }
     }
   } else {

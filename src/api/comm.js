@@ -16,8 +16,21 @@ export function login(data) {
   })
 }
 
+export function logout() {
+  return request({
+    url: '/logout',
+    method: 'post'
+  })
+}
+
 export function permmenu() {
   return request({
     url: '/permmenu'
+  })
+}
+
+export function person() {
+  return request({
+    url: '/person'
   })
 }

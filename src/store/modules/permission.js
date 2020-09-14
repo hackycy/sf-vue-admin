@@ -5,6 +5,53 @@ import { toHump } from '@/utils'
 import { validURL } from '@/utils/validate'
 
 /**
+ * 获取外联路由
+ */
+function getExternalLinkRoute(id, path, title, icon) {
+  return {
+    path: `external-link${id}`,
+    component: Layout,
+    children: [
+      {
+        path: path,
+        meta: { title, icon }
+      }
+    ]
+  }
+}
+
+const state = {
+  routes: [],
+  addRoutes: []
+}
+
+const mutations = {
+  SET_ROUTES: (state, routes) => {
+    state.addRoutes = routes
+    state.routes = constantRoutes.concat(routes)
+  }
+}
+
+const actions = {
+  generateRoutes({ commit }, menus) {
+    return new Promise(resolve => {
+      // 后端路由json进行转换成真正的routerMap
+      const accessedRoutes = filterAsyncRoutes(menus, null)
+      // 404 route must end
+      accessedRoutes.push(NotFoundRoute)
+      commit('SET_ROUTES', accessedRoutes)
+      resolve(accessedRoutes)
+    })
+  },
+  resetRoutes({ commit }) {
+    return new Promise(resolve => {
+      commit('SET_ROUTES', [])
+      resolve()
+    })
+  }
+}
+
+/**
  * Filter asynchronous routing tables by recursion
  * @param routes asyncRoutes
  * @param roles
@@ -100,47 +147,6 @@ function filterAsyncRoutes(routes, parentRoute) {
     }
   })
   return res
-}
-
-/**
- * 获取外联路由
- */
-function getExternalLinkRoute(id, path, title, icon) {
-  return {
-    path: `external-link${id}`,
-    component: Layout,
-    children: [
-      {
-        path: path,
-        meta: { title, icon }
-      }
-    ]
-  }
-}
-
-const state = {
-  routes: [],
-  addRoutes: []
-}
-
-const mutations = {
-  SET_ROUTES: (state, routes) => {
-    state.addRoutes = routes
-    state.routes = constantRoutes.concat(routes)
-  }
-}
-
-const actions = {
-  generateRoutes({ commit }, menus) {
-    return new Promise(resolve => {
-      // 后端路由json进行转换成真正的routerMap
-      const accessedRoutes = filterAsyncRoutes(menus, null)
-      // 404 route must end
-      accessedRoutes.push(NotFoundRoute)
-      commit('SET_ROUTES', accessedRoutes)
-      resolve(accessedRoutes)
-    })
-  }
 }
 
 export default {
