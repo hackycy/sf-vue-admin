@@ -29,8 +29,8 @@ router.beforeEach(async(to, from, next) => {
       // determine whether the user has obtained his permission roles through getInfo
       // 有可能该角色没有任何权限，只能进行浏览菜单
       const hasPerms = store.getters.perms && store.getters.perms.length > 0
-      // 必须大于已存在的路由，否则视为无权限路由
-      const hasRoutes = store.getters.permission_routes && store.getters.permission_routes.length > constantRoutes.length
+      // 必须大于已存在的路由加上404路由，否则视为无权限路由
+      const hasRoutes = store.getters.permission_routes && store.getters.permission_routes.length > constantRoutes.length + 1
       if (hasPerms || hasRoutes) {
         // 正常可能没有权限，但是有些页面不需要权限，只包含路由，那么也可以进行访问
         next()
