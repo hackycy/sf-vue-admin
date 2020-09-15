@@ -34,3 +34,11 @@ export function person() {
     url: '/person'
   })
 }
+
+export function updatePerson(data) {
+  return request({
+    url: '/person',
+    method: 'post',
+    data
+  })
+}
