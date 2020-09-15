@@ -184,7 +184,7 @@ export default {
                 // this.$refs.menuTree.setChecked(m.menuId, true, false)
                 const node = this.$refs.menuTree.getNode(m.menuId)
                 // console.log(node)
-                if (node.isLeaf) {
+                if (node && node.isLeaf) {
                   this.$refs.menuTree.setChecked(node, true)
                 }
               })
@@ -197,7 +197,7 @@ export default {
               depts.forEach(d => {
                 // this.$refs.deptTree.setChecked(d.departmentId, true, false)
                 const node = this.$refs.deptTree.getNode(d.departmentId)
-                if (node.isLeaf) {
+                if (node && node.isLeaf) {
                   this.$refs.deptTree.setChecked(node, true)
                 }
               })
@@ -208,7 +208,7 @@ export default {
             }
             this.isDialogLoading = false
           })
-          .catch(() => {
+          .catch((e) => {
             this.isDialogLoading = false
             this.$message({
               message: '获取信息失败',
