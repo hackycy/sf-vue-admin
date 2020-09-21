@@ -35,15 +35,15 @@
       :style="{left: contextMenuPosition.left+'px', top: contextMenuPosition.top+'px'}"
       class="context-menu"
     >
-      <div class="item" @click="handleAddDept">
+      <div v-permission="$service.sys.dept.permission.add" class="item" @click="handleAddDept">
         <span>新增</span>
         <i class="el-icon-plus" />
       </div>
-      <div v-if="currentContextSelectDepartmentId !== -1" class="item" @click="handleEditDept">
+      <div v-if="currentContextSelectDepartmentId !== -1" v-permission="$service.sys.dept.permission.update" class="item" @click="handleEditDept">
         <span>编辑</span>
         <i class="el-icon-edit" />
       </div>
-      <div v-if="currentContextSelectDepartmentId !== -1" class="item" @click="handleDeleteDept">
+      <div v-if="currentContextSelectDepartmentId !== -1" v-permission="$service.sys.dept.permission.delete" class="item" @click="handleDeleteDept">
         <span>删除</span>
         <i class="el-icon-delete" />
       </div>

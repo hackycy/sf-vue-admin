@@ -7,14 +7,16 @@
       <div class="user-header">用户管理</div>
       <div class="user-option">
         <el-button size="mini" @click="handleRefreshUser">刷新</el-button>
-        <el-button size="mini" type="primary" @click="handleAddUser">新增</el-button>
+        <el-button v-permission="$service.sys.user.permission.add" size="mini" type="primary" @click="handleAddUser">新增</el-button>
         <el-button
+          v-permission="$service.sys.user.permission.delete"
           size="mini"
           type="danger"
           :disabled="enbaleMultipleDelete"
           @click="handleMultipleDelete"
         >删除</el-button>
         <el-button
+          v-permission="$service.sys.dept.permission.transfer"
           size="mini"
           type="success"
           :disabled="enbaleMultipleTransfer"
@@ -56,8 +58,8 @@
           </el-table-column>
           <el-table-column fixed="right" label="操作" align="center" width="120">
             <template slot-scope="scope">
-              <el-button type="text" size="small" @click="handleEditUser(scope.row)">编辑</el-button>
-              <el-button type="text" size="small" @click="handleDeleteUser(scope.row)">删除</el-button>
+              <el-button v-permission="$service.sys.user.permission.update" type="text" size="small" @click="handleEditUser(scope.row)">编辑</el-button>
+              <el-button v-permission="$service.sys.user.permission.delete" type="text" size="small" @click="handleDeleteUser(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>

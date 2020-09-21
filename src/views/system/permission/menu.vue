@@ -2,7 +2,7 @@
   <div class="menu-container">
     <div class="menu-header">
       <el-button size="mini" @click="handleRefresh">刷新</el-button>
-      <el-button size="mini" type="primary" @click="handleAdd">新增</el-button>
+      <el-button v-permission="$service.sys.menu.permission.add" size="mini" type="primary" @click="handleAdd">新增</el-button>
     </div>
     <div class="menu-content">
       <el-table
@@ -60,8 +60,8 @@
         <el-table-column prop="updateTime" label="更新时间" width="180" align="center" />
         <el-table-column label="操作" width="150" align="center" fixed="right">
           <template slot-scope="scope">
-            <el-button size="mini" type="text" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button size="mini" type="text" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button v-permission="$service.sys.menu.permission.update" size="mini" type="text" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button v-permission="$service.sys.menu.permission.delete" size="mini" type="text" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
