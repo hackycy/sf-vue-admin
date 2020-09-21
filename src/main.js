@@ -23,6 +23,7 @@ import './utils/error-log' // error log
 import * as filters from './filters' // global filters
 
 import ServiceRegisterPlugin from './decorator/service'
+import Permission from './directive/permission'
 
 moment.locale('zh-cn') // zh-cn
 moment.tz.setDefault('Asia/Shanghai') // timezone
@@ -32,6 +33,9 @@ Vue.use(Element, {
 })
 
 Vue.use(ServiceRegisterPlugin, { store })
+
+// 注册v-permission指令
+Vue.use(Permission)
 
 // register global utility filters
 Object.keys(filters).forEach(key => {
