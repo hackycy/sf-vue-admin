@@ -1,0 +1,286 @@
+import request from '@/utils/request';
+<template>
+  <el-dialog
+    :close-on-press-escape="false"
+    :close-on-click-modal="false"
+    title="图片空间"
+    :visible.sync="visible"
+    :before-close="dismiss"
+    :destroy-on-close="true"
+    :fullscreen="fullscreen"
+    center
+    width="60%"
+    size="mini"
+    @open="handleDialogOpen"
+  >
+    <div class="image-space-container">
+      <div class="type-pane">
+        <div class="type-header">
+          <el-button size="mini" type="primary">添加分类</el-button>
+        </div>
+        <div class="type-content">
+          <ul v-loading="isTypeLoading">
+            <li
+              v-for="item in typeList"
+              :key="item.id"
+              :class="{ active: selectItemId === item.id }"
+              class="item"
+              @click="handleChangeType(item.id)"
+            >{{ item.name }}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="image-list-pane">
+        <div class="image-list-header">
+          <el-button size="mini" type="success">使用选中图片</el-button>
+          <el-button size="mini" type="danger">删除选中图片</el-button>
+          <el-button size="mini" type="primary">上传图片</el-button>
+        </div>
+        <div v-loading="isImageLoading" class="image-list-content">
+          <ul>
+            <li v-for="item in imageList" :key="item.id" class="item" @click="handleSelectItem(item)">
+              <el-image :src="item.url" fit="cover" />
+              <div v-if="isShowMask(item.id)" class="selected"><i class="el-icon-success" /></div>
+            </li>
+          </ul>
+        </div>
+        <div class="image-list-footer">
+          <el-pagination
+            small
+            background
+            :total="imageTotal"
+            :current-page.sync="currentPage"
+            :page-size="12"
+            layout="prev, pager, next, jumper"
+            @current-change="handleCurrentChange"
+          />
+        </div>
+      </div>
+    </div>
+  </el-dialog>
+</template>
+
+<script>
+export default {
+  name: 'ImageSpaceDialog',
+  props: {
+    multiple: { // 是否多选
+      type: Boolean,
+      default: false
+    },
+    fullscreen: { // 是否全屏显示
+      type: Boolean,
+      default: false
+    },
+    visible: {
+      type: Boolean,
+      required: true
+    }
+  },
+  data() {
+    return {
+      isImageLoading: false,
+      isTypeLoading: false,
+      selectItemId: -1,
+      currentPage: 1,
+      typeList: [],
+      imageList: [],
+      imageTotal: 0,
+      selectedList: []
+    }
+  },
+  methods: {
+    async getTypeList() {
+      this.isTypeLoading = true
+      const { data } = await this.$service.space.image.type()
+      const list = [{ id: -1, name: '全部空间' }]
+      this.typeList = list.concat(
+        data.map(e => {
+          return {
+            id: e.id,
+            name: e.name
+          }
+        }))
+      this.isTypeLoading = false
+    },
+    async getImageList() {
+      this.isImageLoading = true
+      const { data } = await this.$service.space.image.page({ typeId: this.selectItemId, page: this.currentPage })
+      this.imageList = data.images || []
+      this.imageTotal = data.imageTotalCount
+      this.isImageLoading = false
+    },
+    async handleDialogOpen() {
+      this.getTypeList()
+      this.getImageList()
+    },
+    isShowMask(id) {
+      return this.selectedList.includes(id)
+    },
+    handleSelectItem(item) {
+      const index = this.selectedList.findIndex(e => { return e === item.id })
+      if (index === -1) {
+        this.selectedList.push(item.id)
+        console.log(this.selectedList)
+      } else {
+        this.selectedList.splice(index, 1)
+      }
+    },
+    handleChangeType(id) {
+      this.selectItemId = id
+      this.currentPage = 1
+      this.selectedList = []
+      this.getImageList()
+    },
+    handleCurrentChange(page) {
+      this.currentPage = page
+      this.getImageList()
+    },
+    dismiss() {
+      // 父组件用于设置dialog隐藏dialog
+      this.$emit('dismiss')
+    },
+    select(data) {
+      this.$emit('select', data)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+@import '@/styles/mixin';
+
+.image-space-container {
+  display: flex;
+  height: 580px;
+  display: -webkit-flex;
+  flex-direction: row;
+
+  .type-pane {
+    width: 250px;
+    min-width: 250px;
+    height: 100%;
+    margin-right: 10px;
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: column;
+
+    .type-content {
+      height: 0;
+      flex-grow: 1;
+      padding: 10px 5px;
+
+      ul,
+      li {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      ul {
+        height: 100%;
+        overflow: auto;
+        @include scrollBar;
+
+        .item {
+          position: relative;
+          display: block;
+          height: 40px;
+          line-height: 40px;
+          font-size: 14px;
+          white-space: nowrap;
+          cursor: pointer;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          padding-left: 15px;
+
+          &:hover {
+            background-color: #cccccc40;
+          }
+        }
+
+        .active {
+          &::before {
+            position: absolute;
+            display: inline-block;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            border-radius: 2px;
+            background: #177ca4;
+            content: '';
+          }
+        }
+      }
+    }
+  }
+
+  .image-list-pane {
+    flex-grow: 1;
+    width: 0;
+    height: 100%;
+    overflow-y: hidden;
+    overflow-x: auto;
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: column;
+
+    .image-list-content {
+      height: 0;
+      flex-grow: 1;
+      margin-top: 10px;
+
+      ul,
+      li {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      li {
+        position: relative;
+      }
+
+      ul {
+        height: 100%;
+        display: flex;
+        display: -webkit-flex;
+        flex-wrap: wrap;
+        overflow: auto;
+
+        .item {
+          width: 200px;
+          height: 200px;
+          cursor: pointer;
+        }
+
+        .selected {
+            position: absolute;
+            text-align: center;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background-color: #00000090;
+
+            i {
+              line-height: 200px;
+              font-size: 30px;
+              color: #13CE66;
+              vertical-align: center;
+            }
+        }
+      }
+    }
+
+    .image-list-footer {
+      display: flex;
+      display: -webkit-flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+  }
+}
+</style>

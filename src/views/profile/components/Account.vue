@@ -1,42 +1,59 @@
 <template>
-  <el-form ref="userForm" v-loading="isLoading" :model="userForm" :rules="userFormRule">
-    <h2>个人资料修改</h2>
-    <el-form-item label="姓名" prop="name">
-      <el-input v-model.trim="userForm.name" />
-    </el-form-item>
-    <el-form-item label="昵称">
-      <el-input v-model.trim="userForm.nickName" />
-    </el-form-item>
-    <el-form-item label="邮箱">
-      <el-input v-model.trim="userForm.email" />
-    </el-form-item>
-    <el-form-item label="手机号">
-      <el-input v-model.trim="userForm.phone" />
-    </el-form-item>
-    <el-form-item label="旧密码">
-      <el-input v-model.trim="userForm.originPassword" />
-    </el-form-item>
-    <el-form-item label="新密码">
-      <el-input v-model.trim="userForm.newPassword" />
-    </el-form-item>
-    <el-form-item label="备注">
-      <el-input v-model="userForm.remark" type="textarea" />
-    </el-form-item>
-    <el-form-item>
-      <el-button size="small" type="primary" @click="submit">更新</el-button>
-    </el-form-item>
-  </el-form>
+  <div>
+    <el-form ref="userForm" v-loading="isLoading" :model="userForm" :rules="userFormRule">
+      <h2>个人资料修改</h2>
+      <el-form-item label="头像" prop="name">
+        <el-input
+          v-model.trim="userForm.headImg"
+          readonly
+        >
+          <el-button slot="append" size="small" type="primary" @click="handleUpload">点击上传</el-button>
+        </el-input>
+      </el-form-item>
+      <el-form-item label="姓名" prop="name">
+        <el-input v-model.trim="userForm.name" />
+      </el-form-item>
+      <el-form-item label="昵称">
+        <el-input v-model.trim="userForm.nickName" />
+      </el-form-item>
+      <el-form-item label="邮箱">
+        <el-input v-model.trim="userForm.email" />
+      </el-form-item>
+      <el-form-item label="手机号">
+        <el-input v-model.trim="userForm.phone" />
+      </el-form-item>
+      <el-form-item label="旧密码">
+        <el-input v-model.trim="userForm.originPassword" />
+      </el-form-item>
+      <el-form-item label="新密码">
+        <el-input v-model.trim="userForm.newPassword" />
+      </el-form-item>
+      <el-form-item label="备注">
+        <el-input v-model="userForm.remark" type="textarea" />
+      </el-form-item>
+      <el-form-item>
+        <el-button size="small" type="primary" @click="submit">更新</el-button>
+      </el-form-item>
+    </el-form>
+    <image-space-dialog :visible="spaceDialogVisible" @dismiss="spaceDialogVisible = false" />
+  </div>
 </template>
 
 <script>
+import ImageSpaceDialog from '@/components/ImageSpace'
 import { person, updatePerson } from '@/api/comm'
 import { aesEncrypt } from '@/utils/crypto'
 
 export default {
+  components: {
+    ImageSpaceDialog
+  },
   data() {
     return {
       isLoading: false,
+      spaceDialogVisible: false,
       userForm: {
+        headImg: '',
         name: '',
         email: '',
         nickName: '',
@@ -98,6 +115,9 @@ export default {
           return false
         }
       })
+    },
+    handleUpload() {
+      this.spaceDialogVisible = true
     }
   }
 }
