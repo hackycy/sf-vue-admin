@@ -14,20 +14,6 @@
   >
     <div v-loading="isUserDialogLoading">
       <el-form ref="userForm" :model="userForm" :rules="userFormRule">
-        <el-form-item label="头像" label-width="80px" prop="headImg">
-          <el-upload
-            ref="uploader"
-            action="/admin/upload/img"
-            list-type="picture-card"
-            :headers="getUploadheader()"
-            :before-upload="beforeAvatarUpload"
-            with-credentials
-            :limit="1"
-            :on-success="handleUploadAvatarSuccess"
-          >
-            <i class="el-icon-plus" />
-          </el-upload>
-        </el-form-item>
         <el-form-item label="所属部门" label-width="80px" prop="departmentName" style="width: 100%;">
           <el-popover placement="bottom-start" width="500">
             <el-tree
@@ -113,7 +99,6 @@
 
 <script>
 import elDragDialog from '@/directive/el-drag-dialog'
-import { getToken } from '@/utils/auth'
 import { filterDeptToTree } from '@/utils/permission'
 
 export default {
@@ -159,7 +144,6 @@ export default {
       },
       roles: [],
       userForm: {
-        headImg: '',
         departmentName: '',
         departmentId: -1,
         username: '',
@@ -201,23 +185,6 @@ export default {
         this.deptTree.data = filterDeptToTree(data, null)
       }
       this.isDeptTreeLoading = false
-    },
-    getUploadheader() {
-      return {
-        Authorization: getToken()
-      }
-    },
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
-      const isLt2M = file.size / 1024 / 1024 < 2
-
-      if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 或 PNG 格式!')
-      }
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!')
-      }
-      return isJPG && isLt2M
     },
     handleUploadAvatarSuccess(res) {
       const { url } = res.data
