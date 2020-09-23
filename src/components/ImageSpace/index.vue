@@ -16,7 +16,8 @@ import request from '@/utils/request';
     <div class="image-space-container">
       <div class="type-pane">
         <div class="type-header">
-          <el-button size="mini" type="primary">添加分类</el-button>
+          <el-button size="mini" type="primary" @click="handleAddType">添加分类</el-button>
+          <el-input v-model="typeText" size="mini" placeholder="请输入分类名称" clearable style="margin-left : 5px;" />
         </div>
         <div class="type-content">
           <ul v-loading="isTypeLoading">
@@ -26,7 +27,9 @@ import request from '@/utils/request';
               :class="{ active: selectItemId === item.id }"
               class="item"
               @click="handleChangeType(item.id)"
-            >{{ item.name }}</li>
+            >
+              {{ item.name }}
+            </li>
           </ul>
         </div>
       </div>
@@ -38,9 +41,16 @@ import request from '@/utils/request';
         </div>
         <div v-loading="isImageLoading" class="image-list-content">
           <ul>
-            <li v-for="item in imageList" :key="item.id" class="item" @click="handleSelectItem(item)">
-              <el-image :src="item.url" fit="cover" />
-              <div v-if="isShowMask(item.id)" class="selected"><i class="el-icon-success" /></div>
+            <li
+              v-for="item in imageList"
+              :key="item.id"
+              class="item"
+              @click="handleSelectItem(item)"
+            >
+              <el-image style="width: 100%; height: 100%;" :src="item.url" fit="contain" />
+              <div v-if="isShowMask(item.id)" class="selected">
+                <i class="el-icon-success" />
+              </div>
             </li>
           </ul>
         </div>
@@ -64,11 +74,13 @@ import request from '@/utils/request';
 export default {
   name: 'ImageSpaceDialog',
   props: {
-    multiple: { // 是否多选
+    multiple: {
+      // 是否多选
       type: Boolean,
       default: false
     },
-    fullscreen: { // 是否全屏显示
+    fullscreen: {
+      // 是否全屏显示
       type: Boolean,
       default: false
     },
@@ -86,7 +98,8 @@ export default {
       typeList: [],
       imageList: [],
       imageTotal: 0,
-      selectedList: []
+      selectedList: [],
+      typeText: ''
     }
   },
   methods: {
@@ -95,17 +108,21 @@ export default {
       const { data } = await this.$service.space.image.type()
       const list = [{ id: -1, name: '全部空间' }]
       this.typeList = list.concat(
-        data.map(e => {
+        data.map((e) => {
           return {
             id: e.id,
             name: e.name
           }
-        }))
+        })
+      )
       this.isTypeLoading = false
     },
     async getImageList() {
       this.isImageLoading = true
-      const { data } = await this.$service.space.image.page({ typeId: this.selectItemId, page: this.currentPage })
+      const { data } = await this.$service.space.image.page({
+        typeId: this.selectItemId,
+        page: this.currentPage
+      })
       this.imageList = data.images || []
       this.imageTotal = data.imageTotalCount
       this.isImageLoading = false
@@ -118,7 +135,9 @@ export default {
       return this.selectedList.includes(id)
     },
     handleSelectItem(item) {
-      const index = this.selectedList.findIndex(e => { return e === item.id })
+      const index = this.selectedList.findIndex((e) => {
+        return e === item.id
+      })
       if (index === -1) {
         this.selectedList.push(item.id)
         console.log(this.selectedList)
@@ -135,6 +154,11 @@ export default {
     handleCurrentChange(page) {
       this.currentPage = page
       this.getImageList()
+    },
+    handleAddType() {
+      if (this.typeText) {
+        //
+      }
     },
     dismiss() {
       // 父组件用于设置dialog隐藏dialog
@@ -164,6 +188,12 @@ export default {
     display: flex;
     display: -webkit-flex;
     flex-direction: column;
+
+    .type-header {
+      display: flex;
+      display: -webkit-flex;
+      flex-direction: row;
+    }
 
     .type-content {
       height: 0;
@@ -248,28 +278,31 @@ export default {
         display: -webkit-flex;
         flex-wrap: wrap;
         overflow: auto;
+        @include scrollBar;
 
         .item {
           width: 200px;
           height: 200px;
+          margin-right: 5px;
+          margin-bottom: 5px;
           cursor: pointer;
         }
 
         .selected {
-            position: absolute;
-            text-align: center;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
-            background-color: #00000090;
+          position: absolute;
+          text-align: center;
+          top: 0;
+          left: 0;
+          height: 100%;
+          width: 100%;
+          background-color: #00000090;
 
-            i {
-              line-height: 200px;
-              font-size: 30px;
-              color: #13CE66;
-              vertical-align: center;
-            }
+          i {
+            line-height: 200px;
+            font-size: 30px;
+            color: #13ce66;
+            vertical-align: center;
+          }
         }
       }
     }
