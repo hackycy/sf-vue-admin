@@ -7,7 +7,7 @@
           v-model.trim="userForm.headImg"
           readonly
         >
-          <el-button slot="append" size="small" type="primary" @click="handleUpload" @select="handleSelectImage">点击上传</el-button>
+          <el-button slot="append" size="small" type="primary" @click="handleUpload">点击上传</el-button>
         </el-input>
       </el-form-item>
       <el-form-item label="姓名" prop="name">
@@ -35,7 +35,7 @@
         <el-button size="small" type="primary" @click="submit">更新</el-button>
       </el-form-item>
     </el-form>
-    <image-space-dialog :visible="spaceDialogVisible" @dismiss="spaceDialogVisible = false" />
+    <image-space-dialog :visible="spaceDialogVisible" @select="handleSelectImage" @dismiss="spaceDialogVisible = false" />
   </div>
 </template>
 
@@ -120,7 +120,8 @@ export default {
       this.spaceDialogVisible = true
     },
     handleSelectImage(data) {
-      this.headImg = data
+      console.log(data)
+      this.userForm.headImg = data
     }
   }
 }
