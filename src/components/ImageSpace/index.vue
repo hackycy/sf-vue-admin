@@ -229,6 +229,9 @@ export default {
         message: '删除成功',
         type: 'success'
       })
+      if (this.selectTypeId === id) {
+        this.selectTypeId = -1
+      }
     },
     handleUseSelectImage() {
       if (this.selectedList && this.selectedList.length <= 0) {
