@@ -25,7 +25,7 @@ export default {
   data() {
     return {
       title: '思忆后台管理系统',
-      logo: ''
+      logo: 'http://image.si-yee.com/思忆/20200924_021100.png'
     }
   }
 }
