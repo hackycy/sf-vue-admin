@@ -7,7 +7,7 @@
           v-model.trim="userForm.headImg"
           readonly
         >
-          <el-button slot="append" size="small" type="primary" @click="handleUpload">点击上传</el-button>
+          <el-button slot="append" size="small" type="primary" @click="handleUpload" @select="handleSelectImage">点击上传</el-button>
         </el-input>
       </el-form-item>
       <el-form-item label="姓名" prop="name">
@@ -118,6 +118,9 @@ export default {
     },
     handleUpload() {
       this.spaceDialogVisible = true
+    },
+    handleSelectImage(data) {
+      this.headImg = data
     }
   }
 }
