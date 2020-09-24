@@ -264,6 +264,10 @@ export default {
         this.getImageList()
         this.selectedList = []
         this.isDeleteLoading = false
+        this.$message({
+          message: '删除成功',
+          type: 'success'
+        })
       } catch (e) {
         this.isDeleteLoading = false
       }
