@@ -13,14 +13,18 @@
         @contextmenu.prevent.native="openMenu(tag,$event)"
       >
         {{ tag.title }}
-        <span v-if="!isAffix(tag)" class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)" />
+        <span
+          v-if="!isAffix(tag)"
+          class="el-icon-close"
+          @click.prevent.stop="closeSelectedTag(tag)"
+        />
       </router-link>
     </scroll-pane>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
-      <li @click="refreshSelectedTag(selectedTag)">Refresh</li>
-      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">Close</li>
-      <li @click="closeOthersTags">Close Others</li>
-      <li @click="closeAllTags(selectedTag)">Close All</li>
+      <li @click="refreshSelectedTag(selectedTag)">刷新</li>
+      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">关闭</li>
+      <li @click="closeOthersTags">关闭其它</li>
+      <li @click="closeAllTags(selectedTag)">关闭全部</li>
     </ul>
   </div>
 </template>
@@ -199,11 +203,11 @@ export default {
 
 <style lang="scss" scoped>
 .tags-view-container {
-  height: 34px;
+  height: 44px;
   width: 100%;
-  background: #fff;
-  border-bottom: 1px solid #d8dce5;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
+  background: #f7f7f7;
+  // border-bottom: 1px solid #d8dce5;
+  // box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
   .tags-view-wrapper {
     .tags-view-item {
       display: inline-block;
@@ -211,13 +215,13 @@ export default {
       cursor: pointer;
       height: 26px;
       line-height: 26px;
-      border: 1px solid #d8dce5;
-      color: #495060;
+      // border: 1px solid #d8dce5;
+      color: #909399;
       background: #fff;
-      padding: 0 8px;
+      padding: 0 12px;
       font-size: 12px;
-      margin-left: 5px;
-      margin-top: 4px;
+      margin-left: 10px;
+      margin-top: 9px;
       &:first-of-type {
         margin-left: 15px;
       }
@@ -225,19 +229,19 @@ export default {
         margin-right: 15px;
       }
       &.active {
-        background-color: #42b983;
-        color: #fff;
-        border-color: #42b983;
-        &::before {
-          content: '';
-          background: #fff;
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          position: relative;
-          margin-right: 2px;
-        }
+        // background-color: #42b983;
+        color: #000;
+        // border-color: #42b983;
+        // &::before {
+        //   content: '';
+        //   background: #000;
+        //   display: inline-block;
+        //   width: 8px;
+        //   height: 8px;
+        //   border-radius: 50%;
+        //   position: relative;
+        //   margin-right: 2px;
+        // }
       }
     }
   }
@@ -252,7 +256,7 @@ export default {
     font-size: 12px;
     font-weight: 400;
     color: #333;
-    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, .3);
+    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.3);
     li {
       margin: 0;
       padding: 7px 16px;
@@ -274,16 +278,17 @@ export default {
       height: 16px;
       vertical-align: 2px;
       border-radius: 50%;
+      font-weight: bold;
       text-align: center;
-      transition: all .3s cubic-bezier(.645, .045, .355, 1);
+      transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
       transform-origin: 100% 50%;
       &:before {
-        transform: scale(.6);
+        transform: scale(0.6);
         display: inline-block;
         vertical-align: -3px;
       }
       &:hover {
-        background-color: #b4bccc;
+        background-color: #000;
         color: #fff;
       }
     }
