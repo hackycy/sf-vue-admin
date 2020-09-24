@@ -3,7 +3,13 @@
     <div class="log-header">
       <el-button size="mini" @click="handleRefresh">刷新</el-button>
       <div>
-        <el-input v-model="searchText" style="width: 300px; margin-right: 10px;" placeholder="请输入请求地址、IP、请求参数" size="mini" clearable />
+        <el-input
+          v-model="searchText"
+          style="width: 300px; margin-right: 10px;"
+          placeholder="请输入请求地址、IP、请求参数"
+          size="mini"
+          clearable
+        />
         <el-button type="primary" size="mini" icon="el-icon-search" @click="handleSearch">搜索</el-button>
       </div>
     </div>
@@ -92,6 +98,13 @@ export default {
       }
     },
     async handleSearch() {
+      if (this.searchText === '') {
+        this.$message({
+          message: '请输入搜索内容',
+          type: 'warning'
+        })
+        return
+      }
       this.isSearch = true
       this.refreshLog()
     },
