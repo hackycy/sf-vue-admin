@@ -2,11 +2,20 @@ import { Permission } from '@/decorator/service'
 import request from '@/utils/request'
 
 class ImageSpaceService {
-  @Permission('space/image/type')
+  @Permission('space/image/type/list')
   type() {
     return request({
-      url: '/space/image/type',
+      url: '/space/image/type/list',
       method: 'get'
+    })
+  }
+
+  @Permission('space/image/type/add')
+  addType(data) {
+    return request({
+      url: '/space/image/add',
+      method: 'post',
+      data
     })
   }
 

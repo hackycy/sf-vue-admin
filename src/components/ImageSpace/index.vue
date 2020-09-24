@@ -1,8 +1,6 @@
 import request from '@/utils/request';
 <template>
   <el-dialog
-    :close-on-press-escape="false"
-    :close-on-click-modal="false"
     title="图片空间"
     :visible.sync="visible"
     :before-close="dismiss"
@@ -17,7 +15,13 @@ import request from '@/utils/request';
       <div class="type-pane">
         <div class="type-header">
           <el-button size="mini" type="primary" @click="handleAddType">添加分类</el-button>
-          <el-input v-model="typeText" size="mini" placeholder="请输入分类名称" clearable style="margin-left : 5px;" />
+          <el-input
+            v-model="typeText"
+            size="mini"
+            placeholder="请输入分类名称"
+            clearable
+            style="margin-left : 5px;"
+          />
         </div>
         <div class="type-content">
           <ul v-loading="isTypeLoading">
@@ -27,15 +31,13 @@ import request from '@/utils/request';
               :class="{ active: selectItemId === item.id }"
               class="item"
               @click="handleChangeType(item.id)"
-            >
-              {{ item.name }}
-            </li>
+            >{{ item.name }}</li>
           </ul>
         </div>
       </div>
       <div class="image-list-pane">
         <div class="image-list-header">
-          <el-button size="mini" type="success">使用选中图片</el-button>
+          <el-button size="mini" type="success" @click="handleUseSelectImage">使用选中图片</el-button>
           <el-button size="mini" type="danger">删除选中图片</el-button>
           <el-button size="mini" type="primary">上传图片</el-button>
         </div>
@@ -55,6 +57,7 @@ import request from '@/utils/request';
           </ul>
         </div>
         <div class="image-list-footer">
+          <el-badge :value="getSelectedSize" class="badge">已选中</el-badge>
           <el-pagination
             small
             background
@@ -102,11 +105,16 @@ export default {
       typeText: ''
     }
   },
+  computed: {
+    getSelectedSize() {
+      return this.selectedList.length
+    }
+  },
   methods: {
     async getTypeList() {
       this.isTypeLoading = true
       const { data } = await this.$service.space.image.type()
-      const list = [{ id: -1, name: '全部空间' }]
+      const list = [{ id: -1, name: '全部图片' }]
       this.typeList = list.concat(
         data.map((e) => {
           return {
@@ -132,15 +140,15 @@ export default {
       this.getImageList()
     },
     isShowMask(id) {
-      return this.selectedList.includes(id)
+      const index = this.selectedList.findIndex(e => { return e.id === id })
+      return index !== -1
     },
     handleSelectItem(item) {
       const index = this.selectedList.findIndex((e) => {
-        return e === item.id
+        return e.id === item.id
       })
       if (index === -1) {
-        this.selectedList.push(item.id)
-        console.log(this.selectedList)
+        this.selectedList.push({ id: item.id, url: item.url })
       } else {
         this.selectedList.splice(index, 1)
       }
@@ -148,24 +156,52 @@ export default {
     handleChangeType(id) {
       this.selectItemId = id
       this.currentPage = 1
-      this.selectedList = []
       this.getImageList()
     },
     handleCurrentChange(page) {
       this.currentPage = page
       this.getImageList()
     },
-    handleAddType() {
+    async handleAddType() {
       if (this.typeText) {
-        //
+        await this.$service.space.image.addType({ name: this.typeText })
+        this.typeText = ''
+        this.getTypeList()
+        this.$message({
+          message: '添加成功',
+          type: 'success'
+        })
+      } else {
+        this.$message({
+          message: '请输入分类名称',
+          type: 'warning'
+        })
       }
+    },
+    handleUseSelectImage() {
+      if (this.selectedList && this.selectedList.length <= 0) {
+        this.$message({
+          message: '暂无选中图片',
+          type: 'warning'
+        })
+        return
+      }
+      let data
+      if (this.multiple) {
+        data = this.selectedList.map(e => { return e.url })
+      } else {
+        data = this.selectedList[0].url
+      }
+      this.select(data)
     },
     dismiss() {
       // 父组件用于设置dialog隐藏dialog
+      this.selectedList = []
       this.$emit('dismiss')
     },
     select(data) {
       this.$emit('select', data)
+      this.dismiss()
     }
   }
 }
@@ -282,7 +318,7 @@ export default {
 
         .item {
           width: 200px;
-          height: 200px;
+          height: 240px;
           margin-right: 5px;
           margin-bottom: 5px;
           cursor: pointer;
@@ -311,8 +347,14 @@ export default {
       display: flex;
       display: -webkit-flex;
       flex-direction: row;
-      justify-content: flex-end;
+      justify-content: space-between;
       margin-top: 10px;
+      height: 30px;
+
+      .badge {
+        line-height: 30px;
+      }
+
     }
   }
 }
