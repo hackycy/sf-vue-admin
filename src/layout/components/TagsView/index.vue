@@ -218,7 +218,7 @@ export default {
       // border: 1px solid #d8dce5;
       color: #909399;
       background: #fff;
-      padding: 0 12px;
+      padding: 0 8px;
       font-size: 12px;
       margin-left: 10px;
       margin-top: 9px;
