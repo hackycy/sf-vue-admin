@@ -43,7 +43,6 @@
             autocomplete="on"
             @keyup.native="checkCapslock"
             @blur="capsTooltip = false"
-            @keyup.enter.native="handleLogin"
           />
           <span class="show-pwd" @click="showPwd">
             <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
@@ -63,6 +62,7 @@
           type="text"
           tabindex="3"
           autocomplete="off"
+          @keyup.enter.native="handleLogin"
         />
         <span class="captcha-container">
           <img :src="captchaData" @click="getCaptcha()">
