@@ -13,7 +13,16 @@ class ImageSpaceService {
   @Permission('space/image/type/add')
   addType(data) {
     return request({
-      url: '/space/image/add',
+      url: '/space/image/type/add',
+      method: 'post',
+      data
+    })
+  }
+
+  @Permission('space/image/type/delete')
+  deleteType(data) {
+    return request({
+      url: '/space/image/type/delete',
       method: 'post',
       data
     })

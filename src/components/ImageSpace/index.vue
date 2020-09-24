@@ -31,7 +31,12 @@ import request from '@/utils/request';
               :class="{ active: selectItemId === item.id }"
               class="item"
               @click="handleChangeType(item.id)"
-            >{{ item.name }}</li>
+            >
+              {{ item.name }}
+              <span v-if="item.id !== -1">
+                <i class="el-icon-remove" @click.stop="handleDeleteType(item.id)" />
+              </span>
+            </li>
           </ul>
         </div>
       </div>
@@ -178,6 +183,14 @@ export default {
         })
       }
     },
+    async handleDeleteType(id) {
+      await this.$service.space.image.deleteType({ typeId: id })
+      this.getTypeList()
+      this.$message({
+        message: '删除成功',
+        type: 'success'
+      })
+    },
     handleUseSelectImage() {
       if (this.selectedList && this.selectedList.length <= 0) {
         this.$message({
@@ -255,13 +268,24 @@ export default {
           line-height: 40px;
           font-size: 14px;
           white-space: nowrap;
-          cursor: pointer;
           text-overflow: ellipsis;
           overflow: hidden;
           padding-left: 15px;
+          cursor: pointer;
 
           &:hover {
             background-color: #cccccc40;
+          }
+
+          span {
+            float: right;
+            margin-right: 10px;
+            font-size: 16px;
+            cursor: pointer;
+
+            &:hover {
+              color: red;
+            }
           }
         }
 
@@ -334,7 +358,7 @@ export default {
           background-color: #00000090;
 
           i {
-            line-height: 200px;
+            line-height: 240px;
             font-size: 30px;
             color: #13ce66;
             vertical-align: center;
@@ -354,7 +378,6 @@ export default {
       .badge {
         line-height: 30px;
       }
-
     }
   }
 }
