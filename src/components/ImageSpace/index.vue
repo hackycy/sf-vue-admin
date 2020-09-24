@@ -43,7 +43,12 @@ import request from '@/utils/request';
       <div class="image-list-pane">
         <div class="image-list-header">
           <el-button size="mini" type="success" @click="handleUseSelectImage">使用选中图片</el-button>
-          <el-button size="mini" type="danger">删除选中图片</el-button>
+          <el-button
+            size="mini"
+            type="danger"
+            :loading="isDeleteLoading"
+            @click="handleDeleteSelectImage"
+          >删除选中图片</el-button>
           <el-upload
             style="display: inline-block; margin-left: 10px;"
             action
@@ -110,6 +115,7 @@ export default {
       isImageLoading: false,
       isTypeLoading: false,
       isUploadLoading: false,
+      isDeleteLoading: false,
       selectTypeId: -1,
       currentPage: 1,
       typeList: [],
@@ -239,6 +245,25 @@ export default {
         data = this.selectedList[0].url
       }
       this.select(data)
+    },
+    async handleDeleteSelectImage() {
+      if (this.selectedList && this.selectedList.length <= 0) {
+        this.$message({
+          message: '暂无选中图片',
+          type: 'warning'
+        })
+        return
+      }
+      try {
+        this.isDeleteLoading = true
+        const data = this.selectedList.map(e => { return e.id })
+        await this.$service.space.image.delete({ imageIds: data })
+        this.getImageList()
+        this.selectedList = []
+        this.isDeleteLoading = false
+      } catch (e) {
+        this.isDeleteLoading = false
+      }
     },
     dismiss() {
       // 父组件用于设置dialog隐藏dialog

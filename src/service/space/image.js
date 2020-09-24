@@ -37,6 +37,15 @@ class ImageSpaceService {
     })
   }
 
+  @Permission('space/image/delete')
+  delete(data) {
+    return request({
+      url: '/space/image/delete',
+      method: 'post',
+      data
+    })
+  }
+
   @Permission('space/image/upload')
   upload(data) {
     return request({
