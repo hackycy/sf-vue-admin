@@ -28,7 +28,7 @@ import request from '@/utils/request';
             <li
               v-for="item in typeList"
               :key="item.id"
-              :class="{ active: selectItemId === item.id }"
+              :class="{ active: selectTypeId === item.id }"
               class="item"
               @click="handleChangeType(item.id)"
             >
@@ -44,7 +44,15 @@ import request from '@/utils/request';
         <div class="image-list-header">
           <el-button size="mini" type="success" @click="handleUseSelectImage">使用选中图片</el-button>
           <el-button size="mini" type="danger">删除选中图片</el-button>
-          <el-button size="mini" type="primary">上传图片</el-button>
+          <el-upload
+            style="display: inline-block; margin-left: 10px;"
+            action
+            :limit="1"
+            :show-file-list="false"
+            :http-request="upload"
+          >
+            <el-button :loading="isUploadLoading" size="mini" type="primary">点击上传</el-button>
+          </el-upload>
         </div>
         <div v-loading="isImageLoading" class="image-list-content">
           <ul>
@@ -101,7 +109,8 @@ export default {
     return {
       isImageLoading: false,
       isTypeLoading: false,
-      selectItemId: -1,
+      isUploadLoading: false,
+      selectTypeId: -1,
       currentPage: 1,
       typeList: [],
       imageList: [],
@@ -133,14 +142,38 @@ export default {
     async getImageList() {
       this.isImageLoading = true
       const { data } = await this.$service.space.image.page({
-        typeId: this.selectItemId,
+        typeId: this.selectTypeId,
         page: this.currentPage
       })
       this.imageList = data.images || []
       this.imageTotal = data.imageTotalCount
       this.isImageLoading = false
     },
-    async handleDialogOpen() {
+    async upload(param) {
+      if (this.selectTypeId === -1) {
+        this.$message({
+          message: '请先选择需要上传对应的分类',
+          type: 'warning'
+        })
+      } else {
+        this.isUploadLoading = true
+        try {
+          const form = new FormData()
+          form.append('file', param.file)
+          form.append('typeId', this.selectTypeId)
+          await this.$service.space.image.upload(form)
+          this.getImageList()
+          this.$message({
+            message: '上传成功',
+            type: 'success'
+          })
+          this.isUploadLoading = false
+        } catch (e) {
+          this.isUploadLoading = false
+        }
+      }
+    },
+    handleDialogOpen() {
       this.getTypeList()
       this.getImageList()
     },
@@ -159,7 +192,7 @@ export default {
       }
     },
     handleChangeType(id) {
-      this.selectItemId = id
+      this.selectTypeId = id
       this.currentPage = 1
       this.getImageList()
     },
@@ -210,6 +243,7 @@ export default {
     dismiss() {
       // 父组件用于设置dialog隐藏dialog
       this.selectedList = []
+      this.selectTypeId = -1
       this.$emit('dismiss')
     },
     select(data) {
