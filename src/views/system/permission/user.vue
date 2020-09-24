@@ -264,7 +264,7 @@ export default {
   padding: 10px;
   height: 100%;
   width: 100%;
-  background-color: #f7f7f7;
+  background-color: #f8f8f6;
   position: relative;
   display: flex;
   display: -webkit-flex;
