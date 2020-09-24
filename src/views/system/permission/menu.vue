@@ -2,7 +2,12 @@
   <div class="menu-container">
     <div class="menu-header">
       <el-button size="mini" @click="handleRefresh">刷新</el-button>
-      <el-button v-permission="$service.sys.menu.permission.add" size="mini" type="primary" @click="handleAdd">新增</el-button>
+      <el-button
+        v-permission="$service.sys.menu.permission.add"
+        size="mini"
+        type="primary"
+        @click="handleAdd"
+      >新增</el-button>
     </div>
     <div class="menu-content">
       <el-table
@@ -10,12 +15,14 @@
         v-loading="isLoading"
         :data="menuData"
         size="small"
-        style="width: 100%;"
+        style="width: 100%"
         :header-cell-style="{ backgroundColor: '#ebeef4' }"
+        :expand-row-keys="expandsList"
         row-key="id"
         border
-        :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+        :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         @row-click="handleRowClick"
+        @expand-change="handleExpandChange"
       >
         <el-table-column prop="name" label="名称" width="240">
           <template slot-scope="scope">
@@ -35,17 +42,42 @@
         </el-table-column>
         <el-table-column prop="type" label="类型" width="80" align="center">
           <template slot-scope="scope">
-            <el-tag type="small" effect="dark">{{ getMenuType(scope.row.type) }}</el-tag>
+            <el-tag type="small" effect="dark">{{
+              getMenuType(scope.row.type)
+            }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="router" label="节点路由" align="center" width="240" />
-        <el-table-column prop="keepalive" label="路由缓存" width="80" align="center">
+        <el-table-column
+          prop="router"
+          label="节点路由"
+          align="center"
+          width="240"
+        />
+        <el-table-column
+          prop="keepalive"
+          label="路由缓存"
+          width="80"
+          align="center"
+        >
           <template slot-scope="scope">
-            <i v-if="scope.row.keepalive && scope.row.type === 1" class="el-icon-check" />
+            <i
+              v-if="scope.row.keepalive && scope.row.type === 1"
+              class="el-icon-check"
+            />
           </template>
         </el-table-column>
-        <el-table-column prop="viewPath" label="文件路径" align="center" width="280" />
-        <el-table-column prop="perms" label="权限" header-align="center" width="300">
+        <el-table-column
+          prop="viewPath"
+          label="文件路径"
+          align="center"
+          width="280"
+        />
+        <el-table-column
+          prop="perms"
+          label="权限"
+          header-align="center"
+          width="300"
+        >
           <template slot-scope="scope">
             <el-tag
               v-for="i in splitPerms(scope.row.perms)"
@@ -56,12 +88,32 @@
             >{{ i }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="orderNum" label="排序号" width="80" align="center" />
-        <el-table-column prop="updateTime" label="更新时间" width="180" align="center" />
+        <el-table-column
+          prop="orderNum"
+          label="排序号"
+          width="80"
+          align="center"
+        />
+        <el-table-column
+          prop="updateTime"
+          label="更新时间"
+          width="180"
+          align="center"
+        />
         <el-table-column label="操作" width="150" align="center" fixed="right">
           <template slot-scope="scope">
-            <el-button v-permission="$service.sys.menu.permission.update" size="mini" type="text" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button v-permission="$service.sys.menu.permission.delete" size="mini" type="text" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button
+              v-permission="$service.sys.menu.permission.update"
+              size="mini"
+              type="text"
+              @click="handleEdit(scope.row)"
+            >编辑</el-button>
+            <el-button
+              v-permission="$service.sys.menu.permission.delete"
+              size="mini"
+              type="text"
+              @click="handleDelete(scope.row)"
+            >删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -95,6 +147,11 @@ export default {
       editerDialogMenuId: -1,
       editerDialogVisible: false,
       menuData: [],
+      // 获取row的key值
+      // getRowKeys(row) {
+      //   return row.id
+      // },
+      expandsList: [],
       menuTree: {
         data: [],
         props: {
@@ -190,6 +247,18 @@ export default {
     },
     handleRowClick(row, index, e) {
       this.$refs.menuTable.toggleRowExpansion(row)
+    },
+    handleExpandChange(row, expanded) {
+      const index = this.expandsList.findIndex(e => { return e === row.id })
+      if (expanded) {
+        // https://segmentfault.com/q/1010000019653097
+        // 存放的key对应是字符串
+        if (index === -1) {
+          this.expandsList.push(String(row.id))
+        }
+      } else {
+        this.expandsList.splice(index, 1)
+      }
     }
   }
 }
