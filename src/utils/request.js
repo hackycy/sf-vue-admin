@@ -48,7 +48,7 @@ service.interceptors.response.use(
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== 200) {
       Message({
-        message: res.message || 'Error',
+        message: res.message || '未知错误！请重试',
         type: 'error',
         duration: 5 * 1000
       })
@@ -56,7 +56,7 @@ service.interceptors.response.use(
       // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
       if (res.code === 11001 || res.code === 11002) {
         // to re-login
-        MessageBox.confirm(res.message || '您已被注销，您可以取消停留在该页上，或重新登录', '警告', {
+        MessageBox.confirm(res.message || '账号异常，您可以取消停留在该页上，或重新登录', '警告', {
           confirmButtonText: '重新登录',
           cancelButtonText: '取消',
           type: 'warning'
