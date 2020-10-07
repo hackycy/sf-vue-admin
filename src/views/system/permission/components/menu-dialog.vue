@@ -236,7 +236,6 @@ export default {
               return e.split(':')
             })
           }
-          console.log(tmp)
           this.menuForm = { ...tmp }
           this.isDialogLoading = false
         } catch (e) {
@@ -334,7 +333,7 @@ export default {
           this.isSaveLoading = true
           try {
             if (this.mode === 1) {
-              await this.$service.sys.menu.update(postData)
+              await this.$service.sys.menu.update({ ...postData, menuId: this.menuId })
             } else if (this.mode === 0) {
               await this.$service.sys.menu.add(postData)
             }
