@@ -149,7 +149,8 @@ export default {
       this.isImageLoading = true
       const { data } = await this.$service.space.image.page({
         typeId: this.selectTypeId,
-        page: this.currentPage
+        page: this.currentPage,
+        limit: 8
       })
       this.imageList = data.images || []
       this.imageTotal = data.imageTotalCount
