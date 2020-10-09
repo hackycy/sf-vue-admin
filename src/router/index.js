@@ -126,8 +126,7 @@ export const asyncRoutesMap = {
   'views/system/permission/role': () => import('@/views/system/permission/role'),
   'views/system/permission/user': () => import('@/views/system/permission/user'),
   'views/system/monitor/log': () => import('@/views/system/monitor/log'),
-  // test
-  'views/dashboard/index': () => import('@/views/dashboard/index')
+  'views/pms/product': () => import('@/views/pms/product')
 }
 
 const createRouter = () => new Router({
