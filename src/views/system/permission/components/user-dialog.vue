@@ -78,9 +78,9 @@
             <el-radio :label="0">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="mode === 1" label="重置密码" label-width="80px">
+        <!-- <el-form-item v-if="mode === 1" label="重置密码" label-width="80px">
           <el-switch v-model="userForm.resetPassword" />
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
     </div>
     <div slot="footer">
