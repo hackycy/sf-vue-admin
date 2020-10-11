@@ -23,35 +23,28 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/mixin';
-
 .app-main {
   /* 50= navbar  50  */
-  // min-height: calc(100vh - 50px);
-  height: calc(100vh - 50px);
+  min-height: calc(100vh - 50px);
   width: 100%;
   position: relative;
-  // overflow: hidden;
-  overflow: auto;
-  @include scrollBar;
+  overflow: hidden;
 }
 
 .fixed-header+.app-main {
   padding-top: 50px;
-  height: 100%;
 }
 
 .hasTagsView {
   .app-main {
     /* 84 = navbar + tags-view = 50 + 34, 44 */
-    // min-height: calc(100vh - 84px);
-    height: calc(100vh - 94px);
+    min-height: calc(100vh - 94px);
+    // height: calc(100vh - 94px);
     // height: 100%;
   }
 
   .fixed-header+.app-main {
     padding-top: 94px;
-    height: 100%;
   }
 }
 </style>
