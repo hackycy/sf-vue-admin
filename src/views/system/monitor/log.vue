@@ -16,6 +16,7 @@
     <div class="log-content">
       <el-table
         v-loading="isLoading"
+        max-height="700"
         :data="logs"
         size="small"
         default-expand-all
@@ -127,10 +128,6 @@ export default {
 <style lang="scss" scoped>
 .log-container {
   padding: 15px;
-  height: 100%;
-  display: flex;
-  display: -webkit-flex;
-  flex-direction: column;
 
   .log-header {
     margin-bottom: 15px;
@@ -141,7 +138,6 @@ export default {
   }
 
   .log-content {
-    flex-grow: 1;
     overflow-y: auto;
   }
 
