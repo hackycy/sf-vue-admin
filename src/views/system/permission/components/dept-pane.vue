@@ -1,7 +1,7 @@
 <template>
   <div class="dept-pane-container">
     <div class="dept-option-header">
-      <span>组织架构</span>
+      <span>部门管理</span>
       <ul>
         <li>
           <i class="el-icon-refresh" @click="handleRefreshDept" />
