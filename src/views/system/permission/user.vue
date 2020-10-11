@@ -262,8 +262,8 @@ export default {
 
 .user-container {
   padding: 10px;
-  height: 100%;
-  width: 100%;
+  height: calc(100vh - 104px);
+  overflow: auto;
   background-color: #f8f8f6;
   position: relative;
   display: flex;
@@ -274,7 +274,7 @@ export default {
     background-color: white;
     height: 100%;
     width: 320px;
-    min-width: 320px;
+    min-width: 220px;
     border-radius: 4px;
   }
 
@@ -282,15 +282,13 @@ export default {
     height: 100%;
     width: 0;
     background-color: white;
+    min-width: 420px;
     padding-bottom: 10px;
     padding-left: 10px;
     padding-right: 10px;
     flex-grow: 1;
     margin-left: 15px;
     border-radius: 4px;
-    display: flex;
-    display: -webkit-flex;
-    flex-direction: column;
 
     .user-header {
       height: 40px;
@@ -305,14 +303,12 @@ export default {
 
     .user-content {
       width: 100%;
-      flex-grow: 1;
-      overflow-y: auto;
-      @include scrollBar;
     }
 
     .user-footer {
       display: flex;
       justify-content: flex-end;
+      margin-top: 20px;
     }
   }
 }
