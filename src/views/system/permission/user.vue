@@ -276,6 +276,7 @@ export default {
     width: 320px;
     min-width: 220px;
     border-radius: 4px;
+    overflow: auto;
   }
 
   .user-pane-container {
@@ -289,6 +290,7 @@ export default {
     flex-grow: 1;
     margin-left: 15px;
     border-radius: 4px;
+    overflow: auto;
 
     .user-header {
       height: 40px;
