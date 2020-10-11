@@ -87,9 +87,6 @@ export default {
   computed: {
     enableMutipleDelete() {
       return !(this.multipleSelectionRole && this.multipleSelectionRole.length > 0)
-    },
-    alertTitle() {
-      return this.alertDialogMode === 0 ? '新增' : '编辑'
     }
   },
   created() {
@@ -98,11 +95,11 @@ export default {
   methods: {
     async page() {
       const { data } = await this.$service.sys.role.page({ page: this.currentPage, limit: this.pageSize })
-      const { roles, roleTotalCount } = data
-      this.totalRoles = roleTotalCount
+      const { list, pagination } = data
+      this.totalRoles = pagination.total
       this.isTableLoading = false
-      if (roles && roleTotalCount) {
-        this.roleData = roles.map(e => {
+      if (list) {
+        this.roleData = list.map(e => {
           e.createTime = momentParseTime(e.createTime)
           e.updateTime = momentParseTime(e.updateTime)
           return e

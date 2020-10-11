@@ -68,10 +68,10 @@ export default {
   methods: {
     async list() {
       const { data } = await this.$service.sys.log.page({ page: this.currentPage, limit: this.pageSize })
-      const { logs, count } = data
-      if (logs && logs.length > 0) {
-        this.logs = logs.map(e => { e.createTime = momentParseTime(e.createTime); return e })
-        this.totalLogs = count
+      const { list, pagination } = data
+      if (list && list.length > 0) {
+        this.logs = list.map(e => { e.createTime = momentParseTime(e.createTime); return e })
+        this.totalLogs = pagination.total
       } else {
         this.totalLogs = 0
       }

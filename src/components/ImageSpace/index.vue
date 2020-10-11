@@ -152,8 +152,8 @@ export default {
         page: this.currentPage,
         limit: 8
       })
-      this.imageList = data.images || []
-      this.imageTotal = data.imageTotalCount
+      this.imageList = data.list || []
+      this.imageTotal = data.pagination.total
       this.isImageLoading = false
     },
     async upload(param) {

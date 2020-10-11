@@ -149,11 +149,11 @@ export default {
         page: this.currentUserPage,
         limit: this.userPageSize
       })
-      const { users, userTotalCount } = data
-      if (users) {
-        this.users = users
+      const { list, pagination } = data
+      if (list) {
+        this.users = list
       }
-      this.userTotalCount = userTotalCount
+      this.userTotalCount = pagination.total
       this.isUserTableLoading = false
     },
     async userDelete(userIds) {
