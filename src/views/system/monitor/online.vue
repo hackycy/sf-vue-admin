@@ -35,6 +35,16 @@
             }}</el-tag>
           </template>
         </el-table-column>
+        <el-table-column label="操作" width="150" align="center" fixed="right">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="text"
+              :disabled="scope.row.isCurrent"
+              @click="handleOffline(scope.row)"
+            >下线</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
   </div>
@@ -68,6 +78,15 @@ export default {
     handleRefresh(event) {
       this.isLoading = true
       this.list()
+    },
+    async handleOffline(row) {
+      this.$confirm('确定下线该用户吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await this.$service.sys.online.kick({ id: row.id })
+      })
     },
     getStatusType(status) {
       if (status === 1) {
