@@ -43,7 +43,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="数据权限" label-width="80px" prop="dept">
+            <el-form-item label="部门权限" label-width="80px" prop="dept">
               <div v-loading="isDeptTreeLoading" class="tree-container">
                 <el-tree
                   ref="deptTree"
