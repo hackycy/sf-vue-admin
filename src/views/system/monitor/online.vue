@@ -87,6 +87,7 @@ export default {
         type: 'warning'
       }).then(async() => {
         await this.$service.sys.online.kick({ id: row.id })
+        this.handleRefresh()
       })
     },
     getStatusType(status) {
