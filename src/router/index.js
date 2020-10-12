@@ -125,7 +125,7 @@ export const asyncRoutesMap = {
   'views/system/permission/menu': () => import('@/views/system/permission/menu'),
   'views/system/permission/role': () => import('@/views/system/permission/role'),
   'views/system/permission/user': () => import('@/views/system/permission/user'),
-  'views/system/monitor/log': () => import('@/views/system/monitor/log'),
+  'views/system/monitor/req-log': () => import('@/views/system/monitor/req-log'),
   'views/pms/product': () => import('@/views/pms/product')
 }
 
