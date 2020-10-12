@@ -36,7 +36,7 @@
         </el-table-column>
         <el-table-column prop="params" show-overflow-tooltip label="请求参数" align="center" />
         <el-table-column prop="action" show-overflow-tooltip label="请求地址" align="center" />
-        <el-table-column prop="status" label="请求方式" width="90" align="center">
+        <el-table-column prop="status" label="响应状态" width="90" align="center">
           <template slot-scope="scope">
             <el-tag size="small" :type="getStatusType(scope.row.status)">{{
               scope.row.status
