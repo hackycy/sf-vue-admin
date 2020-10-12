@@ -23,7 +23,7 @@
               type="danger"
               effect="dark"
               size="small"
-            >current</el-tag>
+            >当前</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="ip" label="IP" align="center" width="100" />
