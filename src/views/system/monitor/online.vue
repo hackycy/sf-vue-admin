@@ -7,7 +7,7 @@
       <el-table
         v-loading="isLoading"
         max-height="850"
-        :data="logs"
+        :data="users"
         size="small"
         default-expand-all
         style="width: 100%;"
@@ -15,25 +15,26 @@
         row-key="id"
         border
       >
-        <el-table-column prop="ip" label="请求IP" align="center" />
-        <el-table-column prop="userId" label="操作人ID" align="center" width="100" />
-        <el-table-column prop="method" label="请求方式" width="90" align="center">
+        <el-table-column prop="username" label="用户名" align="center">
           <template slot-scope="scope">
-            <el-tag size="small" effect="dark">{{
-              scope.row.method
+            <span style="margin-right: 16px">{{ scope.row.username }}</span>
+            <el-tag
+              v-if="scope.row.isCurrent"
+              type="danger"
+              effect="dark"
+              size="small"
+            >current</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="ip" label="IP" align="center" width="100" />
+        <el-table-column prop="updateTime" show-overflow-tooltip label="更新时间" align="center" />
+        <el-table-column prop="status" label="状态" width="90" align="center">
+          <template slot-scope="scope">
+            <el-tag size="small" type="dark">{{
+              getStatusType(scope.row.status)
             }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="params" show-overflow-tooltip label="请求参数" align="center" />
-        <el-table-column prop="action" show-overflow-tooltip label="请求地址" align="center" />
-        <el-table-column prop="status" label="响应状态" width="90" align="center">
-          <template slot-scope="scope">
-            <el-tag size="small" :type="getStatusType(scope.row.status)">{{
-              scope.row.status
-            }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="createTime" label="操作时间" align="center" />
       </el-table>
     </div>
   </div>
@@ -47,7 +48,7 @@ export default {
   data() {
     return {
       isLoading: true,
-      logs: []
+      users: []
     }
   },
   created() {
@@ -55,18 +56,23 @@ export default {
   },
   methods: {
     async list() {
-      const { data } = await this.$service.sys.log.page({ page: this.currentPage, limit: this.pageSize })
-      const { list, pagination } = data
-      if (list && list.length > 0) {
-        this.logs = list.map(e => { e.createTime = momentParseTime(e.createTime); return e })
-        this.totalLogs = pagination.total
-      } else {
-        this.totalLogs = 0
+      const { data } = await this.$service.sys.online.list()
+      if (data) {
+        this.users = data.map(e => {
+          e.updateTime = momentParseTime(e.updateTime)
+          return e
+        })
       }
       this.isLoading = false
     },
     handleRefresh(event) {
-      this.isSearch = false
+      this.isLoading = true
+      this.list()
+    },
+    getStatusType(status) {
+      if (status === 1) {
+        return '在线'
+      }
     }
   }
 }
