@@ -16,7 +16,7 @@
     <div class="log-content">
       <el-table
         v-loading="isLoading"
-        max-height="700"
+        max-height="750"
         :data="logs"
         size="small"
         default-expand-all
