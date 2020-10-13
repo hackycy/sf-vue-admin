@@ -66,6 +66,10 @@ service.interceptors.response.use(
           })
         })
       }
+      // 无权限操作提示
+      if (res.code === 11003) {
+        MessageBox.alert(res.message || '无权限操作', '警告', { type: 'warning' })
+      }
       return Promise.reject(new Error(res.message || 'Error'))
     } else {
       return res
