@@ -26,9 +26,9 @@
             >当前</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="ip" show-overflow-tooltip label="IP" align="center" width="140" />
+        <el-table-column prop="ip" show-overflow-tooltip label="登录IP" align="center" width="140" />
         <el-table-column prop="time" show-overflow-tooltip label="登录时间" align="center" />
-        <el-table-column prop="os" show-overflow-tooltip label="登录系统" align="center" />
+        <el-table-column prop="os" show-overflow-tooltip label="操作系统" align="center" />
         <el-table-column prop="browser" show-overflow-tooltip label="浏览器" align="center" />
         <el-table-column prop="status" label="状态" width="90" align="center">
           <template slot-scope="scope">
