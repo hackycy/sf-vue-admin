@@ -56,7 +56,8 @@ ServiceRegisterPlugin.install = function(Vue, options) {
     .forEach(e => {
       const list = e.substr(2).split('/')
       const parents = list.slice(0, list.length - 1)
-      const name = path.basename(e, '.js')
+      // 文件路径出现_-等符号则转换
+      const name = path.basename(e, '.js').replace(/[_-][a-z]/ig, s => s.substring(1).toUpperCase())
 
       let curr = modules
       let prev = null
