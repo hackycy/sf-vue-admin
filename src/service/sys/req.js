@@ -1,23 +1,23 @@
 import { Permission } from '@/decorator/service'
 import request from '@/utils/request'
 
-class SysLogService {
-  @Permission('sys/log/page')
+class SysReqService {
+  @Permission('sys/req/page')
   page(query) {
     return request({
-      url: '/sys/log/page',
+      url: '/sys/req/page',
       params: query,
       method: 'get'
     })
   }
-  @Permission('sys/log/search')
+  @Permission('sys/req/search')
   search(query) {
     return request({
-      url: '/sys/log/search',
+      url: '/sys/req/search',
       params: query,
       method: 'get'
     })
   }
 }
 
-export default SysLogService
+export default SysReqService

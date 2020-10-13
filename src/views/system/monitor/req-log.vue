@@ -82,7 +82,7 @@ export default {
   },
   methods: {
     async list() {
-      const { data } = await this.$service.sys.log.page({ page: this.currentPage, limit: this.pageSize })
+      const { data } = await this.$service.sys.req.page({ page: this.currentPage, limit: this.pageSize })
       const { list, pagination } = data
       if (list && list.length > 0) {
         this.logs = list.map(e => { e.createTime = momentParseTime(e.createTime); return e })
@@ -93,7 +93,7 @@ export default {
       this.isLoading = false
     },
     async search() {
-      const { data } = await this.$service.sys.log.search({ page: this.currentPage, limit: this.pageSize, q: this.searchText })
+      const { data } = await this.$service.sys.req.search({ page: this.currentPage, limit: this.pageSize, q: this.searchText })
       const { logs, count } = data
       if (logs && logs.length > 0) {
         this.logs = logs.map(e => { e.createTime = momentParseTime(e.createTime); return e })
