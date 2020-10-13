@@ -2,16 +2,6 @@
   <div class="log-container">
     <div class="log-header">
       <el-button size="mini" @click="handleRefresh">刷新</el-button>
-      <div>
-        <el-input
-          v-model="searchText"
-          style="width: 300px; margin-right: 10px;"
-          placeholder="请输入请求地址、IP、请求参数"
-          size="mini"
-          clearable
-        />
-        <el-button type="primary" size="mini" icon="el-icon-search" @click="handleSearch">搜索</el-button>
-      </div>
     </div>
     <div class="log-content">
       <el-table
@@ -67,14 +57,12 @@ export default {
   name: 'SystemMonitorLog',
   data() {
     return {
-      isSearch: false,
       isLoading: true,
       logs: [],
       currentPage: 1,
       pageSizes: [50, 100, 150, 200],
       pageSize: 50,
-      totalLogs: 0,
-      searchText: ''
+      totalLogs: 0
     }
   },
   created() {
@@ -82,7 +70,8 @@ export default {
   },
   methods: {
     async list() {
-      const { data } = await this.$service.sys.req.page({ page: this.currentPage, limit: this.pageSize })
+      this.isLoading = true
+      const { data } = await this.$service.sys.loginLog.page({ page: this.currentPage, limit: this.pageSize })
       const { list, pagination } = data
       if (list && list.length > 0) {
         this.logs = list.map(e => { e.createTime = momentParseTime(e.createTime); return e })
@@ -92,48 +81,16 @@ export default {
       }
       this.isLoading = false
     },
-    async search() {
-      const { data } = await this.$service.sys.req.search({ page: this.currentPage, limit: this.pageSize, q: this.searchText })
-      const { logs, count } = data
-      if (logs && logs.length > 0) {
-        this.logs = logs.map(e => { e.createTime = momentParseTime(e.createTime); return e })
-        this.totalLogs = count
-      } else {
-        this.totalLogs = 0
-      }
-      this.isLoading = false
-    },
-    refreshLog() {
-      this.isLoading = true
-      this.logs = []
-      if (this.isSearch) {
-        this.search()
-      } else {
-        this.list()
-      }
-    },
-    async handleSearch() {
-      if (this.searchText === '') {
-        this.$message({
-          message: '请输入搜索内容',
-          type: 'warning'
-        })
-        return
-      }
-      this.isSearch = true
-      this.refreshLog()
-    },
     handleRefresh(event) {
-      this.isSearch = false
-      this.refreshLog()
+      this.list()
     },
     handleSizeChange(size) {
       this.pageSize = size
-      this.refreshLog()
+      this.handleRefresh()
     },
     handleCurrentChange(page) {
       this.currentPage = page
-      this.refreshLog()
+      this.handleRefresh()
     },
     getStatusType(status) {
       if (status >= 200 && status < 300) {
