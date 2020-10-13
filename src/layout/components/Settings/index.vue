@@ -13,10 +13,10 @@
         <el-switch v-model="tagsView" class="drawer-switch" />
       </div>
 
-      <!-- <div class="drawer-item">
+      <div class="drawer-item">
         <span>固定头部</span>
         <el-switch v-model="fixedHeader" class="drawer-switch" />
-      </div> -->
+      </div>
 
       <div class="drawer-item">
         <span>显示Logo</span>
