@@ -27,7 +27,8 @@
           </template>
         </el-table-column>
         <el-table-column prop="ip" label="IP" align="center" width="100" />
-        <el-table-column prop="updateTime" show-overflow-tooltip label="更新时间" align="center" />
+        <el-table-column prop="time" show-overflow-tooltip label="登录时间" align="center" />
+        <el-table-column prop="ua" show-overflow-tooltip label="UA" align="center" />
         <el-table-column prop="status" label="状态" width="90" align="center">
           <template slot-scope="scope">
             <el-tag size="small" type="dark">{{
