@@ -43,6 +43,13 @@
             }}</el-tag>
           </template>
         </el-table-column>
+        <el-table-column prop="consumeTime" label="响应时间" width="90" align="center">
+          <template slot-scope="scope">
+            <el-tag size="small" :type="getConsumeTimeType(scope.row.consumeTime)">{{
+              scope.row.consumeTime + 'ms'
+            }}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="createTime" label="操作时间" align="center" />
       </el-table>
     </div>
@@ -146,6 +153,15 @@ export default {
         return 'danger'
       } else {
         return 'info'
+      }
+    },
+    getConsumeTimeType(time) {
+      if (time <= 2000) {
+        return 'success'
+      } else if (time <= 4000) {
+        return 'warning'
+      } else {
+        return 'danger'
       }
     }
   }
