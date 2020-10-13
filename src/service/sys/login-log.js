@@ -5,15 +5,7 @@ class SysLoginLogService {
   @Permission('sys/login-log/page')
   page(query) {
     return request({
-      url: '/sys/req/page',
-      params: query,
-      method: 'get'
-    })
-  }
-  @Permission('sys/login-log/search')
-  search(query) {
-    return request({
-      url: '/sys/login-log/search',
+      url: '/sys/login-log/page',
       params: query,
       method: 'get'
     })
