@@ -43,7 +43,7 @@
               v-permission="$service.sys.online.permission.kick"
               size="mini"
               type="text"
-              :disabled="scope.row.isCurrent"
+              :disabled="scope.row.disable"
               @click="handleOffline(scope.row)"
             >下线</el-button>
           </template>
