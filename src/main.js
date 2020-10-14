@@ -32,7 +32,7 @@ Vue.use(Element, {
   size: Cookies.get('size') || 'medium' // set element-ui default size
 })
 
-Vue.use(ServiceRegisterPlugin, { store })
+Vue.use(ServiceRegisterPlugin)
 
 // 注册v-permission指令
 Vue.use(Permission)

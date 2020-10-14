@@ -1,5 +1,6 @@
 /* eslint-disable new-cap */
 import path from 'path'
+import store from '@/store'
 
 /**
  * url权限注册
@@ -37,19 +38,15 @@ export default class ServiceRegisterPlugin { }
  * plugin install
  * @param {*} Vue vue
  */
-ServiceRegisterPlugin.install = function(Vue, options) {
-  let store
+ServiceRegisterPlugin.install = function(Vue) {
   // require.context('@/service/', true, /\.js$/).keys().forEach(e => { console.log(e) })
   const files = require.context('@/service/', true, /\.js$/)
 
   const modules = {}
 
+  // 挂载 $service
   Vue.prototype.$service = modules
-
-  if (options) {
-    store = options.store
-    store.$service = modules
-  }
+  store.$service = modules
 
   files
     .keys()
