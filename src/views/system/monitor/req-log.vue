@@ -36,14 +36,14 @@
         </el-table-column>
         <el-table-column prop="params" show-overflow-tooltip label="请求参数" align="center" />
         <el-table-column prop="action" show-overflow-tooltip label="请求地址" align="center" />
-        <el-table-column prop="status" label="响应状态" width="90" align="center">
+        <el-table-column prop="status" label="响应状态" width="120" align="center">
           <template slot-scope="scope">
             <el-tag size="small" :type="getStatusType(scope.row.status)">{{
               scope.row.status
             }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="consumeTime" label="响应时间" width="90" align="center">
+        <el-table-column prop="consumeTime" label="响应时间" width="120" align="center">
           <template slot-scope="scope">
             <el-tag size="small" :type="getConsumeTimeType(scope.row.consumeTime)">{{
               scope.row.consumeTime + 'ms'
