@@ -1,0 +1,162 @@
+<template>
+  <div class="task-container">
+    <div class="task-header">
+      <el-button size="mini" @click="handleRefresh">刷新</el-button>
+      <el-button
+        size="mini"
+        type="primary"
+        @click="handleAdd"
+      >新增</el-button>
+    </div>
+    <div class="task-content">
+      <el-table
+        ref="taskTable"
+        v-loading="isLoading"
+        :data="tasks"
+        size="small"
+        style="width: 100%"
+        :header-cell-style="{ backgroundColor: '#ebeef4' }"
+        row-key="id"
+        border
+      >
+        <el-table-column prop="id" label="ID" align="center" width="80" />
+        <el-table-column prop="name" show-overflow-tooltip label="任务名称" align="center" width="200" />
+        <el-table-column prop="service" show-overflow-tooltip label="调用服务" width="150" align="center" />
+        <el-table-column prop="data" show-overflow-tooltip label="执行参数" width="200" align="center" />
+        <el-table-column prop="cron" show-overflow-tooltip label="cron表达式" align="center" width="200" />
+        <el-table-column prop="limit" label="执行次数" align="center" width="100" />
+        <el-table-column prop="every" label="间隔" align="center" width="100" />
+        <el-table-column prop="startTime" show-overflow-tooltip label="开始时间" width="200" align="center" />
+        <el-table-column prop="endTime" show-overflow-tooltip label="结束时间" width="200" align="center" />
+        <!-- <el-table-column prop="type" label="类型" width="150" align="center">
+          <template slot-scope="scope">
+            <el-tag type="small" effect="dark">{{
+              scope.row.type === 1 ? 'interval' : 'cron'
+            }}</el-tag>
+          </template>
+        </el-table-column> -->
+        <el-table-column prop="remark" show-overflow-tooltip label="备注" width="250" align="center" />
+        <el-table-column prop="status" label="任务状态" width="150" align="center" fixed="right">
+          <template slot-scope="scope">
+            <el-tag size="small" :type="scope.row.status === 1 ? 'success' : 'danger'" effect="dark">{{
+              scope.row.status === 1 ? '运行' : '暂停'
+            }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="150" align="center" fixed="right">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="text"
+              @click="handleEdit(scope.row)"
+            >执行一次</el-button>
+            <el-button
+              size="mini"
+              type="text"
+              @click="handleDelete(scope.row)"
+            >删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'SystemScheduleTask',
+  data() {
+    return {
+      isLoading: true,
+      dialogMode: 0,
+      editerDialogtaskId: -1,
+      editerDialogVisible: false,
+      tasks: [],
+      currentPage: 1,
+      pageSizes: [50, 100, 150, 200],
+      pageSize: 50,
+      totalTasks: 0
+    }
+  },
+  created() {
+    this.handleRefresh()
+  },
+  methods: {
+    async page() {
+      const { data } = await this.$service.sys.task.page({ limit: this.pageSize, page: this.currentPage })
+      const { list, pagination } = data
+      if (list && list.length > 0) {
+        this.tasks = list
+        this.totalTasks = pagination.total
+      } else {
+        this.totalTasks = 0
+        this.tasks = []
+      }
+      this.isLoading = false
+    },
+    handleRefresh(event) {
+      this.isLoading = true
+      this.page()
+    },
+    handleAdd(event) {
+      this.dialogMode = 0
+      this.editerDialogVisible = true
+    },
+    handleEdit(item) {
+      // edit
+      this.dialogMode = 1
+      this.editerDialogtaskId = item.id
+      this.editerDialogVisible = true
+    },
+    handleDelete(item) {
+      // delete
+      this.$confirm('此操作将永久删除且无法还原, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await this.$service.sys.task.delete({ taskId: item.id })
+        this.$message({
+          type: 'success',
+          message: '删除成功'
+        })
+        this.handleRefresh()
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
+        })
+      })
+    },
+    handleSavetaskSuccessEvent() {
+      this.handleRefresh()
+    },
+    handleRowClick(row, index, e) {
+      this.$refs.taskTable.toggleRowExpansion(row)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.task-container {
+  padding: 15px;
+  height: 100%;
+  display: flex;
+  display: -webkit-flex;
+  flex-direction: column;
+
+  .task-header {
+    margin-bottom: 15px;
+  }
+
+  .task-content {
+    flex-grow: 1;
+    overflow-y: auto;
+
+    .tag-perm-item {
+      margin-right: 4px;
+    }
+  }
+}
+</style>
