@@ -57,7 +57,7 @@
 import { momentParseTime } from '@/utils'
 
 export default {
-  name: 'SystemMonitorLog',
+  name: 'SystemMonitorOnline',
   data() {
     return {
       isLoading: true,
