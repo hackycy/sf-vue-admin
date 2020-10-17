@@ -42,7 +42,7 @@
         </el-table-column>
         <el-table-column prop="type" label="类型" width="80" align="center">
           <template slot-scope="scope">
-            <el-tag type="small" effect="dark">{{
+            <el-tag size="small" effect="dark">{{
               getMenuType(scope.row.type)
             }}</el-tag>
           </template>
