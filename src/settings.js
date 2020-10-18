@@ -1,5 +1,5 @@
 module.exports = {
-  title: '思忆管理后台',
+  title: '通用权限管理后台',
 
   /**
    * @type {boolean} true | false
