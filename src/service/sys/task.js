@@ -10,6 +10,33 @@ class SysTaskService {
       method: 'get'
     })
   }
+
+  @Permission('sys/task/info')
+  info(data) {
+    return request({
+      url: '/sys/task/info',
+      method: 'post',
+      data
+    })
+  }
+
+  @Permission('sys/task/update')
+  update(data) {
+    return request({
+      url: '/sys/task/update',
+      method: 'post',
+      data
+    })
+  }
+
+  @Permission('sys/task/add')
+  add(data) {
+    return request({
+      url: '/sys/task/add',
+      method: 'post',
+      data
+    })
+  }
 }
 
 export default SysTaskService

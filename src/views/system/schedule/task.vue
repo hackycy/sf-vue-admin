@@ -21,7 +21,7 @@
         border
       >
         <el-table-column prop="id" label="ID" show-overflow-tooltip align="center" width="60" />
-        <el-table-column prop="name" show-overflow-tooltip label="任务名称" align="center" width="140" />
+        <el-table-column prop="name" show-overflow-tooltip label="任务名称" align="center" width="200" />
         <el-table-column prop="service" show-overflow-tooltip label="调用服务" width="150" align="center" />
         <el-table-column prop="data" show-overflow-tooltip label="执行参数" width="200" align="center" />
         <el-table-column prop="status" label="状态" width="100" align="center">
@@ -31,7 +31,7 @@
             }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="type" label="类型" width="150" align="center">
+        <el-table-column prop="type" label="类型" width="100" align="center">
           <template slot-scope="scope">
             <el-tag type="small" effect="dark">{{
               scope.row.type === 1 ? 'interval' : 'cron'
@@ -39,35 +39,27 @@
           </template>
         </el-table-column>
         <el-table-column prop="limit" show-overflow-tooltip label="执行次数" align="center" width="100" />
-        <el-table-column prop="every" show-overflow-tooltip label="间隔" align="center" width="100" />
-        <el-table-column prop="cron" show-overflow-tooltip label="cron" align="center" width="200" />
+        <el-table-column prop="every" show-overflow-tooltip label="间隔(ms)" align="center" width="120" />
+        <el-table-column prop="cron" show-overflow-tooltip label="cron" align="center" width="150" />
         <el-table-column prop="startTime" show-overflow-tooltip label="开始时间" width="200" align="center" />
         <el-table-column prop="endTime" show-overflow-tooltip label="结束时间" width="200" align="center" />
         <el-table-column prop="remark" show-overflow-tooltip label="备注" width="250" align="center" />
-        <el-table-column label="操作" width="250" align="center" fixed="right">
+        <el-table-column label="操作" width="200" align="center" fixed="right">
           <template slot-scope="scope">
-            <el-button
-              size="mini"
-              type="text"
-              @click="handleEdit(scope.row)"
-            >执行一次</el-button>
+            <el-dropdown>
+              <el-button size="mini" type="text">
+                执行<i style="margin-right: 10px;" class="el-icon-arrow-down el-icon--right" /></el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item>仅一次</el-dropdown-item>
+                <el-dropdown-item :disabled="scope.row.status === 1">运行</el-dropdown-item>
+                <el-dropdown-item :disabled="scope.row.status === 0">暂停</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
             <el-button
               size="mini"
               type="text"
               @click="handleEdit(scope.row)"
             >编辑</el-button>
-            <el-button
-              size="mini"
-              type="text"
-              :disabled="scope.row.status === 1"
-              @click="handleEdit(scope.row)"
-            >暂停</el-button>
-            <el-button
-              size="mini"
-              type="text"
-              :disabled="scope.row.status === 0"
-              @click="handleEdit(scope.row)"
-            >运行</el-button>
             <el-button
               size="mini"
               type="text"
@@ -88,22 +80,35 @@
         @current-change="handleCurrentChange"
       />
     </div>
+    <!-- dialog -->
+    <task-dialog
+      :mode="dialogMode"
+      :task-id="editerDialogTaskId"
+      :visible="editerDialogVisible"
+      @success="handleRefresh"
+      @dismiss="editerDialogVisible = false"
+    />
   </div>
 </template>
 
 <script>
+import TaskDialog from './components/task-dialog'
+
 export default {
   name: 'SystemScheduleTask',
+  components: {
+    TaskDialog
+  },
   data() {
     return {
       isLoading: true,
       dialogMode: 0,
-      editerDialogtaskId: -1,
+      editerDialogTaskId: -1,
       editerDialogVisible: false,
       tasks: [],
       currentPage: 1,
-      pageSizes: [50, 100, 150, 200],
-      pageSize: 50,
+      pageSizes: [10, 20, 50, 100],
+      pageSize: 10,
       totalTasks: 0
     }
   },
@@ -134,7 +139,7 @@ export default {
     handleEdit(item) {
       // edit
       this.dialogMode = 1
-      this.editerDialogtaskId = item.id
+      this.editerDialogTaskId = item.id
       this.editerDialogVisible = true
     },
     handleDelete(item) {
@@ -144,24 +149,19 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(async() => {
-        await this.$service.sys.task.delete({ taskId: item.id })
-        this.$message({
-          type: 'success',
-          message: '删除成功'
-        })
+        await this.$service.sys.task.delete({ id: item.id })
+        this.$message.success('删除成功')
         this.handleRefresh()
       }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消操作'
-        })
+        this.$message.info('已取消操作')
       })
-    },
-    handleSavetaskSuccessEvent() {
-      this.handleRefresh()
     },
     handleCurrentChange(page) {
       this.currentPage = page
+      this.handleRefresh()
+    },
+    handleSizeChange(size) {
+      this.pageSize = size
       this.handleRefresh()
     }
   }
