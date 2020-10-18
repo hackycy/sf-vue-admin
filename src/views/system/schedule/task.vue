@@ -12,6 +12,7 @@
       <el-table
         ref="taskTable"
         v-loading="isLoading"
+        max-height="750"
         :data="tasks"
         size="small"
         style="width: 100%"
@@ -19,31 +20,31 @@
         row-key="id"
         border
       >
-        <el-table-column prop="id" label="ID" align="center" width="80" />
-        <el-table-column prop="name" show-overflow-tooltip label="任务名称" align="center" width="200" />
+        <el-table-column prop="id" label="ID" show-overflow-tooltip align="center" width="60" />
+        <el-table-column prop="name" show-overflow-tooltip label="任务名称" align="center" width="140" />
         <el-table-column prop="service" show-overflow-tooltip label="调用服务" width="150" align="center" />
         <el-table-column prop="data" show-overflow-tooltip label="执行参数" width="200" align="center" />
-        <el-table-column prop="cron" show-overflow-tooltip label="cron表达式" align="center" width="200" />
-        <el-table-column prop="limit" label="执行次数" align="center" width="100" />
-        <el-table-column prop="every" label="间隔" align="center" width="100" />
-        <el-table-column prop="startTime" show-overflow-tooltip label="开始时间" width="200" align="center" />
-        <el-table-column prop="endTime" show-overflow-tooltip label="结束时间" width="200" align="center" />
-        <!-- <el-table-column prop="type" label="类型" width="150" align="center">
-          <template slot-scope="scope">
-            <el-tag type="small" effect="dark">{{
-              scope.row.type === 1 ? 'interval' : 'cron'
-            }}</el-tag>
-          </template>
-        </el-table-column> -->
-        <el-table-column prop="remark" show-overflow-tooltip label="备注" width="250" align="center" />
-        <el-table-column prop="status" label="任务状态" width="150" align="center" fixed="right">
+        <el-table-column prop="status" label="状态" width="100" align="center">
           <template slot-scope="scope">
             <el-tag size="small" :type="scope.row.status === 1 ? 'success' : 'danger'" effect="dark">{{
               scope.row.status === 1 ? '运行' : '暂停'
             }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="150" align="center" fixed="right">
+        <el-table-column prop="type" label="类型" width="150" align="center">
+          <template slot-scope="scope">
+            <el-tag type="small" effect="dark">{{
+              scope.row.type === 1 ? 'interval' : 'cron'
+            }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="limit" show-overflow-tooltip label="执行次数" align="center" width="100" />
+        <el-table-column prop="every" show-overflow-tooltip label="间隔" align="center" width="100" />
+        <el-table-column prop="cron" show-overflow-tooltip label="cron" align="center" width="200" />
+        <el-table-column prop="startTime" show-overflow-tooltip label="开始时间" width="200" align="center" />
+        <el-table-column prop="endTime" show-overflow-tooltip label="结束时间" width="200" align="center" />
+        <el-table-column prop="remark" show-overflow-tooltip label="备注" width="250" align="center" />
+        <el-table-column label="操作" width="250" align="center" fixed="right">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -53,11 +54,39 @@
             <el-button
               size="mini"
               type="text"
+              @click="handleEdit(scope.row)"
+            >编辑</el-button>
+            <el-button
+              size="mini"
+              type="text"
+              :disabled="scope.row.status === 1"
+              @click="handleEdit(scope.row)"
+            >暂停</el-button>
+            <el-button
+              size="mini"
+              type="text"
+              :disabled="scope.row.status === 0"
+              @click="handleEdit(scope.row)"
+            >运行</el-button>
+            <el-button
+              size="mini"
+              type="text"
               @click="handleDelete(scope.row)"
             >删除</el-button>
           </template>
         </el-table-column>
       </el-table>
+    </div>
+    <div class="task-footer">
+      <el-pagination
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        layout="total, sizes, prev, pager, next"
+        :page-size="pageSize"
+        :total="totalTasks"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
     </div>
   </div>
 </template>
@@ -131,8 +160,9 @@ export default {
     handleSavetaskSuccessEvent() {
       this.handleRefresh()
     },
-    handleRowClick(row, index, e) {
-      this.$refs.taskTable.toggleRowExpansion(row)
+    handleCurrentChange(page) {
+      this.currentPage = page
+      this.handleRefresh()
     }
   }
 }
@@ -153,10 +183,11 @@ export default {
   .task-content {
     flex-grow: 1;
     overflow-y: auto;
+  }
 
-    .tag-perm-item {
-      margin-right: 4px;
-    }
+  .task-footer {
+    margin-top: 20px;
+    text-align: end;
   }
 }
 </style>
