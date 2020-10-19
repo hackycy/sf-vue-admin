@@ -21,8 +21,8 @@
         border
       >
         <el-table-column prop="id" label="ID" show-overflow-tooltip align="center" width="60" />
-        <el-table-column prop="name" show-overflow-tooltip label="任务名称" align="center" width="200" />
-        <el-table-column prop="service" show-overflow-tooltip label="调用服务" width="150" align="center" />
+        <el-table-column prop="name" show-overflow-tooltip label="任务名称" align="center" width="180" />
+        <el-table-column prop="service" show-overflow-tooltip label="调用服务" width="200" align="center" />
         <el-table-column prop="data" show-overflow-tooltip label="执行参数" width="200" align="center" />
         <el-table-column prop="status" label="状态" width="100" align="center">
           <template slot-scope="scope">
