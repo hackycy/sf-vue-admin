@@ -1,4 +1,20 @@
-## 开发
+### 权限管理系统服务端
+
+**基于EggJs + TypeScript + TypeOrm + Redis + MySql + Vue + Element-UI编写的一款简单高效的前后端分离的权限管理系统。希望这个项目在全栈的路上能够帮助到你。**
+
+后端项目地址：[传送门](https://github.com/hackycy/sf-egg-admin)
+
+### 演示地址
+
+[http://opensource.admin.si-yee.com](http://opensource.admin.si-yee.com/)
+
+演示环境账号密码：
+
+| 账号      | 密码   | 权限                     |
+| --------- | ------ | ------------------------ |
+| openadmin | 123456 | 仅只有各个功能的查询权限 |
+
+### 开发
 
 ```bash
 # 克隆项目
@@ -19,7 +35,7 @@ npm run dev
 
 浏览器访问 http://localhost:9527
 
-## 发布
+### 发布
 
 ```bash
 # 构建测试环境
@@ -29,7 +45,7 @@ npm run build:stage
 npm run build:prod
 ```
 
-## 其它
+### 其它
 
 ```bash
 # 预览发布环境效果
@@ -47,7 +63,7 @@ npm run lint -- --fix
 
 更多信息请参考 [使用文档](https://panjiachen.github.io/vue-element-admin-site/zh/)
 
-## Browsers support
+### Browsers support
 
 Modern browsers and Internet Explorer 10+.
 
