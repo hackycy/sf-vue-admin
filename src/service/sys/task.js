@@ -37,6 +37,42 @@ class SysTaskService {
       data
     })
   }
+
+  @Permission('sys/task/delete')
+  delete(data) {
+    return request({
+      url: '/sys/task/delete',
+      method: 'post',
+      data
+    })
+  }
+
+  @Permission('sys/task/stop')
+  stop(data) {
+    return request({
+      url: '/sys/task/stop',
+      method: 'post',
+      data
+    })
+  }
+
+  @Permission('sys/task/start')
+  start(data) {
+    return request({
+      url: '/sys/task/start',
+      method: 'post',
+      data
+    })
+  }
+
+  @Permission('sys/task/once')
+  once(data) {
+    return request({
+      url: '/sys/task/once',
+      method: 'post',
+      data
+    })
+  }
 }
 
 export default SysTaskService

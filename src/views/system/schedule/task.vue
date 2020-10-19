@@ -46,13 +46,13 @@
         <el-table-column prop="remark" show-overflow-tooltip label="备注" width="250" align="center" />
         <el-table-column label="操作" width="200" align="center" fixed="right">
           <template slot-scope="scope">
-            <el-dropdown>
+            <el-dropdown size="small">
               <el-button size="mini" type="text">
-                执行<i style="margin-right: 10px;" class="el-icon-arrow-down el-icon--right" /></el-button>
+                执行<i style="margin-left: 4px; margin-right: 10px;" class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>仅一次</el-dropdown-item>
-                <el-dropdown-item :disabled="scope.row.status === 1">运行</el-dropdown-item>
-                <el-dropdown-item :disabled="scope.row.status === 0">暂停</el-dropdown-item>
+                <el-dropdown-item @click.native="handleOnce(scope.row)">仅一次</el-dropdown-item>
+                <el-dropdown-item :disabled="scope.row.status === 1" @click.native="handleStart(scope.row)">运行</el-dropdown-item>
+                <el-dropdown-item :disabled="scope.row.status === 0" @click.native="handleStop(scope.row)">暂停</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <el-button
@@ -142,6 +142,20 @@ export default {
       this.editerDialogTaskId = item.id
       this.editerDialogVisible = true
     },
+    async handleOnce(item) {
+      await this.$service.sys.task.once({ id: item.id })
+      this.$message.success('执行成功')
+    },
+    async handleStart(item) {
+      await this.$service.sys.task.start({ id: item.id })
+      this.handleRefresh()
+      this.$message.success('执行成功')
+    },
+    async handleStop(item) {
+      await this.$service.sys.task.stop({ id: item.id })
+      this.handleRefresh()
+      this.$message.success('执行成功')
+    },
     handleDelete(item) {
       // delete
       this.$confirm('此操作将永久删除且无法还原, 是否继续?', '提示', {
@@ -152,8 +166,6 @@ export default {
         await this.$service.sys.task.delete({ id: item.id })
         this.$message.success('删除成功')
         this.handleRefresh()
-      }).catch(() => {
-        this.$message.info('已取消操作')
       })
     },
     handleCurrentChange(page) {
