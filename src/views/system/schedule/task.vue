@@ -3,6 +3,7 @@
     <div class="task-header">
       <el-button size="mini" @click="handleRefresh">刷新</el-button>
       <el-button
+        v-permission="$service.sys.task.permission.add"
         size="mini"
         type="primary"
         @click="handleAdd"
@@ -50,17 +51,19 @@
               <el-button size="mini" type="text">
                 执行<i style="margin-left: 4px; margin-right: 10px;" class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item @click.native="handleOnce(scope.row)">仅一次</el-dropdown-item>
-                <el-dropdown-item :disabled="scope.row.status === 1" @click.native="handleStart(scope.row)">运行</el-dropdown-item>
-                <el-dropdown-item :disabled="scope.row.status === 0" @click.native="handleStop(scope.row)">暂停</el-dropdown-item>
+                <el-dropdown-item v-permission="$service.sys.task.permission.once" @click.native="handleOnce(scope.row)">仅一次</el-dropdown-item>
+                <el-dropdown-item v-permission="$service.sys.task.permission.start" :disabled="scope.row.status === 1" @click.native="handleStart(scope.row)">运行</el-dropdown-item>
+                <el-dropdown-item v-permission="$service.sys.task.permission.stop" :disabled="scope.row.status === 0" @click.native="handleStop(scope.row)">暂停</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <el-button
+              v-permission="$service.sys.task.permission.update"
               size="mini"
               type="text"
               @click="handleEdit(scope.row)"
             >编辑</el-button>
             <el-button
+              v-permission="$service.sys.task.permission.delete"
               size="mini"
               type="text"
               @click="handleDelete(scope.row)"
