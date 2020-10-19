@@ -128,7 +128,8 @@ export const asyncRoutesMap = {
   'views/system/monitor/req-log': () => import('@/views/system/monitor/req-log'),
   'views/system/monitor/login-log': () => import('@/views/system/monitor/login-log'),
   'views/system/monitor/online': () => import('@/views/system/monitor/online'),
-  'views/system/schedule/task': () => import('@/views/system/schedule/task')
+  'views/system/schedule/task': () => import('@/views/system/schedule/task'),
+  'views/system/schedule/log': () => import('@/views/system/schedule/log')
 }
 
 const createRouter = () => new Router({
