@@ -43,7 +43,7 @@
             }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="consumeTime" label="响应时间" width="120" align="center">
+        <el-table-column prop="consumeTime" label="耗时" width="120" align="center">
           <template slot-scope="scope">
             <el-tag size="small" :type="getConsumeTimeType(scope.row.consumeTime)">{{
               scope.row.consumeTime + 'ms'
