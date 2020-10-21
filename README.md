@@ -18,10 +18,10 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/hackycy/siyee-admin-front
+git clone https://github.com/hackycy/sf-vue-admin
 
 # 进入项目目录
-cd siyee-admin-front
+cd sf-vue-admin
 
 # 安装依赖
 npm install
