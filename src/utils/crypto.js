@@ -1,6 +1,6 @@
 import CryptoJS from 'crypto-js'
 
-const secret = 'eECRYHR5Er93BijVlkMz9CIn'
+const secret = process.env.AES_SECRET_CIPHER
 
 /**
    * AES加密
