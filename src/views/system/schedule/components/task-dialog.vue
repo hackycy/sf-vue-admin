@@ -30,7 +30,7 @@
         <el-input v-model="taskForm.service" placeholder="请输入调用路径" />
       </el-form-item>
       <el-form-item label="执行参数" label-width="80px" prop="data">
-        <el-input v-model="taskForm.data" placeholder="请输入任务名称" />
+        <el-input v-model="taskForm.data" placeholder="请输入执行参数" />
       </el-form-item>
       <el-form-item label="执行次数" label-width="80px">
         <el-input-number
@@ -46,10 +46,10 @@
           <el-input v-model="taskForm.cron" placeholder="请输入cron表达式" />
         </el-form-item>
         <el-form-item label="开始时间" label-width="80px">
-          <el-date-picker v-model="taskForm.startTime" type="datetime" placeholder="选择日期" style="width: 100%;" />
+          <el-date-picker v-model="taskForm.startTime" type="datetime" placeholder="选择开始日期" style="width: 100%;" />
         </el-form-item>
         <el-form-item label="结束时间" label-width="80px">
-          <el-date-picker v-model="taskForm.endTime" type="datetime" placeholder="选择日期" style="width: 100%;" />
+          <el-date-picker v-model="taskForm.endTime" type="datetime" placeholder="选择结束日期" style="width: 100%;" />
         </el-form-item>
       </div>
       <!-- 间隔面板 -->
