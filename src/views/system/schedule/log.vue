@@ -17,15 +17,17 @@
       >
         <el-table-column prop="id" label="日志ID" align="center" width="120" />
         <el-table-column prop="taskId" label="任务ID" align="center" width="120" />
+        <el-table-column prop="name" show-overflow-tooltip label="任务名称" align="center" width="200" />
         <el-table-column prop="detail" show-overflow-tooltip label="异常信息" align="center" />
         <el-table-column prop="status" label="状态" width="100" align="center">
           <template slot-scope="scope">
-            <el-tag size="small" :type="scope.row.status === 1 ? 'success' : 'danger'" effect="dark">{{
-              scope.row.status === 1 ? '成功' : '失败'
+            <el-tag size="small" :type="getStatusType(scope.row.status)" effect="dark">{{
+              getStatusTip(scope.row.status)
             }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="执行时间" align="center" width="220" />
+        <el-table-column prop="finishTime" label="完成时间" align="center" width="220" />
       </el-table>
     </div>
     <div class="log-footer">
@@ -66,7 +68,7 @@ export default {
       const { data } = await this.$service.sys.taskLog.page({ page: this.currentPage, limit: this.pageSize })
       const { list, pagination } = data
       if (list && list.length > 0) {
-        this.logs = list.map(e => { e.createTime = momentParseTime(e.createTime); return e })
+        this.logs = list.map(e => { e.createTime = momentParseTime(e.createTime); e.finishTime = momentParseTime(e.finishTime); return e })
         this.totalLogs = pagination.total
       } else {
         this.totalLogs = 0
@@ -83,6 +85,26 @@ export default {
     handleCurrentChange(page) {
       this.currentPage = page
       this.handleRefresh()
+    },
+    getStatusType(status) {
+      switch (status) {
+        case 0:
+          return 'warning'
+        case 1:
+          return 'success'
+        case 2:
+          return 'danger'
+      }
+    },
+    getStatusTip(status) {
+      switch (status) {
+        case 0:
+          return '执行中'
+        case 1:
+          return '成功'
+        case 2:
+          return '失败'
+      }
     }
   }
 }
