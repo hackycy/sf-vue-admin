@@ -17,7 +17,7 @@
         v-loading="isTableLoading"
         :data="roleData"
         :loading="true"
-        max-height="700px"
+        max-height="700"
         border
         row-key="id"
         size="small"
