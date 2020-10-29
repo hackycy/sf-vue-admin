@@ -1,6 +1,6 @@
 ### sf-vue-admin
 
-![](https://img.shields.io/github/commit-activity/m/hackycy/sf-vue-admin)![](https://img.shields.io/github/license/hackycy/sf-vue-admin)![](https://img.shields.io/github/repo-size/hackycy/sf-vue-admin)![](https://img.shields.io/github/languages/top/hackycy/sf-vue-admin)
+![](https://img.shields.io/github/commit-activity/m/hackycy/sf-vue-admin) ![](https://img.shields.io/github/license/hackycy/sf-vue-admin) ![](https://img.shields.io/github/repo-size/hackycy/sf-vue-admin) ![](https://img.shields.io/github/languages/top/hackycy/sf-vue-admin)
 
 **基于EggJs + TypeScript + TypeOrm + Redis + MySql + Vue + Element-UI编写的一款简单高效的前后端分离的权限管理系统。希望这个项目在全栈的路上能够帮助到你。**
 
@@ -15,6 +15,7 @@
 | 账号      | 密码   | 权限                     |
 | --------- | ------ | ------------------------ |
 | openadmin | 123456 | 仅只有各个功能的查询权限 |
+| monitoradmin | 123456 |  系统监控页面及按钮权限  |
 
 ### 开发
 
@@ -64,6 +65,10 @@ npm run lint -- --fix
 ```
 
 更多信息请参考 [使用文档](https://panjiachen.github.io/vue-element-admin-site/zh/)
+
+### 欢迎Star && PR
+
+如果项目有帮助到你可以点个Star支持下。有更好的实现欢迎PR。
 
 ### Browsers support
 
