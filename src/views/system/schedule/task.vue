@@ -27,8 +27,8 @@
         <el-table-column prop="data" show-overflow-tooltip label="执行参数" width="200" align="center" />
         <el-table-column prop="status" label="状态" width="100" align="center">
           <template slot-scope="scope">
-            <el-tag size="small" :type="scope.row.status === 1 ? 'success' : 'danger'" effect="dark">{{
-              scope.row.status === 1 ? '运行' : '暂停'
+            <el-tag size="small" :type="getStatusType(scope.row.status)" effect="dark">{{
+              getStatusInfo(scope.row.status)
             }}</el-tag>
           </template>
         </el-table-column>
@@ -53,7 +53,7 @@
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item v-permission="$service.sys.task.permission.once" @click.native="handleOnce(scope.row)">仅一次</el-dropdown-item>
                 <el-dropdown-item v-permission="$service.sys.task.permission.start" :disabled="scope.row.status === 1" @click.native="handleStart(scope.row)">运行</el-dropdown-item>
-                <el-dropdown-item v-permission="$service.sys.task.permission.stop" :disabled="scope.row.status === 0" @click.native="handleStop(scope.row)">暂停</el-dropdown-item>
+                <el-dropdown-item v-permission="$service.sys.task.permission.stop" :disabled="scope.row.status === 0 || scope.row.status === 2" @click.native="handleStop(scope.row)">暂停</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <el-button
@@ -178,6 +178,26 @@ export default {
     handleSizeChange(size) {
       this.pageSize = size
       this.handleRefresh()
+    },
+    getStatusInfo(status) {
+      switch (status) {
+        case 0:
+          return '暂停'
+        case 1:
+          return '运行'
+        case 2:
+          return '完成'
+      }
+    },
+    getStatusType(status) {
+      switch (status) {
+        case 0:
+          return 'info'
+        case 1:
+          return 'success'
+        case 2:
+          return 'danger'
+      }
     }
   }
 }
