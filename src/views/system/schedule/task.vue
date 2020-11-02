@@ -34,7 +34,7 @@
         </el-table-column>
         <el-table-column prop="type" label="类型" width="100" align="center">
           <template slot-scope="scope">
-            <el-tag type="small" effect="dark">{{
+            <el-tag type="small" effect="light">{{
               scope.row.type === 1 ? 'interval' : 'cron'
             }}</el-tag>
           </template>
@@ -196,7 +196,7 @@ export default {
         case 1:
           return 'success'
         case 2:
-          return 'danger'
+          return 'warning'
       }
     }
   }
