@@ -70,6 +70,7 @@
         <el-radio-group v-model="taskForm.status">
           <el-radio v-if="taskForm.status !== 2" :label="0">暂停</el-radio>
           <el-radio :label="1">运行</el-radio>
+          <el-radio v-if="taskForm.status === 2" :label="2">完成</el-radio>
         </el-radio-group>
       </el-form-item>
       <!-- 分面板结束 -->
