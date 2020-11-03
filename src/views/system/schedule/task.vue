@@ -47,7 +47,7 @@
         <el-table-column prop="remark" show-overflow-tooltip label="备注" width="250" align="center" />
         <el-table-column label="操作" width="200" align="center" fixed="right">
           <template slot-scope="scope">
-            <el-dropdown size="small">
+            <el-dropdown v-permission="{ or: [ $service.sys.task.permission.once, $service.sys.task.permission.start, $service.sys.task.permission.stop ] }" size="small">
               <el-button size="mini" type="text">
                 执行<i style="margin-left: 4px; margin-right: 10px;" class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
