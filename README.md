@@ -70,6 +70,10 @@ npm run lint -- --fix
 
 如果项目有帮助到你可以点个Star支持下。有更好的实现欢迎PR。
 
+### 致谢
+
+- [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
+
 ### Browsers support
 
 Modern browsers and Internet Explorer 10+.
