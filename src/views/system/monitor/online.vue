@@ -54,8 +54,6 @@
 </template>
 
 <script>
-import { momentParseTime } from '@/utils'
-
 export default {
   name: 'SystemMonitorOnline',
   data() {
@@ -71,10 +69,7 @@ export default {
     async list() {
       const { data } = await this.$service.sys.online.list()
       if (data) {
-        this.users = data.map(e => {
-          e.updateTime = momentParseTime(e.updateTime)
-          return e
-        })
+        this.users = data
       }
       this.isLoading = false
     },

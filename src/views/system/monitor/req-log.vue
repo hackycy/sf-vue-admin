@@ -68,8 +68,6 @@
 </template>
 
 <script>
-import { momentParseTime } from '@/utils'
-
 export default {
   name: 'SystemMonitorReqLog',
   data() {
@@ -92,7 +90,7 @@ export default {
       const { data } = await this.$service.sys.reqLog.page({ page: this.currentPage, limit: this.pageSize })
       const { list, pagination } = data
       if (list && list.length > 0) {
-        this.logs = list.map(e => { e.createTime = momentParseTime(e.createTime); return e })
+        this.logs = list
         this.totalLogs = pagination.total
       } else {
         this.totalLogs = 0
@@ -103,7 +101,7 @@ export default {
       const { data } = await this.$service.sys.reqLog.search({ page: this.currentPage, limit: this.pageSize, q: this.searchText })
       const { logs, count } = data
       if (logs && logs.length > 0) {
-        this.logs = logs.map(e => { e.createTime = momentParseTime(e.createTime); return e })
+        this.logs = logs
         this.totalLogs = count
       } else {
         this.totalLogs = 0

@@ -45,8 +45,6 @@
 </template>
 
 <script>
-import { momentParseTime } from '@/utils'
-
 export default {
   name: 'SystemScheduleTaskLog',
   data() {
@@ -68,7 +66,7 @@ export default {
       const { data } = await this.$service.sys.taskLog.page({ page: this.currentPage, limit: this.pageSize })
       const { list, pagination } = data
       if (list && list.length > 0) {
-        this.logs = list.map(e => { e.createTime = momentParseTime(e.createTime); e.finishTime = momentParseTime(e.finishTime); return e })
+        this.logs = list
         this.totalLogs = pagination.total
       } else {
         this.totalLogs = 0

@@ -61,7 +61,6 @@
 </template>
 
 <script>
-import { momentParseTime } from '@/utils'
 import RoleDialog from './components/role-dialog'
 
 export default {
@@ -99,11 +98,7 @@ export default {
       this.totalRoles = pagination.total
       this.isTableLoading = false
       if (list) {
-        this.roleData = list.map(e => {
-          e.createTime = momentParseTime(e.createTime)
-          e.updateTime = momentParseTime(e.updateTime)
-          return e
-        })
+        this.roleData = list
       }
     },
     async delete(roleIds) {

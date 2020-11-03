@@ -30,8 +30,6 @@
     "jsonlint": "1.6.3",
     "jszip": "3.2.1",
     "lodash": "^4.17.20",
-    "moment": "^2.27.0",
-    "moment-timezone": "^0.5.31",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "path-to-regexp": "2.4.0",

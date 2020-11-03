@@ -1,6 +1,5 @@
 import store from '@/store'
 import * as _ from 'lodash'
-import { momentParseTime } from '@/utils'
 
 /**
  * @param {Array} value
@@ -98,7 +97,6 @@ export function filterMenuToTable(menus, parentMenu) {
     // add curent route
     if (realMenu) {
       realMenu.pid = menu.id
-      realMenu.updateTime = momentParseTime(realMenu.updateTime, null)
       res.push(realMenu)
     }
   })

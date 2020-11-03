@@ -1,4 +1,3 @@
-import moment from 'moment-timezone'
 
 /**
  * Parse the time to string
@@ -47,17 +46,6 @@ export function parseTime(time, cFormat) {
     return value.toString().padStart(2, '0')
   })
   return time_str
-}
-
-/**
- * using moment marse time
- */
-export function momentParseTime(time, cFormat) {
-  if (arguments.length === 0 || !time) {
-    return null
-  }
-  const format = cFormat || 'YYYY-MM-DD HH:mm:ss'
-  return moment.parseZone(time).format(format)
 }
 
 /**
