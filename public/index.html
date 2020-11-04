@@ -7,9 +7,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= webpackConfig.name %></title>
+    <style>.app-loading-box-d3y6{display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;height:100vh}.app-loading-box-d3y6 .spinner-d4y7{width:60px;height:60px;position:relative;margin:20px auto}.app-loading-box-d3y6 .spinner-d4y7 .double-bounce1-d5y8,.app-loading-box-d3y6 .spinner-d4y7 .double-bounce2-d5y8{width:100%;height:100%;border-radius:50%;background-color:#1890ff;opacity:.6;position:absolute;top:0;left:0;-webkit-animation:bounce-d7y9 2s infinite ease-in-out;animation:bounce-d7y9 2s infinite ease-in-out}.app-loading-box-d3y6 .spinner-d4y7 .double-bounce2-d5y8{-webkit-animation-delay:-1s;animation-delay:-1s}@-webkit-keyframes bounce-d7y9{0%,100%{-webkit-transform:scale(0)}50%{-webkit-transform:scale(1)}}@keyframes bounce-d7y9{0%,100%{transform:scale(0);-webkit-transform:scale(0)}50%{transform:scale(1);-webkit-transform:scale(1)}}</style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div class="app-loading-box-d3y6">
+        <div class="spinner-d4y7">
+          <div class="double-bounce1-d5y8"></div>
+          <div class="double-bounce2-d5y8"></div>
+        </div>
+        <h4>资源正在努力加载中...</h2>
+      </div>
+    </div>
     <!-- built files will be auto injected -->
   </body>
 </html>
