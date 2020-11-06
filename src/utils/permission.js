@@ -1,25 +1,4 @@
-import store from '@/store'
 import * as _ from 'lodash'
-
-/**
- * @param {Array} value
- * @returns {Boolean}
- * @example see @/views/permission/directive.vue
- */
-export default function checkPermission(value) {
-  if (value && value instanceof Array && value.length > 0) {
-    const roles = store.getters && store.getters.roles
-    const permissionRoles = value
-
-    const hasPermission = roles.some(role => {
-      return permissionRoles.includes(role)
-    })
-    return hasPermission
-  } else {
-    console.error(`need roles! Like v-permission="['admin','editor']"`)
-    return false
-  }
-}
 
 /**
  * 遍历获取$service下定义的权限，需要权限的Api必须定义Service且需要使用@Permission定义权限
@@ -33,7 +12,7 @@ export function flatPerms(obj) {
     } else {
       const tmp = flatPerms(obj[i])
       if (tmp && tmp.length > 0) {
-        list = _.concat(list, flatPerms(obj[i]))
+        list = _.concat(list, tmp)
       }
     }
   })

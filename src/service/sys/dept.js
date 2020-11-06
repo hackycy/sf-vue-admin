@@ -1,4 +1,4 @@
-import { Permission } from '@/decorator/service'
+import { Permission } from '@/core/decorator/service'
 import request from '@/utils/request'
 
 class SysDeptService {

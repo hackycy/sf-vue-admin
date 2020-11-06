@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import elDragDialog from '@/directive/el-drag-dialog'
+import elDragDialog from '@/core/directive/el-drag-dialog'
 import { filterDeptToTree } from '@/utils/permission'
 
 export default {

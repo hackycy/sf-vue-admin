@@ -3,7 +3,7 @@ import path from 'path'
 import store from '@/store'
 
 /**
- * url权限注册
+ * permission权限注册
  * @param {String} value info
  */
 export function Permission(value) {
@@ -16,29 +16,27 @@ export function Permission(value) {
   }
 }
 
-// /**
-//  * 命名空间前缀注册
-//  * @param {*} value 命名空间
-//  */
-// export function Service(value) {
-//   return function(target) {
-//     // 命名
-//     if (typeof value === 'string') {
-//       target.prototype.namespace = value
-//     } else if (value.prototype.toString.call() === '[object Object]') {
-//       const { namespace } = value
-//       target.prototype.namespace = namespace
-//     }
-//   }
-// }
-
-export default class ServiceRegisterPlugin { }
+/**
+ * 命名空间前缀注册，暂未使用
+ * @param {*} value 命名空间
+ */
+export function Service(value) {
+  return function(target) {
+    // 命名
+    if (typeof value === 'string') {
+      target.prototype.namespace = value.replace(/\//g, ':')
+    } else if (value.prototype.toString.call() === '[object Object]') {
+      const { namespace } = value
+      target.prototype.namespace = namespace.replace(/\//g, ':')
+    }
+  }
+}
 
 /**
  * plugin install
  * @param {*} Vue vue
  */
-ServiceRegisterPlugin.install = function(Vue) {
+export default function register(Vue) {
   // require.context('@/service/', true, /\.js$/).keys().forEach(e => { console.log(e) })
   const files = require.context('@/service/', true, /\.js$/)
 
