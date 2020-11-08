@@ -182,7 +182,7 @@ export default {
     getStatusInfo(status) {
       switch (status) {
         case 0:
-          return '暂停'
+          return '停止'
         case 1:
           return '运行'
         case 2:
