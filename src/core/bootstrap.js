@@ -1,10 +1,9 @@
-import ServiceRegister from './decorator/service'
-import Vue from 'vue'
+import { printANSI } from '@/utils'
 
 /**
  * global init
  */
 export default function Initializer() {
-  // server register
-  ServiceRegister(Vue)
+  // 自己使用时移除该方法
+  printANSI()
 }

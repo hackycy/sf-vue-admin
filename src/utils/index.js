@@ -370,3 +370,18 @@ export function toHump(name) {
 export function toLine(name) {
   return name.replace(/([A-Z])/g, '_$1').toLowerCase()
 }
+
+/**
+ * print ansi
+ */
+export function printANSI() {
+  console.log(`
+  ####  ######         ##   #####  #    # # #    #
+ #      #             #  #  #    # ##  ## # ##   #
+  ####  #####  ##### #    # #    # # ## # # # #  #
+      # #            ###### #    # #    # # #  # #
+ #    # #            #    # #    # #    # # #   ##
+  ####  #            #    # #####  #    # # #    #
+
+`)
+}
