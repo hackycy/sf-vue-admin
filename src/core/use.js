@@ -1,9 +1,11 @@
 import Vue from 'vue'
 import Element from 'element-ui'
 import Cookies from 'js-cookie'
-
+import ServiceRegister from './decorator/service'
 import Permission from './directive/permission'
 import * as filters from './filters' // global filters
+
+Vue.use(ServiceRegister)
 
 // register global utility filters
 Object.keys(filters).forEach(key => {
@@ -16,3 +18,4 @@ Vue.use(Element, {
 
 // 注册v-permission指令
 Vue.use(Permission)
+
