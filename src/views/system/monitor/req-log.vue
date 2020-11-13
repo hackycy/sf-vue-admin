@@ -154,9 +154,9 @@ export default {
       }
     },
     getConsumeTimeType(time) {
-      if (time <= 2000) {
+      if (time <= 20) {
         return 'success'
-      } else if (time <= 4000) {
+      } else if (time <= 40) {
         return 'warning'
       } else {
         return 'danger'
