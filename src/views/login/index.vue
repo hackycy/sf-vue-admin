@@ -27,7 +27,12 @@
         />
       </el-form-item>
 
-      <el-tooltip v-model="capsTooltip" content="大写输入已锁定" placement="right" manual>
+      <el-tooltip
+        v-model="capsTooltip"
+        content="大写输入已锁定"
+        placement="right"
+        manual
+      >
         <el-form-item prop="password">
           <span class="svg-container">
             <svg-icon icon-class="password" />
@@ -45,7 +50,9 @@
             @blur="capsTooltip = false"
           />
           <span class="show-pwd" @click="showPwd">
-            <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+            <svg-icon
+              :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
+            />
           </span>
         </el-form-item>
       </el-tooltip>
@@ -72,7 +79,7 @@
       <el-button
         :loading="loading"
         type="primary"
-        style="width:100%;margin-bottom:30px;"
+        style="width: 100%; margin-bottom: 30px"
         @click.native.prevent="handleLogin"
       >登录</el-button>
     </el-form>
@@ -81,6 +88,7 @@
 
 <script>
 import { getCaptchaImg } from '@/api/comm'
+import { debounce } from 'lodash'
 
 export default {
   name: 'Login',
@@ -173,25 +181,30 @@ export default {
         this.$refs.password.focus()
       })
     },
+    login: debounce(function() {
+      this.loading = true
+      this.$store.dispatch('user/login', {
+        verifyCode: this.loginForm.captcha,
+        username: this.loginForm.username,
+        password: this.loginForm.password,
+        captchaId: this.captchaId
+      })
+        .then(() => {
+          this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+          this.loading = false
+        })
+        .catch(() => {
+          this.loading = false
+        })
+    }, 2000, {
+      leading: true,
+      trailing: false
+    }),
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', {
-            verifyCode: this.loginForm.captcha,
-            username: this.loginForm.username,
-            password: this.loginForm.password,
-            captchaId: this.captchaId
-          })
-            .then(() => {
-              this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
-              this.loading = false
-            })
-            .catch(() => {
-              this.loading = false
-            })
+          this.login()
         } else {
-          console.log('error submit!!')
           return false
         }
       })
