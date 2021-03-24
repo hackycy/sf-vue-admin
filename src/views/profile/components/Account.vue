@@ -42,7 +42,6 @@
 <script>
 import ImageSpaceDialog from '@/components/ImageSpace'
 import { person, updatePerson } from '@/api/comm'
-import { aesEncrypt } from '@/utils/crypto'
 
 export default {
   components: {
@@ -93,8 +92,8 @@ export default {
                 return false
               }
               // 加密密码
-              postData.originPassword = aesEncrypt(this.userForm.originPassword)
-              postData.newPassword = aesEncrypt(this.userForm.newPassword)
+              postData.originPassword = this.userForm.originPassword.trim()
+              postData.newPassword = this.userForm.newPassword.trim()
             }
             this.isLoading = true
             await updatePerson(postData)

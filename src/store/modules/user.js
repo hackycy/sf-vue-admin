@@ -1,5 +1,4 @@
 import { login, permmenu, person, logout } from '@/api/comm'
-import { aesEncrypt } from '@/utils/crypto'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
@@ -36,9 +35,7 @@ const actions = {
   login({ commit }, userInfo) {
     const { username, password, captchaId, verifyCode } = userInfo
     return new Promise((resolve, reject) => {
-      const encryptUsername = aesEncrypt(username.trim())
-      const encryptPassword = aesEncrypt(password.trim())
-      login({ username: encryptUsername, password: encryptPassword, captchaId: captchaId.trim(), verifyCode: verifyCode.trim() })
+      login({ username: username.trim(), password: password.trim(), captchaId: captchaId.trim(), verifyCode: verifyCode.trim() })
         .then(response => {
           const { data } = response
           commit('SET_TOKEN', data.token)
