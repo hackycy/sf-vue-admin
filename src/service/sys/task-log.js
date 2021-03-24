@@ -2,10 +2,10 @@ import { Permission } from '@/core/decorator/service'
 import request from '@/utils/request'
 
 class SysTaskLogService {
-  @Permission('sys/task-log/page')
+  @Permission('sys/log/task/page')
   page(query) {
     return request({
-      url: '/sys/task-log/page',
+      url: '/sys/log/task/page',
       params: query,
       method: 'get'
     })
