@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: 'Vue Admin Template',
+  title: 'SF管理后台',
 
   dashboardName: '仪表盘',
 
