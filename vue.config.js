@@ -36,6 +36,7 @@ module.exports = {
       warnings: false,
       errors: true
     },
+    proxy: 'http://127.0.0.1:7001'
   },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that
