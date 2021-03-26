@@ -1,4 +1,8 @@
-# vue-admin-template
+# sf-vue-admin
+
+**dev分之为开发分之，目前正在整体重构。**
+
+**注意：请使用master分之或者egg分之。master分之支持midway版，egg分之支持egg版。**
 
 > 这是一个极简的 vue admin 管理后台。它只包含了 Element UI & axios & iconfont & permission control & lint，这些搭建后台必要的东西。
 
