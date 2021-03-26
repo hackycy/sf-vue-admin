@@ -1,4 +1,4 @@
-import router, { constantRoutes } from './router'
+import router from './router'
 import store from './store'
 import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
@@ -24,34 +24,21 @@ router.beforeEach(async(to, from, next) => {
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
       next({ path: '/' })
-      NProgress.done() // hack: https://github.com/PanJiaChen/vue-element-admin/pull/2939
+      NProgress.done()
     } else {
-      // determine whether the user has obtained his permission roles through getInfo
-      // 有可能该角色没有任何权限，只能进行浏览菜单
-      const hasPerms = store.getters.perms && store.getters.perms.length > 0
-      // 必须大于已存在的路由加上404路由，否则视为无权限路由
-      const hasRoutes = store.getters.permission_routes && store.getters.permission_routes.length > constantRoutes.length + 1
-      if (hasPerms || hasRoutes) {
-        // 正常可能没有权限，但是有些页面不需要权限，只包含路由，那么也可以进行访问
+      const hasGetUserInfo = store.getters.name
+      if (hasGetUserInfo) {
         next()
       } else {
         try {
           // get user info
-          const { menus } = await store.dispatch('user/getInfo')
+          await store.dispatch('user/getInfo')
 
-          // generate accessible routes map based on roles
-          const accessRoutes = await store.dispatch('permission/generateRoutes', menus)
-
-          // dynamically add accessible routes
-          router.addRoutes(accessRoutes)
-
-          // hack method to ensure that addRoutes is complete
-          // set the replace: true, so the navigation will not leave a history record
-          next({ ...to, replace: true })
-        } catch (e) {
+          next()
+        } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('user/resetToken')
-          Message.error(e || '发生未知错误')
+          Message.error(error || 'Has Error')
           next(`/login?redirect=${to.path}`)
           NProgress.done()
         }

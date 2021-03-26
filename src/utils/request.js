@@ -19,7 +19,7 @@ service.interceptors.request.use(
       // let each request carry token
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
-      config.headers['Authorization'] = getToken()
+      config.headers['X-Token'] = getToken()
     }
     return config
   },
@@ -46,29 +46,25 @@ service.interceptors.response.use(
     const res = response.data
 
     // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 200) {
+    if (res.code !== 20000) {
       Message({
-        message: res.message || '未知错误！请重试',
+        message: res.message || 'Error',
         type: 'error',
         duration: 5 * 1000
       })
 
       // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
-      if (res.code === 11001 || res.code === 11002) {
+      if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
         // to re-login
-        MessageBox.confirm(res.message || '账号异常，您可以取消停留在该页上，或重新登录', '警告', {
-          confirmButtonText: '重新登录',
-          cancelButtonText: '取消',
+        MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
+          confirmButtonText: 'Re-Login',
+          cancelButtonText: 'Cancel',
           type: 'warning'
         }).then(() => {
           store.dispatch('user/resetToken').then(() => {
             location.reload()
           })
         })
-      }
-      // 无权限操作提示
-      if (res.code === 11003) {
-        MessageBox.alert(res.message || '无权限操作', '警告', { type: 'warning' })
       }
       return Promise.reject(new Error(res.message || 'Error'))
     } else {
