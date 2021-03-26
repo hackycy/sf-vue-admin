@@ -11,6 +11,7 @@
 
 <script>
 import pathToRegexp from 'path-to-regexp'
+import { dashboardName } from '@/settings'
 
 export default {
   data() {
@@ -33,7 +34,7 @@ export default {
       const first = matched[0]
 
       if (!this.isDashboard(first)) {
-        matched = [{ path: '/dashboard', meta: { title: 'Dashboard' }}].concat(matched)
+        matched = [{ path: '/dashboard', meta: { title: dashboardName }}].concat(matched)
       }
 
       this.levelList = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)
