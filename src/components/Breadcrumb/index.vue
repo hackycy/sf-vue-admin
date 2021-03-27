@@ -11,7 +11,7 @@
 
 <script>
 import pathToRegexp from 'path-to-regexp'
-import { dashboardName } from '@/settings'
+import { dashboardName } from '@/config/settings'
 
 export default {
   data() {

@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import { dashboardName } from '@/settings'
+import { dashboardName } from '@/config/settings'
 
 Vue.use(Router)
 
