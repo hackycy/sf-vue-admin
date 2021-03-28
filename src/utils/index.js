@@ -115,3 +115,21 @@ export function param2Obj(url) {
   })
   return obj
 }
+
+/**
+ * / _ - 转换成驼峰并将view替换成空字符串
+ * @param {*} name name
+ */
+export function toHump(name) {
+  return name.replace(/[\-\/\_](\w)/g, function(all, letter) {
+    return letter.toUpperCase()
+  }).replace('views', '')
+}
+
+/**
+ * 驼峰转下划线
+ * @param {*} name name
+ */
+export function toLine(name) {
+  return name.replace(/([A-Z])/g, '_$1').toLowerCase()
+}
