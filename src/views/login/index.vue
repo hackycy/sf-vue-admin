@@ -60,15 +60,10 @@
           v-model="loginForm.captchaCode"
           placeholder="验证码"
           name="captchaCode"
-          tabindex="2"
-          auto-complete="on"
+          tabindex="3"
           @keyup.enter.native="handleLogin"
         />
-        <span class="show-pwd" @click="showPwd">
-          <svg-icon
-            :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
-          />
-        </span>
+        <span class="img-captcha-container" />
       </el-form-item>
 
       <el-button
@@ -252,6 +247,15 @@ $bg: #f0f2f5;
     color: $dark_gray;
     cursor: pointer;
     user-select: none;
+  }
+
+  .img-captcha-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 80px;
+    cursor: pointer;
   }
 }
 </style>
