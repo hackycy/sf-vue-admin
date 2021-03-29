@@ -50,6 +50,27 @@
         </span>
       </el-form-item>
 
+      <el-form-item prop="captchaCode">
+        <span class="svg-container">
+          <svg-icon icon-class="captcha" />
+        </span>
+        <el-input
+          :key="passwordType"
+          ref="captchaCode"
+          v-model="loginForm.captchaCode"
+          placeholder="验证码"
+          name="captchaCode"
+          tabindex="2"
+          auto-complete="on"
+          @keyup.enter.native="handleLogin"
+        />
+        <span class="show-pwd" @click="showPwd">
+          <svg-icon
+            :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
+          />
+        </span>
+      </el-form-item>
+
       <el-button
         :loading="loading"
         type="primary"
@@ -67,7 +88,7 @@ export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (value.length < 6) {
+      if (value.length < 2) {
         callback(new Error('请输入正确的用户名'))
       } else {
         callback()
@@ -84,7 +105,8 @@ export default {
       title: defaultSettings.title,
       loginForm: {
         username: '',
-        password: ''
+        password: '',
+        captchaCode: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
