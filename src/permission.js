@@ -26,19 +26,32 @@ router.beforeEach(async(to, from, next) => {
       next({ path: '/' })
       NProgress.done()
     } else {
-      const hasGetUserInfo = store.getters.name
-      if (hasGetUserInfo) {
+      // 判断是否有权限路由
+      const hasRoutes = store.getters.permissionRoutes && (store.getters.permissionRoutes.length > 0)
+
+      if (hasRoutes) {
+        // pass
         next()
       } else {
         try {
           // get user info
-          await store.dispatch('user/getInfo')
+          const { menus } = await store.dispatch('user/getInfo')
 
-          next()
+          // generate accessible routes map based on roles
+          const accessRoutes = await store.dispatch('permission/generateRoutes', menus)
+
+          // dynamically add accessible routes
+          router.addRoutes(accessRoutes)
+
+          // hack method to ensure that addRoutes is complete
+          // set the replace: true, so the navigation will not leave a history record
+          next({ ...to, replace: true })
         } catch (error) {
-          // remove token and go to login page to re-login
+          // remove token
           await store.dispatch('user/resetToken')
-          Message.error(error || 'Has Error')
+          Message.error(error || '发生了一些未知的错误，请重试！')
+
+          // go to login page to re-login
           next(`/login?redirect=${to.path}`)
           NProgress.done()
         }
