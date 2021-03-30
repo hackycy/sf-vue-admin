@@ -41,7 +41,6 @@
           name="password"
           tabindex="2"
           auto-complete="on"
-          @keyup.enter.native="handleLogin"
         />
         <span class="show-pwd" @click="showPwd">
           <svg-icon
@@ -50,20 +49,22 @@
         </span>
       </el-form-item>
 
-      <el-form-item prop="captchaCode">
+      <el-form-item prop="verifyCode">
         <span class="svg-container">
           <svg-icon icon-class="captcha" />
         </span>
         <el-input
           :key="passwordType"
-          ref="captchaCode"
-          v-model="loginForm.captchaCode"
+          ref="verifyCode"
+          v-model="loginForm.verifyCode"
           placeholder="验证码"
-          name="captchaCode"
+          name="verifyCode"
           tabindex="3"
           @keyup.enter.native="handleLogin"
         />
-        <span class="img-captcha-container" />
+        <div class="img-captcha-container">
+          <img :src="captchaImageBase64" @click="handleRefreshCaptcha">
+        </div>
       </el-form-item>
 
       <el-button
@@ -78,13 +79,14 @@
 
 <script>
 import defaultSettings from '@/config/settings'
+import { getImageCaptcha } from '@/api/login'
 
 export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
       if (value.length < 2) {
-        callback(new Error('请输入正确的用户名'))
+        callback(new Error('请输入合法的用户名'))
       } else {
         callback()
       }
@@ -96,16 +98,26 @@ export default {
         callback()
       }
     }
+    const validatecaptchaCode = (rule, value, callback) => {
+      if (value.length !== 4) {
+        callback(new Error('请输入合法的验证码'))
+      } else {
+        callback()
+      }
+    }
     return {
       title: defaultSettings.title,
       loginForm: {
         username: '',
         password: '',
-        captchaCode: ''
+        verifyCode: '',
+        captchaId: ''
       },
+      captchaImageBase64: '',
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+        verifyCode: [{ required: true, trigger: 'blur', validator: validatecaptchaCode }]
       },
       loading: false,
       passwordType: 'password',
@@ -119,6 +131,9 @@ export default {
       },
       immediate: true
     }
+  },
+  async created() {
+    this.handleRefreshCaptcha()
   },
   methods: {
     showPwd() {
@@ -138,14 +153,21 @@ export default {
           this.$store.dispatch('user/login', this.loginForm).then(() => {
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
-          }).catch(() => {
+          }).catch((e) => {
             this.loading = false
+            if (e.code && e.code === 10003) {
+              this.handleRefreshCaptcha()
+            }
           })
         } else {
-          console.log('error submit!!')
           return false
         }
       })
+    },
+    async handleRefreshCaptcha() {
+      const { data } = await getImageCaptcha({ width: 100, height: 50 })
+      this.loginForm.captchaId = data.id
+      this.captchaImageBase64 = data.img
     }
   }
 }
@@ -256,6 +278,11 @@ $bg: #f0f2f5;
     height: 100%;
     width: 80px;
     cursor: pointer;
+
+      img {
+        height: 100%;
+        width: 100%;
+      }
   }
 }
 </style>

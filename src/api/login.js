@@ -8,6 +8,14 @@ export function login(data) {
   })
 }
 
+export function getImageCaptcha(query) {
+  return request({
+    url: 'captcha/img',
+    method: 'get',
+    query
+  })
+}
+
 export function getInfo() {
   return request({
     url: 'person',
