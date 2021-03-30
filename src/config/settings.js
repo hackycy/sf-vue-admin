@@ -2,7 +2,7 @@ module.exports = {
 
   title: 'SF管理后台',
 
-  dashboardName: '仪表盘',
+  dashboardName: '工作台',
 
   /**
    * @type {boolean} true | false
