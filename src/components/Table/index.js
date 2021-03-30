@@ -11,7 +11,7 @@ export default {
     }
   },
   props: Object.assign({}, T.props, {
-    data: {
+    dataRequest: {
       type: Function,
       required: true
     },
@@ -26,7 +26,9 @@ export default {
   }),
   render() {
     return (
-      <div class={ styles.text }>a</div>
+      <div class={ styles['sf-table-wrapper'] }>
+        a
+      </div>
     )
   }
 }
