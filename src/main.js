@@ -9,6 +9,7 @@ import '@/styles/index.scss' // global css
 import App from './App'
 import store from './store'
 import router from './router'
+import bootstrap from '@/core/bootstrap'
 
 import '@/core/use' // vue use
 import '@/icons' // icon
@@ -20,5 +21,7 @@ new Vue({
   el: '#app',
   router,
   store,
+  // init localstorage, vuex
+  created: bootstrap,
   render: h => h(App)
 })
