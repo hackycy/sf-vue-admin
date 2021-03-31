@@ -1,5 +1,22 @@
 .sf-table-wrapper {
+  position: relative;
   display: flex;
+  width: 100%;
   display: -webkit-flex;
   flex-direction: column;
+
+  .sf-table-content {
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .sf-table-pagination {
+    display: flex;
+    width: 100%;
+    display: -webkit-flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 20px;
+  }
+
 }
