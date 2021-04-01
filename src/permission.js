@@ -5,6 +5,7 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
+import { constantRoutes } from '@/config/router.config'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -27,7 +28,7 @@ router.beforeEach(async(to, from, next) => {
       NProgress.done()
     } else {
       // 判断是否有权限路由
-      const hasRoutes = store.getters.permissionRoutes && (store.getters.permissionRoutes.length > 0)
+      const hasRoutes = store.getters.permissionRoutes && (store.getters.permissionRoutes.length > constantRoutes.length)
 
       if (hasRoutes) {
         // pass
