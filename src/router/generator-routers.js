@@ -2,14 +2,7 @@ import Layout from '@/layout'
 import BlankLayout from '@/layout/components/BlankLayout'
 import { isExternal } from '@/utils/validate'
 import { toHump } from '@/utils'
-
-/**
- * 前端路由Component映射
-*/
-export const constantRouterComponents = {
-  // system
-  'views/system/permission/menu': () => import('@/views/system/permission/menu')
-}
+import { constantRouterComponents } from '@/router'
 
 /**
  * 获取外联路由

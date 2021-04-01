@@ -4,6 +4,22 @@ import { constantRoutes } from '@/config/router.config'
 
 Vue.use(Router)
 
+// generate components map
+export const constantRouterComponents = {}
+
+// auto load
+const modulesFiles = require.context('./modules', true, /\.js$/)
+
+modulesFiles.keys().forEach(path => {
+  const value = modulesFiles(path).default
+
+  // mouted
+  Object.keys(value).forEach(ele => {
+    constantRouterComponents[ele] = value[ele]
+  })
+})
+
+// create router
 const createRouter = () => new Router({
   mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
