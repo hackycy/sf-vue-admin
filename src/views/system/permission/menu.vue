@@ -1,9 +1,11 @@
 <template>
   <div class="sys-menu-container">
     <s-table
+      ref="menuTable"
       :data-request="getMenuList"
       row-key="id"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      @row-click="handleRowClick"
     >
       <el-table-column prop="name" label="名称" width="240">
         <template slot-scope="scope">
@@ -128,6 +130,9 @@ export default {
         case 2:
           return '权限'
       }
+    },
+    handleRowClick(row) {
+      this.$refs.menuTable.getTable().toggleRowExpansion(row)
     }
   }
 }

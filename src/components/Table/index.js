@@ -121,7 +121,11 @@ export default {
     return (
       <div class={styles['sf-table-wrapper']}>
         <div class={styles['sf-table-content']}>
-          <el-table {...{ props: { ...tableProps }, ref: 'table', directives: [{ name: 'loading', value: this.localLoading }] }}>
+          <el-table {...{ props: { ...tableProps }, on: {
+            'row-click': (row, column, event) => { this.$emit('row-click', row, column, event) }
+          },
+          ref: 'table',
+          directives: [{ name: 'loading', value: this.localLoading }] }}>
             {Object.keys(this.$slots).map(name => (this.$slots[name]))}
           </el-table>
         </div>
