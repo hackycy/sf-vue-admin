@@ -8,11 +8,14 @@ export default {
   data() {
     return {
       localLoading: false,
-      localDataTotal: 0,
-      localPagination: {
-        page: 1,
-        limit: 10
-      },
+      localPagination: Object.assign({}, {
+        background: true,
+        layout: 'total, sizes, prev, pager, next',
+        total: 0,
+        pageSizes: this.pageSizes,
+        pageSize: this.pageSize,
+        currentPage: this.currentPage
+      }),
       localDataSource: []
     }
   },
@@ -41,28 +44,37 @@ export default {
     }
   }),
   created() {
-    if (this.showPagination) {
-      this.localPagination = Object.assign({}, this.localPagination, { page: this.currentPage, limit: this.pageSize })
-    } else {
-      this.loadData()
-    }
+    // 加载数据
+    this.loadData()
   },
   watch: {
-    'localPagination': function(o) {
-      this.loadData(o)
+    'localPagination.pageSize': function(s) {
+      this.loadData()
+    },
+    'localPagination.currentPage': function(p) {
+      this.loadData()
     }
   },
   methods: {
     /**
+     * 手动刷新数据
+     */
+    refresh(init = false) {
+      if (init) {
+        // 重置当前页面
+        this.localPagination.currentPage = 1
+      }
+      this.loadData()
+    },
+    /**
      * 加载数据方法
      * @param {Object} pagination 分页选项器
      */
-    loadData(pagination) {
+    loadData() {
       this.localLoading = true
-      const parameter = { page: pagination && pagination.page, limit: pagination && pagination.limit }
 
       // props中的dataRequest必须返回一个Promise，且返回的数据结构需要满足 { list, pagination: { total } }
-      const result = this.dataRequest(parameter)
+      const result = this.dataRequest(this.showPagination ? { ...this.localPagination } : null)
       if ((typeof result === 'object' || typeof result === 'function') && typeof result.then === 'function') {
         result.then(res => {
           this.localDataSource = res.list
@@ -70,23 +82,28 @@ export default {
           if (this.showPagination) {
             this.localDataTotal = res.pagination.total
           }
+
           this.localLoading = false
         }).catch(e => {
+          // 抛出异常时也需要关闭loading
           this.localLoading = false
         })
       }
     },
+    // pageSize 改变时会触发
     onSizeChange(size) {
-      this.localPagination = Object.assign({}, this.localPagination, { limit: size })
+      this.localPagination.pageSize = size
     },
+    // currentPage 改变时会触发
     onCurrentChange(current) {
-      this.localPagination = Object.assign({}, this.localPagination, { page: current })
+      this.localPagination.currentPage = current
     },
     getTable() {
       return this.$refs.table
     }
   },
   render() {
+    // table props 遍历
     let tableProps = {}
     Object.keys(T.props).forEach(k => {
       this[k] && (tableProps[k] = this[k])
@@ -101,17 +118,6 @@ export default {
       border: true
     }, tableProps, { data: this.localDataSource })
 
-    // 分页Props与默认配置合并，统一样式，页面也可单独定制
-    const paginationProps = Object.assign({}, {
-      pageSizes: [10, 20, 50, 100],
-      background: true,
-      layout: 'total, sizes, prev, pager, next'
-    }, {
-      pageSizes: this.pageSizes,
-      pageSize: this.pageSize,
-      currentPage: this.currentPage,
-      total: this.localDataTotal
-    })
     return (
       <div class={styles['sf-table-wrapper']}>
         <div class={styles['sf-table-content']}>
@@ -121,7 +127,7 @@ export default {
         </div>
         { this.showPagination ? (<div class={styles['sf-table-pagination']}>
           <el-pagination {...{
-            props: { ...paginationProps },
+            props: { ...this.localPagination },
             on: {
               'size-change': this.onSizeChange,
               'current-change': this.onCurrentChange
