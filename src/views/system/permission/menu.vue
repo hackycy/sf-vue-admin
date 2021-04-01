@@ -1,5 +1,5 @@
 <template>
-  <div class="sys-menu-container">
+  <table-layout>
     <s-table
       ref="menuTable"
       :data-request="getMenuList"
@@ -96,18 +96,20 @@
         </template>
       </el-table-column>
     </s-table>
-  </div>
+  </table-layout>
 </template>
 
 <script>
 import STable from '@/components/Table'
 import { getMenuList } from '@/api/sys/menu'
 import PermissionMixin from '../mixin/permission'
+import TableLayout from '@/layout/components/TableLayout.vue'
 
 export default {
   name: 'SystemPermissionMenu',
   components: {
-    STable
+    STable,
+    TableLayout
   },
   mixins: [PermissionMixin],
   data() {
