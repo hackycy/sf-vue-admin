@@ -27,7 +27,7 @@ export default {
 
   /* basic */
   padding: 20px;
-  background-color: #eff2f5;
+  /* background-color: #eff2f5; */
 }
 .fixed-header+.app-main {
   padding-top: 50px;
