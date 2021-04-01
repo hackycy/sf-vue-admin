@@ -1,5 +1,12 @@
 import { dashboardName } from '@/config/settings'
 
+// 前端未找到页面路由（固定不用改）
+export const NotFoundRouter = {
+  path: '*',
+  redirect: '/404',
+  hidden: true
+}
+
 export const RouteView = {
   name: 'RouteView',
   render: (h) => h('router-view')

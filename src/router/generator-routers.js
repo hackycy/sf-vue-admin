@@ -3,14 +3,12 @@ import BlankLayout from '@/layout/components/BlankLayout'
 import { isExternal } from '@/utils/validate'
 import { toHump } from '@/utils'
 
-// 前端路由Component映射
-export const constantRouterComponents = {}
-
-// 前端未找到页面路由（固定不用改）
-export const NotFoundRouter = {
-  path: '*',
-  redirect: '/404',
-  hidden: true
+/**
+ * 前端路由Component映射
+*/
+export const constantRouterComponents = {
+  // system
+  'views/system/permission/menu': () => import('@/views/system/permission/menu')
 }
 
 /**

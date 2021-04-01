@@ -1,5 +1,6 @@
 import { constantRoutes } from '@/config/router.config'
-import { filterAsyncRoutes, NotFoundRouter } from '@/router/generator-routers'
+import { filterAsyncRoutes } from '@/router/generator-routers'
+import { NotFoundRouter } from '@/config/router.config'
 
 const state = {
   routes: [],
