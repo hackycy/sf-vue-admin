@@ -3,7 +3,7 @@
     <div v-if="$slots.header" class="table-layout-header">
       <slot name="header" />
     </div>
-    <div class="content">
+    <div class="table-layout-content">
       <slot />
     </div>
   </el-card>

@@ -147,4 +147,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.table-layout-container {
+
+  .table-layout-content {
+    .tag-perm-item {
+      margin-right: 3px;
+    }
+  }
+}
 </style>
