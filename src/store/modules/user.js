@@ -102,11 +102,7 @@ const actions = {
       // 清除localstorage存储的token
       removeToken()
 
-      // 清除store存储的routes
-      dispatch('permission/resetRoutes', null, { root: true })
-
-      // clean vue-router
-      resetRouter()
+      // reset state
       commit('RESET_STATE')
       resolve()
     })
