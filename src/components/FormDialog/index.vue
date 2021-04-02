@@ -1,0 +1,129 @@
+<template>
+  <el-dialog
+    v-el-drag-dialog
+    :close-on-press-escape="false"
+    :close-on-click-modal="false"
+    :visible="visible"
+    size="mini"
+    :title="title"
+    :top="top"
+    center
+    :before-close="handleClose"
+    @open="handleDialogOpen"
+    @opened="$emit('opened')"
+    @close="$emit('close')"
+    @closed="$emit('closed')"
+  >
+    <div v-loading="formLoading" class="form-container">
+      <el-form ref="form" :model="localForm" :rules="rules">
+        <slot />
+      </el-form>
+    </div>
+    <span slot="footer">
+      <el-row type="flex" justify="end">
+        <el-button size="mini" @click="preCancel">取 消</el-button>
+        <el-button size="mini" :loading="okBtnLoading" type="primary" @click="preOk">确 定</el-button>
+      </el-row>
+    </span>
+  </el-dialog>
+</template>
+
+<script>
+export default {
+  name: 'FormDialog',
+  props: {
+    model: {
+      type: [Function, Object],
+      required: true
+    },
+    visible: {
+      type: Boolean,
+      default: false
+    },
+    title: {
+      type: String,
+      default: ''
+    },
+    width: {
+      type: String,
+      default: '50%'
+    },
+    top: {
+      type: String,
+      default: '15vh'
+    },
+    rules: {
+      type: Object,
+      default: function() {
+        return {}
+      }
+    },
+    handleOk: {
+      type: Function,
+      default: function() {
+        return Promise.resolve({})
+      }
+    },
+    handleCancel: {
+      type: Function,
+      default: function() {
+        return Promise.resolve({})
+      }
+    }
+  },
+  data() {
+    return {
+      okBtnLoading: false,
+      formLoading: false,
+      localForm: {}
+    }
+  },
+  methods: {
+    getForm() {
+      return this.$refs.form
+    },
+    handleDialogOpen() {
+      if (typeof this.model === 'object') {
+        Object.assign(this.localForm, this.model)
+        return
+      }
+      const result = this.model()
+      if ((typeof result === 'object' || typeof result === 'function') && typeof result.then === 'function') {
+        this.formLoading = true
+        this.result.then(obj => {
+          Object.assign(this.localForm, obj)
+          this.formLoading = false
+        }).catch(() => { this.formLoading = false })
+      } else {
+        Object.assign(this.localForm, this.model())
+      }
+    },
+    preCancel() {
+      this.handleCancel()
+      this.handleClose()
+    },
+    preOk() {
+      const result = this.handleOk(this.localForm)
+      if ((typeof result === 'object' || typeof result === 'function') && typeof result.then === 'function') {
+        this.okBtnLoading = true
+        result.then(() => {
+          this.okBtnLoading = false
+          this.handleClose()
+        }).catch(() => { this.okBtnLoading = false })
+      } else {
+        this.handleClose()
+      }
+    },
+    /**
+     * 通知关闭
+     */
+    handleClose() {
+      this.$emit('update:visible', false)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+
+</style>
