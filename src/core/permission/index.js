@@ -18,8 +18,15 @@ function plugin(Vue) {
     // set './sys/app.js' => 'sysApp'
     const moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, '$1')
       .replace(/[-_\/][a-z]/ig, s => s.substring(1).toUpperCase())
-    const value = modulesPermissionFiles(modulePath)
-    modules[moduleName] = value.default
+    const value = modulesPermissionFiles(modulePath).default
+
+    // pass sys/user/add => sys:user:add
+    const permissionModule = Object.keys(value).reduce((obj, key) => {
+      obj[key] = value[key].replace(/\//g, ':')
+      return obj
+    }, {})
+
+    modules[moduleName] = permissionModule
     return modules
   }, {})
 
@@ -34,7 +41,10 @@ function plugin(Vue) {
         return (perm) => {
           const [pm, action] = perm.split('.')
           const permissionList = _this.$store.getters.perms
-          return (permissionList.indexOf(_this.$permission[pm][action]) > -1)
+          if (_this.$permission[pm] && _this.$permission[pm][action]) {
+            return permissionList.indexOf(_this.$permission[pm][action]) > -1
+          }
+          return false
         }
       }
     }
