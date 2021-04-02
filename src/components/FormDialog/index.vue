@@ -22,7 +22,13 @@
     <span slot="footer">
       <el-row type="flex" justify="end">
         <el-button size="mini" @click="preCancel">取 消</el-button>
-        <el-button size="mini" :loading="okBtnLoading" type="primary" @click="preOk">确 定</el-button>
+        <el-button
+          size="mini"
+          :disabled="checkAuth()"
+          :loading="okBtnLoading"
+          type="primary"
+          @click="preOk"
+        >确 定</el-button>
       </el-row>
     </span>
   </el-dialog>
@@ -57,6 +63,13 @@ export default {
       default: function() {
         return {}
       }
+    },
+    /**
+     * 确定按钮权限禁用表达式
+     */
+    auth: {
+      type: [Boolean, String],
+      default: false
     },
     handleOk: {
       type: Function,
@@ -119,6 +132,15 @@ export default {
      */
     handleClose() {
       this.$emit('update:visible', false)
+    },
+    /**
+     * 检查确定按钮是否需要权限禁用
+     */
+    checkAuth() {
+      if (typeof this.auth === 'boolean') {
+        return this.auth
+      }
+      return !this.$auth(this.auth)
     }
   }
 }
