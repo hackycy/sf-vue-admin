@@ -97,10 +97,16 @@ const actions = {
   },
 
   // 清除token
-  resetToken({ commit }) {
+  resetToken({ commit, dispatch }) {
     return new Promise(resolve => {
       // 清除localstorage存储的token
       removeToken()
+
+      // 清除store存储的routes
+      dispatch('permission/resetRoutes', null, { root: true })
+
+      // clean vue-router
+      resetRouter()
       commit('RESET_STATE')
       resolve()
     })
