@@ -1,5 +1,8 @@
 <template>
   <table-layout>
+    <template v-slot:header>
+      <el-button size="mini" @click="handleRefresh">刷新</el-button>
+    </template>
     <s-table
       ref="menuTable"
       :data-request="getMenuList"
@@ -135,6 +138,9 @@ export default {
     },
     handleRowClick(row) {
       this.$refs.menuTable.getTable().toggleRowExpansion(row)
+    },
+    handleRefresh() {
+      this.$refs.menuTable.refresh()
     }
   }
 }
