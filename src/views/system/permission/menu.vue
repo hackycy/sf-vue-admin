@@ -1,109 +1,119 @@
 <template>
-  <table-layout>
-    <template v-slot:header>
-      <el-button size="mini" @click="handleRefresh">刷新</el-button>
-    </template>
-    <s-table
-      ref="menuTable"
-      :data-request="getMenuList"
-      row-key="id"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-      @row-click="handleRowClick"
-    >
-      <el-table-column prop="name" label="名称" width="240">
-        <template slot-scope="scope">
-          <span style="margin-right: 16px">{{ scope.row.name }}</span>
-          <el-tag
-            v-if="!scope.row.isShow && scope.row.type !== 2"
-            type="danger"
-            effect="dark"
-            size="small"
-          >隐藏</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="icon" label="图标" width="60" align="center">
-        <template slot-scope="scope">
-          <svg-icon v-if="scope.row.icon" :icon-class="scope.row.icon" />
-        </template>
-      </el-table-column>
-      <el-table-column prop="type" label="类型" width="80" align="center">
-        <template slot-scope="scope">
-          <el-tag size="small" effect="dark">{{
-            getMenuType(scope.row.type)
-          }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="router"
-        label="节点路由"
-        align="center"
-        width="240"
-      />
-      <el-table-column
-        prop="keepalive"
-        label="路由缓存"
-        width="80"
-        align="center"
+  <div class="sys-perm-container">
+    <table-layout>
+      <template v-slot:header>
+        <el-button size="mini" @click="handleRefresh">刷新</el-button>
+        <el-button size="mini" type="primary" @click="handleAdd">新增</el-button>
+      </template>
+      <s-table
+        ref="menuTable"
+        :data-request="getMenuList"
+        row-key="id"
+        :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+        @row-click="handleRowClick"
       >
-        <template slot-scope="scope">
-          <i
-            v-if="scope.row.keepalive && scope.row.type === 1"
-            class="el-icon-check"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="viewPath"
-        label="文件路径"
-        align="center"
-        width="280"
-      />
-      <el-table-column
-        prop="perms"
-        label="权限"
-        header-align="center"
-        width="300"
-      >
-        <template slot-scope="scope">
-          <el-tag
-            v-for="i in splitPerms(scope.row.perms)"
-            :key="i"
-            effect="dark"
-            size="mini"
-            class="tag-perm-item"
-          >{{ i }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="orderNum"
-        label="排序号"
-        width="80"
-        align="center"
-      />
-      <el-table-column
-        prop="updateTime"
-        label="更新时间"
-        width="180"
-        align="center"
-      />
-      <el-table-column label="操作" width="150" align="center" fixed="right">
-        <template>
-          <el-button
-            size="mini"
-            type="text"
-          >编辑</el-button>
-          <el-button
-            size="mini"
-            type="text"
-          >删除</el-button>
-        </template>
-      </el-table-column>
-    </s-table>
-  </table-layout>
+        <el-table-column prop="name" label="名称" width="240">
+          <template slot-scope="scope">
+            <span style="margin-right: 16px">{{ scope.row.name }}</span>
+            <el-tag
+              v-if="!scope.row.isShow && scope.row.type !== 2"
+              type="danger"
+              effect="dark"
+              size="small"
+            >隐藏</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="icon" label="图标" width="60" align="center">
+          <template slot-scope="scope">
+            <svg-icon v-if="scope.row.icon" :icon-class="scope.row.icon" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="type" label="类型" width="80" align="center">
+          <template slot-scope="scope">
+            <el-tag size="small" effect="dark">{{
+              getMenuType(scope.row.type)
+            }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="router"
+          label="节点路由"
+          align="center"
+          width="240"
+        />
+        <el-table-column
+          prop="keepalive"
+          label="路由缓存"
+          width="80"
+          align="center"
+        >
+          <template slot-scope="scope">
+            <i
+              v-if="scope.row.keepalive && scope.row.type === 1"
+              class="el-icon-check"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="viewPath"
+          label="文件路径"
+          align="center"
+          width="280"
+        />
+        <el-table-column
+          prop="perms"
+          label="权限"
+          header-align="center"
+          width="300"
+        >
+          <template slot-scope="scope">
+            <el-tag
+              v-for="i in splitPerms(scope.row.perms)"
+              :key="i"
+              effect="dark"
+              size="mini"
+              class="tag-perm-item"
+            >{{ i }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="orderNum"
+          label="排序号"
+          width="80"
+          align="center"
+        />
+        <el-table-column
+          prop="updateTime"
+          label="更新时间"
+          width="180"
+          align="center"
+        />
+        <el-table-column label="操作" width="150" align="center" fixed="right">
+          <template>
+            <el-button
+              :disabled="!$auth('sysMenu.update')"
+              size="mini"
+              type="text"
+              @click.stop="handleEdit"
+            >编辑</el-button>
+            <el-button
+              :disabled="!$auth('sysMenu.delete')"
+              size="mini"
+              type="text"
+              @click.stop="handleDelete"
+            >删除</el-button>
+          </template>
+        </el-table-column>
+      </s-table>
+    </table-layout>
+    <!-- form dialog -->
+    <menu-form-dialog ref="menuDialog" />
+  </div>
 </template>
 
 <script>
 import STable from '@/components/Table'
+import MenuFormDialog from './components/menu-form-dialog'
 import { getMenuList } from '@/api/sys/menu'
 import PermissionMixin from '../mixin/permission'
 import TableLayout from '@/layout/components/TableLayout.vue'
@@ -112,11 +122,14 @@ export default {
   name: 'SystemPermissionMenu',
   components: {
     STable,
+    MenuFormDialog,
     TableLayout
   },
   mixins: [PermissionMixin],
   data() {
-    return {}
+    return {
+      visible: false
+    }
   },
   methods: {
     async getMenuList() {
@@ -141,18 +154,29 @@ export default {
     },
     handleRefresh() {
       this.$refs.menuTable.refresh()
+    },
+    handleAdd() {
+      this.$refs.menuDialog.open()
+    },
+    handleEdit() {
+      this.$refs.menuDialog.open(true)
+    },
+    handleDelete() {
+
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.table-layout-container {
+.sys-perm-container {
+  .table-layout-container {
 
   .table-layout-content {
     .tag-perm-item {
       margin-right: 3px;
     }
   }
+}
 }
 </style>
