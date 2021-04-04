@@ -16,7 +16,7 @@
   >
     <div v-loading="formLoading" class="form-container">
       <el-form ref="form" :model="localForm" :rules="rules">
-        <slot />
+        <slot :form="localForm" />
       </el-form>
     </div>
     <span slot="footer">
