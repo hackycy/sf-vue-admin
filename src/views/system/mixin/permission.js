@@ -1,4 +1,4 @@
-import { isEmpty, join } from 'lodash'
+import { isEmpty, join, findIndex } from 'lodash'
 
 /**
  * permisson op mixin
@@ -27,6 +27,44 @@ export default {
         return join(e, ':')
       })
       return join(arr, ',')
+    },
+    /**
+     * 遍历获取$service下定义的权限的值并合并到一个数组后返回
+     * 例如： [ 'sys:user:add', 'sys:menu:add', .... ]
+     */
+    flatPerms() {
+      let perms = []
+      Object.keys(this.$permission).forEach(key => {
+        const module = this.$permission[key]
+        perms = perms.concat(perms, [Object.keys(module).map(e => module[e])].flat())
+      })
+      return perms.filter(e => e.includes(':')).map(e => e.split(':'))
+    },
+    /**
+     * 将权限渲染到级联选择器
+     * @param {Number} start 起始
+     * @param {Array} arr 单个权限数组
+     * @param {Array} op options
+     */
+    filterPermToCascader(start, arr, op) {
+      const key = arr[start]
+      const index = findIndex(op, e => e.label === key)
+      if (index >= 0) {
+        // 存在则继续遍历
+        this.filterPermToCascader(start + 1, arr, op[index].children)
+      } else {
+        // 是否为最后一个
+        const isLast = start === arr.length - 1
+        const value = {
+          value: key,
+          label: key,
+          children: isLast ? undefined : []
+        }
+        op.push(value)
+        if (!isLast) {
+          this.filterPermToCascader(start + 1, arr, op[op.length - 1].children)
+        }
+      }
     },
     /**
      * 渲染菜单至表格
