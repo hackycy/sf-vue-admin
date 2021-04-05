@@ -4,7 +4,6 @@
     :close-on-press-escape="false"
     :close-on-click-modal="false"
     :visible="visible"
-    size="mini"
     :title="title"
     :top="top"
     center
@@ -38,9 +37,11 @@
 export default {
   name: 'FormDialog',
   props: {
-    model: {
+    data: {
       type: [Function, Object],
-      required: true
+      default: function() {
+        return {}
+      }
     },
     visible: {
       type: Boolean,
@@ -74,13 +75,13 @@ export default {
     handleOk: {
       type: Function,
       default: function() {
-        return Promise.resolve({})
+        return () => {}
       }
     },
     handleCancel: {
       type: Function,
       default: function() {
-        return Promise.resolve({})
+        return () => {}
       }
     }
   },
@@ -95,21 +96,31 @@ export default {
     getForm() {
       return this.$refs.form
     },
+    getFormData() {
+      return this.localForm
+    },
+    resetFormData() {
+      this.$refs.form && this.$refs.form.resetField()
+    },
     handleDialogOpen() {
-      if (typeof this.model === 'object') {
-        Object.assign(this.localForm, this.model)
-        return
-      }
-      const result = this.model()
-      if ((typeof result === 'object' || typeof result === 'function') && typeof result.then === 'function') {
-        this.formLoading = true
-        this.result.then(obj => {
-          Object.assign(this.localForm, obj)
-          this.formLoading = false
-        }).catch(() => { this.formLoading = false })
+      this.$emit('open')
+      if (typeof this.data === 'object') {
+        Object.assign(this.localForm, this.data)
       } else {
-        Object.assign(this.localForm, this.model())
+        const result = this.data()
+        if ((typeof result === 'object' || typeof result === 'function') && typeof result.then === 'function') {
+          this.formLoading = true
+          this.result.then(obj => {
+            Object.assign(this.localForm, obj)
+            this.formLoading = false
+          }).catch(() => {
+            this.formLoading = false
+          })
+        } else {
+          Object.assign(this.localForm, result)
+        }
       }
+      console.log(this.localForm)
     },
     preCancel() {
       this.handleCancel()

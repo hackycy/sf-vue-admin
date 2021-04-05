@@ -1,33 +1,37 @@
 <template>
   <form-dialog
     :visible.sync="visible"
-    :model="getModel"
+    :handle-ok="handleOk"
+    :data="getDefaultForm"
     auth="sysMenu.update"
     title="编辑菜单"
   >
-    aaa
+    <template v-slot:default="slotProps">
+      <el-form-item label="权限" label-width="80px" prop="perms">
+        <permission-cascader v-model="slotProps.form.perms" />
+      </el-form-item>
+    </template>
   </form-dialog>
 </template>
 
 <script>
 import FormDialog from '@/components/FormDialog'
+import PermissionCascader from './permission-cascader'
 
 export default {
   name: 'SystemPermissionMenuFormDialog',
   components: {
-    FormDialog
+    FormDialog,
+    PermissionCascader
   },
   data() {
     return {
       visible: false,
-      isUpdate: false
+      isUpdate: false,
+      menuId: -1
     }
   },
   methods: {
-    open(isUpdate = false) {
-      this.visible = true
-      this.isUpdate = isUpdate
-    },
     getDefaultForm() {
       return {
         type: 0,
@@ -43,10 +47,18 @@ export default {
         keepalive: true
       }
     },
-    getModel() {
-      if (!this.isUpdate) {
-        return this.getDefaultForm()
+    open(isUpdate = false, menuId) {
+      if (isUpdate && !menuId) {
+        throw new Error('update menu need menu id!')
       }
+      this.visible = true
+      this.isUpdate = isUpdate
+    },
+    async getMenuInfo() {
+
+    },
+    handleOk(form) {
+      console.log(form)
     }
   }
 }
