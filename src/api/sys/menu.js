@@ -7,3 +7,11 @@ export function getMenuList() {
     method: 'get'
   })
 }
+
+export function getMenuInfo(query) {
+  return request({
+    url: MenuApi.info,
+    method: 'get',
+    params: query
+  })
+}
