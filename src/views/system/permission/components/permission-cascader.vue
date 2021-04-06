@@ -36,7 +36,7 @@ export default {
      * using v-model
      */
     handleChange(v) {
-      this.$emit('change', v)
+      this.$emit('input', v)
     }
   }
 }
