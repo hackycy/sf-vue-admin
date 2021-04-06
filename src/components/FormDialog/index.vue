@@ -9,9 +9,7 @@
     center
     :before-close="handleClose"
     @open="handleDialogOpen"
-    @opened="$emit('opened')"
-    @close="$emit('close')"
-    @closed="$emit('closed')"
+    @closed="handleDialogClosed"
   >
     <div v-loading="formLoading" class="form-container">
       <el-form ref="form" :model="localForm" :rules="rules">
@@ -102,25 +100,34 @@ export default {
     resetFormData() {
       this.$refs.form && this.$refs.form.resetField()
     },
+    setFormData(obj) {
+      for (const prop in obj) {
+        this.$set(this.localForm, prop, obj[prop])
+      }
+    },
     handleDialogOpen() {
       this.$emit('open')
       if (typeof this.data === 'object') {
-        Object.assign(this.localForm, this.data)
+        this.setFormData(this.data)
       } else {
         const result = this.data()
         if ((typeof result === 'object' || typeof result === 'function') && typeof result.then === 'function') {
           this.formLoading = true
           this.result.then(obj => {
-            Object.assign(this.localForm, obj)
+            this.setFormData(obj)
             this.formLoading = false
           }).catch(() => {
             this.formLoading = false
           })
         } else {
-          Object.assign(this.localForm, result)
+          this.setFormData(result)
         }
       }
-      console.log(this.localForm)
+    },
+    handleDialogClosed() {
+      // for (const i in this.localForm) {
+      //   delete this.form[i]
+      // }
     },
     preCancel() {
       this.handleCancel()
