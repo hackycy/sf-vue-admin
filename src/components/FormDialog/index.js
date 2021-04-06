@@ -1,4 +1,4 @@
-import { cloneDeep, merge, isEmpty } from 'lodash'
+import { cloneDeep, merge, isEmpty, isFunction } from 'lodash'
 import { renderVNode } from '@/utils/vnode'
 
 export default {
@@ -24,6 +24,7 @@ export default {
         on: {
           open: null,
           submit: null,
+          error: null,
           close: null
         },
         dialogProps: {
@@ -55,6 +56,46 @@ export default {
     open(options) {
       this.visible = true
       return this._create(options)
+    },
+    setFormData(prop, value) {
+      // Add watch
+      this.$set(this.form, prop, value)
+    },
+    getFormData(prop) {
+      return prop ? this.form[prop] : this.form
+    },
+    close() {
+      this.visible = false
+      this.clearValidate()
+    },
+    done() {
+      this.saving = false
+    },
+    showLoading() {
+      this.loading = true
+    },
+    hideLoading() {
+      this.loading = false
+    },
+    validateField(props, callback) {
+      if (this.$refs.form) {
+        this.$refs.form.validateField(props, callback)
+      }
+    },
+    validate(callback) {
+      if (this.$refs.form) {
+        this.$refs.form.validate(callback)
+      }
+    },
+    resetField() {
+      if (this.$refs.form) {
+        this.$refs.form.resetField()
+      }
+    },
+    clearValidate() {
+      if (this.$refs.form) {
+        this.$refs.form.clearValidate()
+      }
     },
     _create(options) {
       // 合并配置
@@ -90,28 +131,15 @@ export default {
 
       if (open) {
         this.$nextTick(() => {
-          open(this.form)
+          open(this.form, {
+            showLoading: this.showLoading,
+            hideLoading: this.hideLoading,
+            close: this.close
+          })
         })
       }
 
       return this
-    },
-    close() {
-      this.visible = false
-      this.clearValidate()
-    },
-    done() {
-      this.saving = false
-    },
-    resetField() {
-      if (this.$refs.form) {
-        this.$refs.form.resetField()
-      }
-    },
-    clearValidate() {
-      if (this.$refs.form) {
-        this.$refs.form.clearValidate()
-      }
     },
     _beforeClose() {
       this.visible = false
@@ -122,7 +150,34 @@ export default {
         delete this.form[key]
       }
     },
-    _submit() {}
+    _submit() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          this.saving = true
+
+          const data = cloneDeep(this.form)
+
+          const res = {
+            done: this.done,
+            close: this.close
+          }
+
+          const submit = this.conf.on.submit
+
+          if (isFunction(submit)) {
+            submit(data, res)
+          } else {
+            console.error('Submit Callback Not Found')
+          }
+        } else {
+          // error hook
+          const error = this.conf.on.error
+          if (isFunction(error)) {
+            error()
+          }
+        }
+      })
+    }
   },
   /**
    * 渲染表单
