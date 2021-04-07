@@ -226,7 +226,7 @@ export default {
                     }
                   }
                 >
-                  {e.component && (
+                  {e.component && this.parseHidden({ value: e.hidden, scope: this.form }) && (
                     <el-form-item { ...{ props: { label: e.label, prop: e.prop, rules: e.rules }} }>
                       {renderVNode(e.component, { h, scope: this.form, $scopedSlots: this.$scopedSlots, prop: e.prop })}
                     </el-form-item>
