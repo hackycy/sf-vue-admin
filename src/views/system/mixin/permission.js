@@ -68,7 +68,7 @@ export default {
     },
     /**
      * 渲染菜单至表格
-     * @param {Object} menus 所有菜单
+     * @param {Array} menus 所有菜单
      * @param {Object} parentMenu 父级菜单
      */
     filterMenuToTable(menus, parentMenu) {
@@ -103,6 +103,44 @@ export default {
         if (realMenu) {
           realMenu.pid = menu.id
           res.push(realMenu)
+        }
+      })
+      return res
+    },
+    /**
+     * 渲染菜单至树形控件
+     * @param {Array} menus 所有菜单
+     * @param {Object} parentMenu 父级菜单
+     */
+    filterMenuToTree(menus, parentMenu) {
+      const res = []
+      menus.forEach(menu => {
+        let node
+        if (menu.type === 2) {
+          // 权限直接return
+          return
+        }
+        if (!parentMenu && !menu.parentId && menu.type === 1) {
+          // 根菜单
+          node = { label: menu.name }
+        } else if (!parentMenu && !menu.parentId && menu.type === 0) {
+          // 根目录
+          const childNode = this.filterMenuToTree(menus, menu)
+          node = { label: menu.name }
+          node.children = childNode
+        } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 1) {
+          // 子菜单则停止
+          node = { label: menu.name }
+        } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 0) {
+          // 如果还是目录，继续递归
+          const childNode = this.filterMenuToTree(menus, menu)
+          node = { label: menu.name }
+          node.children = childNode
+        }
+
+        if (node) {
+          node.id = menu.id
+          res.push(node)
         }
       })
       return res

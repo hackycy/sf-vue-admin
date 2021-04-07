@@ -89,18 +89,18 @@
           align="center"
         />
         <el-table-column label="操作" width="150" align="center" fixed="right">
-          <template>
+          <template slot-scope="scope">
             <el-button
               :disabled="!$auth('sysMenu.update')"
               size="mini"
               type="text"
-              @click.stop="handleEdit"
+              @click.stop="handleEdit(scope.row)"
             >编辑</el-button>
             <el-button
               :disabled="!$auth('sysMenu.delete')"
               size="mini"
               type="text"
-              @click.stop="handleDelete"
+              @click.stop="handleDelete(scope.row)"
             >删除</el-button>
           </template>
         </el-table-column>
@@ -128,12 +128,23 @@ export default {
   mixins: [PermissionMixin],
   data() {
     return {
-      visible: false
+      visible: false,
+      menutree: []
     }
   },
   methods: {
     async getMenuList() {
       const { data } = await getMenuList()
+
+      // clean
+      if (this.menutree && this.menutree.length > 0) {
+        this.menutree = []
+      }
+      // 同时缓存树形菜单
+      const parentNode = { id: -1, label: '一级菜单' }
+      parentNode.children = this.filterMenuToTree(data, null)
+      this.menutree.push(parentNode)
+
       return { list: this.filterMenuToTable(data, null) }
     },
     /**
@@ -156,10 +167,10 @@ export default {
       this.$refs.menuTable.refresh()
     },
     handleAdd() {
-      this.$refs.menuDialog.open()
+      this.$refs.menuDialog.open(this.menutree)
     },
-    handleEdit() {
-      this.$refs.menuDialog.open(true)
+    handleEdit(item) {
+      this.$refs.menuDialog.open(this.menutree, item.id)
     },
     handleDelete() {
 

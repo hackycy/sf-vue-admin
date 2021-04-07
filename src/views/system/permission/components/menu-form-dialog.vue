@@ -1,67 +1,276 @@
 <template>
-  <form-dialog
-    :visible.sync="visible"
-    :handle-ok="handleOk"
-    :data="getDefaultForm"
-    auth="sysMenu.update"
-    title="编辑菜单"
-  >
-    <template v-slot:default="slotProps">
-      <el-form-item label="权限" label-width="80px" prop="perms">
-        <permission-cascader v-model="slotProps.form.perms" />
-      </el-form-item>
+  <form-dialog ref="formDialog">
+    <template #slot-type="{ scope }">
+      <el-radio-group v-model="scope.type" @change="handleMenuTypeChange">
+        <el-radio :label="0">目录</el-radio>
+        <el-radio :label="1">菜单</el-radio>
+        <el-radio :label="2">权限</el-radio>
+      </el-radio-group>
+    </template>
+    <template #slot-perms="{ scope }">
+      <permission-cascader v-model="scope.perms" />
+    </template>
+    <template #slot-parent-node-name="{ scope }">
+      <el-popover placement="bottom-start" width="500">
+        <el-tree
+          :style="{ 'max-height': '400px', 'overflow-y': 'auto' }"
+          node-key="id"
+          :expand-on-click-node="false"
+          :data="menus"
+          :props="{ children: 'children', label: 'label' }"
+          @node-click="
+            data => {
+              handleMenuNodeClick(data.id, data.label, scope)
+            }
+          "
+        />
+        <el-input
+          slot="reference"
+          v-model="scope.parentNodeName.name"
+          placeholder="请选择上级节点"
+          readonly
+        />
+      </el-popover>
+    </template>
+    <template #slot-icon="{ scope }">
+      <menu-icon-selector v-model="scope.icon" />
+    </template>
+    <template #slot-view-path="{ scope }">
+      <el-select
+        v-model="scope.viewPath"
+        placeholder="请选择文件路径"
+        style="width: 100%;"
+      >
+        <el-option
+          v-for="item in getViewFiles()"
+          :key="item"
+          :label="item"
+          :value="item"
+        />
+      </el-select>
     </template>
   </form-dialog>
 </template>
 
 <script>
-import FormDialog from '@/components/FormDialog'
+import { constantRouterComponents } from '@/router'
 import PermissionCascader from './permission-cascader'
+import MenuIconSelector from './menu-icon-selector'
+import { isNumber } from 'lodash'
+import { getMenuInfo } from '@/api/sys/menu'
+import PermissionMixin from '../../mixin/permission'
 
 export default {
   name: 'SystemPermissionMenuFormDialog',
   components: {
-    FormDialog,
-    PermissionCascader
+    PermissionCascader,
+    MenuIconSelector
   },
+  mixins: [PermissionMixin],
   data() {
     return {
-      visible: false,
-      isUpdate: false,
-      menuId: -1
+      menuId: -1,
+      selectedParendId: -1,
+      menus: []
     }
   },
   methods: {
-    getDefaultForm() {
-      return {
-        type: 0,
-        name: '',
-        parentId: -1,
-        parentNodeName: '',
-        router: '',
-        perms: '',
-        icon: '',
-        orderNum: 0,
-        viewPath: '',
-        isShow: true,
-        keepalive: true
+    handleMenuTypeChange() {
+      if (this.$refs.formDialog) {
+        this.$refs.formDialog.clearValidate()
       }
     },
-    open(isUpdate = false, menuId) {
-      if (isUpdate && !menuId) {
-        throw new Error('update menu need menu id!')
-      }
-      this.visible = true
-      this.isUpdate = isUpdate
+    handleMenuNodeClick(id, label, scope) {
+      scope.parentNodeName.id = id
+      scope.parentNodeName.name = label
     },
-    async getMenuInfo() {
+    getViewFiles() {
+      return Object.keys(constantRouterComponents)
+    },
+    handleOpen(form, { showLoading, hideLoading, close, set }) {
+      if (this.menuId !== -1) {
+        // update mode
+        showLoading()
+        getMenuInfo({ menuId: this.menuId })
+          .then(res => {
+            const { menu, parentMenu } = res.data
 
+            // 处理权限 'sys:menu:add,sys:menu:info' => [[ 'sys', 'menu', 'add' ], [...]]
+            if (menu.perms) {
+              const tmpArr = this.splitPerms(menu.perms)
+              menu.perms = tmpArr.map(e => {
+                return e.split(':')
+              })
+            }
+            if (parentMenu) {
+              menu.parentNodeName = {
+                id: menu.parentId,
+                name: parentMenu.name
+              }
+            }
+            // merge
+            for (const fk in form) {
+              if (menu[fk]) {
+                form[fk] = menu[fk]
+              }
+            }
+
+            hideLoading()
+          })
+          .catch(() => {
+            close()
+          })
+      }
     },
-    handleOk(form) {
-      console.log(form)
+    open(menus, menuId) {
+      if (menuId && !isNumber(menuId)) {
+        throw new Error('menuId is not invalid')
+      }
+      if (!menus) {
+        throw new Error('menu must be not null')
+      }
+      this.menuId = menuId ?? -1
+      this.menus = menus
+      this.$refs.formDialog.open({
+        title: '编辑菜单',
+        on: {
+          open: this.handleOpen,
+          submit: (data, { close, done }) => {
+            console.log(data)
+          }
+        },
+        items: [
+          {
+            label: '菜单类型',
+            prop: 'type',
+            value: 0,
+            rules: {
+              required: true,
+              message: '请选择菜单类型',
+              trigger: 'blur'
+            },
+            component: 'slot-type'
+          },
+          {
+            label: '节点名称',
+            prop: 'name',
+            value: '',
+            rules: {
+              required: true,
+              message: '请输入正确的节点名称',
+              trigger: 'blur'
+            },
+            component: {
+              name: 'el-input',
+              attrs: {
+                placeholder: '请输入节点名称'
+              }
+            }
+          },
+          {
+            label: '上级节点',
+            prop: 'parentNodeName',
+            value: { id: undefined, name: '' },
+            rules: {
+              required: true,
+              trigger: 'blur',
+              validator: (rule, value, callback) => {
+                if (!value.id || !isNumber(value.id)) {
+                  callback(new Error('请选择上级节点'))
+                } else {
+                  callback()
+                }
+              }
+            },
+            component: 'slot-parent-node-name'
+          },
+          {
+            label: '节点路由',
+            prop: 'router',
+            value: '',
+            hidden: ({ scope }) => {
+              return scope.type === 2
+            },
+            rules: {
+              required: true,
+              message: '请输入正确的节点路由',
+              trigger: 'blur'
+            },
+            component: {
+              name: 'el-input',
+              attrs: {
+                placeholder: '请输入节点路由'
+              }
+            }
+          },
+          {
+            label: '权限',
+            prop: 'perms',
+            value: '',
+            hidden: ({ scope }) => {
+              return scope.type !== 2
+            },
+            rules: { required: true, message: '请选择权限', trigger: 'blur' },
+            component: 'slot-perms'
+          },
+          {
+            label: '节点图标',
+            prop: 'icon',
+            value: '',
+            hidden: ({ scope }) => {
+              return scope.type === 2
+            },
+            component: 'slot-icon'
+          },
+          {
+            label: '节点路径',
+            prop: 'viewPath',
+            value: '',
+            hidden: ({ scope }) => {
+              return scope.type !== 1
+            },
+            component: 'slot-view-path'
+          },
+          {
+            label: '是否缓存',
+            prop: 'keepalive',
+            value: true,
+            hidden: ({ scope }) => {
+              return scope.type !== 1
+            },
+            component: {
+              name: 'el-switch'
+            }
+          },
+          {
+            label: '是否显示',
+            prop: 'isShow',
+            value: true,
+            hidden: ({ scope }) => {
+              return scope.type === 2
+            },
+            component: {
+              name: 'el-switch'
+            }
+          },
+          {
+            label: '排序号',
+            prop: 'orderNum',
+            value: 255,
+            component: {
+              name: 'el-input-number',
+              style: {
+                width: '100%'
+              },
+              props: {
+                'controls-position': 'right',
+                min: 0
+              }
+            }
+          }
+        ]
+      })
     }
   }
 }
 </script>
-
-<style></style>
