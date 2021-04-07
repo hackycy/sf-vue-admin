@@ -1,6 +1,9 @@
 import { isFunction, isObject, cloneDeep, isString } from 'lodash'
 
-export function renderVNode(vnode, { h, scope, $scopedSlots, prop }) {
+export function renderVNode(vnode, { scope, $scopedSlots, prop }) {
+  // get h
+  const h = this.$createElement
+
   if (!vnode) {
     return null
   }
@@ -27,6 +30,8 @@ export function renderVNode(vnode, { h, scope, $scopedSlots, prop }) {
     }
 
     if (vnode.name) {
+      const data = cloneDeep(vnode)
+
       // https://cn.vuejs.org/v2/guide/render-function.html#深入数据对象
       const keys = [
         'class',
@@ -44,13 +49,25 @@ export function renderVNode(vnode, { h, scope, $scopedSlots, prop }) {
         'refInFor'
       ]
 
-      const data = cloneDeep(vnode)
-
       for (const key in data) {
         if (!keys.includes(key)) {
           delete data[key]
         }
       }
+
+      if (scope) {
+        if (!data.domProps) {
+          data.domProps = {}
+        }
+
+        if (!data.on) {
+          data.on = {}
+        }
+
+        // bind domProps value
+        data.domProps.value = scope[prop]
+      }
+
       return h(vnode.name, data)
     } else {
       throw new Error('component name can not be empty')

@@ -197,7 +197,7 @@ export default {
     /**
      * 渲染表单
      */
-    renderForm(h) {
+    renderForm() {
       const { formProps, items } = this.conf
       return (
         <el-form
@@ -228,7 +228,8 @@ export default {
                 >
                   {e.component && this.parseHidden({ value: e.hidden, scope: this.form }) && (
                     <el-form-item { ...{ props: { label: e.label, prop: e.prop, rules: e.rules }} }>
-                      {renderVNode(e.component, { h, scope: this.form, $scopedSlots: this.$scopedSlots, prop: e.prop })}
+                      {/* 将函数this绑定当前组件树的根 Vue 实例。如果当前实例没有父实例，此实例将会是其自己。 */}
+                      {(renderVNode.bind(this.$root))(e.component, { scope: this.form, $scopedSlots: this.$scopedSlots, prop: e.prop })}
                     </el-form-item>
                   )}
                 </el-row>
@@ -257,7 +258,7 @@ export default {
   /**
    * render
    */
-  render(h) {
+  render() {
     const { title, width, dialogProps } = this.conf
     return (
       <el-dialog
@@ -278,7 +279,7 @@ export default {
           }
         }
       >
-        {this.renderForm(h)}
+        {this.renderForm()}
         {/* footer */}
         <div slot='footer'>
           {this.renderFooter()}
