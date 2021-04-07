@@ -69,6 +69,7 @@ export default {
     close() {
       this.visible = false
       this.saving = false
+      this.loading = false
       this.clearValidate()
     },
     done() {
