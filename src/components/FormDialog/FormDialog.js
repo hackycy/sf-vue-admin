@@ -212,7 +212,7 @@ export default {
             }
           }
         >
-          <el-row gutter={10} v-loading={this.loading}>
+          <el-row gutter={10} { ...{ directives: [{ name: 'loading', value: this.loading }] } }>
             {/* 渲染表单列表 */}
             {items.map(e => {
               return (
