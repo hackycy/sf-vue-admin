@@ -26,7 +26,7 @@
         />
         <el-input
           slot="reference"
-          v-model="scope.parentNodeName.name"
+          v-model="scope.parentNode.name"
           placeholder="请选择上级节点"
           readonly
         />
@@ -57,7 +57,7 @@ import { constantRouterComponents } from '@/router'
 import PermissionCascader from './permission-cascader'
 import MenuIconSelector from './menu-icon-selector'
 import { isNumber } from 'lodash'
-import { getMenuInfo } from '@/api/sys/menu'
+import { getMenuInfo, createMenu, updateMenu } from '@/api/sys/menu'
 import PermissionMixin from '../../mixin/permission'
 
 export default {
@@ -81,8 +81,8 @@ export default {
       }
     },
     handleMenuNodeClick(id, label, scope) {
-      scope.parentNodeName.id = id
-      scope.parentNodeName.name = label
+      scope.parentNode.id = id
+      scope.parentNode.name = label
     },
     getViewFiles() {
       return Object.keys(constantRouterComponents)
@@ -102,7 +102,7 @@ export default {
                 return e.split(':')
               })
             }
-            menu.parentNodeName = {
+            menu.parentNode = {
               id: parentMenu ? menu.parentId : -1,
               name: parentMenu ? parentMenu.name : '一级菜单'
             }
@@ -134,7 +134,28 @@ export default {
         on: {
           open: this.handleOpen,
           submit: (data, { close, done }) => {
-            console.log(data)
+            // deal data
+            if (data.perms) {
+              data.perms = this.joinPerms(data.perms)
+            }
+
+            const { parentNode } = data
+            delete data.parentNode
+            data.parentId = parentNode.id
+            let req = null
+
+            if (this.menuId === -1) {
+              // create
+              req = createMenu(data)
+            } else {
+              data.menuId = this.menuId
+              req = updateMenu(data)
+            }
+            req.then(_ => {
+              close()
+            }).catch(() => {
+              done()
+            })
           }
         },
         items: [
@@ -167,7 +188,7 @@ export default {
           },
           {
             label: '上级节点',
-            prop: 'parentNodeName',
+            prop: 'parentNode',
             value: { id: undefined, name: '' },
             rules: {
               required: true,

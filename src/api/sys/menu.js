@@ -15,3 +15,27 @@ export function getMenuInfo(query) {
     params: query
   })
 }
+
+export function createMenu(data) {
+  return request({
+    url: MenuApi.add,
+    method: 'post',
+    data
+  })
+}
+
+export function updateMenu(data) {
+  return request({
+    url: MenuApi.update,
+    method: 'post',
+    data
+  })
+}
+
+export function deleteMenu(data) {
+  return request({
+    url: MenuApi.delete,
+    method: 'post',
+    data
+  })
+}
