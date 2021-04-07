@@ -102,11 +102,9 @@ export default {
                 return e.split(':')
               })
             }
-            if (parentMenu) {
-              menu.parentNodeName = {
-                id: menu.parentId,
-                name: parentMenu.name
-              }
+            menu.parentNodeName = {
+              id: parentMenu ? menu.parentId : -1,
+              name: parentMenu ? parentMenu.name : '一级菜单'
             }
             // merge
             for (const fk in form) {
