@@ -56,8 +56,8 @@ export function renderVNode(vnode, { scope, $scopedSlots, prop }) {
       }
 
       if (scope) {
-        if (!data.domProps) {
-          data.domProps = {}
+        if (!data.props) {
+          data.props = {}
         }
 
         if (!data.on) {
@@ -65,7 +65,18 @@ export function renderVNode(vnode, { scope, $scopedSlots, prop }) {
         }
 
         // bind domProps value
-        data.domProps.value = scope[prop]
+        data.props.value = scope[prop]
+
+        const onInput = data.on.input
+
+        data.on.input = (val) => {
+          // watch
+          this.$set(scope, prop, val)
+
+          if (onInput) {
+            onInput(val)
+          }
+        }
       }
 
       return h(vnode.name, data)

@@ -1,4 +1,4 @@
-import { cloneDeep, merge, isEmpty, isFunction, isBoolean } from 'lodash'
+import { cloneDeep, merge, isFunction, isBoolean } from 'lodash'
 import { renderVNode } from '@/utils/vnode'
 
 export default {
@@ -126,7 +126,7 @@ export default {
       // 表单默认值
       this.conf.items.forEach(e => {
         if (e.prop) {
-          this.$set(this.form, e.prop, isEmpty(this.form[e.prop]) ? cloneDeep(e.value || '') : this.form[e.prop])
+          this.$set(this.form, e.prop, this.form[e.prop] ? this.form[e.prop] : cloneDeep(e.value))
         }
       })
 
