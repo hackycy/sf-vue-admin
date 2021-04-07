@@ -167,7 +167,7 @@ export default {
 
           this.conf.items.forEach(e => {
             // remove hidden form data
-            if (this._parseHidden(e.hidden)) {
+            if (this._parseHidden({ value: e.hidden, scope: this.form })) {
               delete data[e.prop]
             }
           })
