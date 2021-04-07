@@ -5,13 +5,13 @@ export function renderVNode(vnode, { h, scope, $scopedSlots, prop }) {
     return null
   }
   // 插槽
-  if (isString(vnode) && vnode.name.startsWith('slot-')) {
+  if (isString(vnode) && vnode.startsWith('slot-')) {
     // template
-    const s = $scopedSlots[vnode.name]
+    const s = $scopedSlots[vnode]
     if (s) {
       return s({ scope })
     } else {
-      throw new Error(`can not find this slot：${vnode.name}`)
+      throw new Error(`can not find this slot：${vnode}`)
     }
   }
 
