@@ -17,7 +17,7 @@ export default {
         title: 'FormDialog',
         width: '50%',
         formProps: {
-          size: 'small',
+          size: 'medium',
           'label-width': '80px',
           'label-position': 'right'
         },
@@ -226,7 +226,7 @@ export default {
                     }
                   }
                 >
-                  {e.component && this.parseHidden({ value: e.hidden, scope: this.form }) && (
+                  {e.component && !this.parseHidden({ value: e.hidden, scope: this.form }) && (
                     <el-form-item { ...{ props: { label: e.label, prop: e.prop, rules: e.rules }} }>
                       {/* 将函数this绑定当前组件树的根 Vue 实例。如果当前实例没有父实例，此实例将会是其自己。 */}
                       {(renderVNode.bind(this.$root))(e.component, { scope: this.form, $scopedSlots: this.$scopedSlots, prop: e.prop })}
