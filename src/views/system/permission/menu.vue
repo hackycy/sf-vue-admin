@@ -131,7 +131,6 @@ export default {
   mixins: [PermissionMixin],
   data() {
     return {
-      visible: false,
       menutree: []
     }
   },
