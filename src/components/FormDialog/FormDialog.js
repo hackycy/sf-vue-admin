@@ -235,8 +235,8 @@ export default {
                 >
                   {e.component && !this._parseHidden({ value: e.hidden, scope: this.form }) && (
                     <el-form-item { ...{ props: { label: e.label, prop: e.prop, rules: e.rules }} }>
-                      {/* 将函数this绑定当前组件树的根 Vue 实例。如果当前实例没有父实例，此实例将会是其自己。 */}
-                      {(renderVNode.bind(this.$root))(e.component, { scope: this.form, $scopedSlots: this.$scopedSlots, prop: e.prop })}
+                      {/* 将函数this绑定当前组件树实例。如果当前实例没有父实例，此实例将会是其自己。 */}
+                      {(renderVNode.bind(this))(e.component, { scope: this.form, $scopedSlots: this.$scopedSlots, prop: e.prop })}
                     </el-form-item>
                   )}
                 </el-row>
