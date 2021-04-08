@@ -1,6 +1,6 @@
 <template>
   <el-cascader
-    :value="value"
+    :value="permsArr"
     :options="options"
     :props="props"
     style="width: 100%;"
@@ -24,6 +24,15 @@ export default {
       options: []
     }
   },
+  computed: {
+    permsArr: function() {
+      // 处理权限 'sys:menu:add,sys:menu:info' => [[ 'sys', 'menu', 'add' ], [...]]
+      const arr = this.splitPerms(this.value).map(e => {
+        return e.split(':')
+      })
+      return arr
+    }
+  },
   created() {
     const options = []
     this.flatPerms().forEach(arr => {
@@ -35,8 +44,10 @@ export default {
     /**
      * using v-model
      */
-    handleChange(v) {
-      this.$emit('input', v)
+    handleChange(arr) {
+      // 处理格式转为string
+      const s = this.joinPerms(arr)
+      this.$emit('input', s)
     }
   }
 }

@@ -94,14 +94,6 @@ export default {
         getMenuInfo({ menuId: this.menuId })
           .then(res => {
             const { menu, parentMenu } = res.data
-
-            // 处理权限 'sys:menu:add,sys:menu:info' => [[ 'sys', 'menu', 'add' ], [...]]
-            if (menu.perms) {
-              const tmpArr = this.splitPerms(menu.perms)
-              menu.perms = tmpArr.map(e => {
-                return e.split(':')
-              })
-            }
             menu.parentNode = {
               id: parentMenu ? menu.parentId : -1,
               name: parentMenu ? parentMenu.name : '一级菜单'
@@ -120,6 +112,28 @@ export default {
           })
       }
     },
+    handleSubmit(data, { close, done }) {
+      const { parentNode } = data
+      delete data.parentNode
+      data.parentId = parentNode.id
+      let req = null
+
+      if (this.menuId === -1) {
+        // create
+        req = createMenu(data)
+      } else {
+        data.menuId = this.menuId
+        req = updateMenu(data)
+      }
+      req
+        .then(_ => {
+          this.$emit('save-success')
+          close()
+        })
+        .catch(() => {
+          done()
+        })
+    },
     open(menus, menuId) {
       if (menuId && !isNumber(menuId)) {
         throw new Error('menuId is not invalid')
@@ -133,31 +147,7 @@ export default {
         title: '编辑菜单',
         on: {
           open: this.handleOpen,
-          submit: (data, { close, done }) => {
-            // deal data
-            if (data.perms) {
-              data.perms = this.joinPerms(data.perms)
-            }
-
-            const { parentNode } = data
-            delete data.parentNode
-            data.parentId = parentNode.id
-            let req = null
-
-            if (this.menuId === -1) {
-              // create
-              req = createMenu(data)
-            } else {
-              data.menuId = this.menuId
-              req = updateMenu(data)
-            }
-            req.then(_ => {
-              this.$emit('save-success')
-              close()
-            }).catch(() => {
-              done()
-            })
-          }
+          submit: this.handleSubmit
         },
         items: [
           {
