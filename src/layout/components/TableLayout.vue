@@ -1,7 +1,9 @@
 <template>
   <el-card class="table-layout-container">
     <div v-if="$slots.header" class="table-layout-header">
-      <slot name="header" />
+      <el-row :gutter="gutter" :type="type" :justify="justify" :align="align">
+        <slot name="header" />
+      </el-row>
     </div>
     <div class="table-layout-content">
       <slot />
@@ -11,7 +13,25 @@
 
 <script>
 export default {
-  name: 'TableLayout'
+  name: 'TableLayout',
+  props: {
+    gutter: {
+      type: Number,
+      default: 10
+    },
+    type: {
+      type: String,
+      default: 'flex'
+    },
+    justify: {
+      type: String,
+      default: 'start'
+    },
+    align: {
+      type: String,
+      default: 'top'
+    }
+  }
 }
 </script>
 
