@@ -1,13 +1,27 @@
 <template>
   <el-card class="table-layout-container">
-    <div v-if="$slots.header" class="table-layout-header">
-      <el-row :gutter="gutter" :type="type" :justify="justify" :align="align">
-        <slot name="header" />
-      </el-row>
-    </div>
-    <div class="table-layout-content">
-      <slot />
-    </div>
+    <el-container>
+      <el-aside v-if="$slots.asside" :width="assideWidth">
+        <slot name="asside" />
+      </el-aside>
+      <el-container>
+        <el-main>
+          <div v-if="$slots.header" class="table-layout-header">
+            <el-row
+              :gutter="gutter"
+              :type="type"
+              :justify="justify"
+              :align="align"
+            >
+              <slot name="header" />
+            </el-row>
+          </div>
+          <div class="table-layout-content">
+            <slot />
+          </div>
+        </el-main>
+      </el-container>
+    </el-container>
   </el-card>
 </template>
 
@@ -30,6 +44,10 @@ export default {
     align: {
       type: String,
       default: 'top'
+    },
+    assideWidth: {
+      type: String,
+      default: '200px'
     }
   }
 }
@@ -42,6 +60,12 @@ export default {
   background-color: #fff;
   flex-direction: column;
 
+  // 重置main padding
+  // overflow：auto 可解决flex-direction: row 子宽度超出问题
+  .el-main {
+    padding: 0;
+  }
+
   .table-layout-header {
     margin-bottom: 15px;
     display: flex;
@@ -51,7 +75,6 @@ export default {
     .space {
       margin-right: 15px;
     }
-
   }
 }
 </style>
