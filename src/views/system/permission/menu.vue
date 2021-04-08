@@ -96,12 +96,13 @@
               type="text"
               @click.stop="handleEdit(scope.row)"
             >编辑</el-button>
-            <el-button
+            <WarningConfirmButton
+              text="删除"
+              content="确定删除吗"
+              :closed="handleRefresh"
               :disabled="!$auth('sysMenu.delete')"
-              size="mini"
-              type="text"
-              @click.stop="handleDelete(scope.row)"
-            >删除</el-button>
+              @confirm="(o) => { handleDelete(scope.row, o) }"
+            />
           </template>
         </el-table-column>
       </s-table>
@@ -114,7 +115,8 @@
 <script>
 import STable from '@/components/Table'
 import MenuFormDialog from './components/menu-form-dialog'
-import { getMenuList } from '@/api/sys/menu'
+import WarningConfirmButton from '@/components/WarningConfirmButton'
+import { getMenuList, deleteMenu } from '@/api/sys/menu'
 import PermissionMixin from '../mixin/permission'
 import TableLayout from '@/layout/components/TableLayout.vue'
 
@@ -123,7 +125,8 @@ export default {
   components: {
     STable,
     MenuFormDialog,
-    TableLayout
+    TableLayout,
+    WarningConfirmButton
   },
   mixins: [PermissionMixin],
   data() {
@@ -172,7 +175,15 @@ export default {
     handleEdit(item) {
       this.$refs.menuDialog.open(this.menutree, item.id)
     },
-    handleDelete() {}
+    async handleDelete(row, { close, done }) {
+      try {
+        await deleteMenu({ menuId: row.id })
+        done()
+        close()
+      } catch (e) {
+        done()
+      }
+    }
   }
 }
 </script>
