@@ -152,6 +152,7 @@ export default {
               req = updateMenu(data)
             }
             req.then(_ => {
+              this.$emit('save-success')
               close()
             }).catch(() => {
               done()

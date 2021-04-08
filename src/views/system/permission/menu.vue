@@ -107,7 +107,7 @@
       </s-table>
     </table-layout>
     <!-- form dialog -->
-    <menu-form-dialog ref="menuDialog" />
+    <menu-form-dialog ref="menuDialog" @save-success="handleRefresh" />
   </div>
 </template>
 
@@ -172,9 +172,7 @@ export default {
     handleEdit(item) {
       this.$refs.menuDialog.open(this.menutree, item.id)
     },
-    handleDelete() {
-
-    }
+    handleDelete() {}
   }
 }
 </script>
