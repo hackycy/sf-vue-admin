@@ -7,14 +7,7 @@
       <el-container>
         <el-main>
           <div v-if="$slots.header" class="table-layout-header">
-            <el-row
-              :gutter="gutter"
-              :type="type"
-              :justify="justify"
-              :align="align"
-            >
-              <slot name="header" />
-            </el-row>
+            <slot name="header" />
           </div>
           <div class="table-layout-content">
             <slot />
@@ -29,22 +22,6 @@
 export default {
   name: 'TableLayout',
   props: {
-    gutter: {
-      type: Number,
-      default: 10
-    },
-    type: {
-      type: String,
-      default: 'flex'
-    },
-    justify: {
-      type: String,
-      default: 'start'
-    },
-    align: {
-      type: String,
-      default: 'top'
-    },
     assideWidth: {
       type: String,
       default: '200px'
@@ -75,10 +52,7 @@ export default {
     display: flex;
     display: -webkit-flex;
     flex-direction: row;
-
-    .space {
-      margin-right: 15px;
-    }
+    flex-wrap: wrap;
   }
 }
 .fixed-height {
