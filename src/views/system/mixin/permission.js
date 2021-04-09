@@ -1,4 +1,4 @@
-import { isEmpty, join, findIndex } from 'lodash'
+import { isEmpty, join, findIndex, uniq } from 'lodash'
 
 /**
  * permisson op mixin
@@ -36,9 +36,10 @@ export default {
       let perms = []
       Object.keys(this.$permission).forEach(key => {
         const module = this.$permission[key]
-        perms = perms.concat(perms, [Object.keys(module).map(e => module[e])].flat())
+        perms = perms.concat([Object.keys(module).map(e => module[e])].flat())
       })
-      return perms.filter(e => e.includes(':')).map(e => e.split(':'))
+      const d = uniq(perms).filter(e => e.includes(':')).map(e => e.split(':'))
+      return d
     },
     /**
      * 将权限渲染到级联选择器
