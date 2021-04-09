@@ -30,7 +30,8 @@ export default {
   background-color: #eff2f5;
 }
 .fixed-header+.app-main {
-  padding-top: 50px;
+  /* support main has padding 20px  */
+  padding-top: calc(50px + 20px);
 }
 </style>
 
