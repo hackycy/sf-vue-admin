@@ -72,15 +72,15 @@ export default {
      */
     loadData() {
       this.localLoading = true
-
-      // props中的dataRequest必须返回一个Promise，且返回的数据结构需要满足 { list, pagination: { total } }
-      const result = this.dataRequest(this.showPagination ? { ...this.localPagination } : null)
+      const params = this.showPagination ? { page: this.localPagination.currentPage, limit: this.localPagination.pageSize } : null
+      const result = this.dataRequest(params)
       if ((typeof result === 'object' || typeof result === 'function') && typeof result.then === 'function') {
         result.then(res => {
+          // props中的dataRequest必须返回一个Promise，且返回的数据结构需要满足 { list, pagination: { total } }
           this.localDataSource = res.list
 
           if (this.showPagination) {
-            this.localDataTotal = res.pagination.total
+            this.localPagination.total = res.pagination.total
           }
 
           this.localLoading = false
