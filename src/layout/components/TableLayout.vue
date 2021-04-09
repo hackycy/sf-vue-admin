@@ -84,5 +84,9 @@ export default {
 .fixed-height {
   /* padding top + bottom = 40px + NavBar 50px */
   height: calc(100vh - 40px - 50px);
+
+  .el-container {
+    height: 100%;
+  }
 }
 </style>
