@@ -58,9 +58,11 @@ export default {
         const value = {
           value: key,
           label: key,
-          children: isLast ? undefined : []
+          children: isLast ? null : []
         }
-        op.push(value)
+        if (op) {
+          op.push(value)
+        }
         if (!isLast) {
           this.filterPermToCascader(start + 1, arr, op[op.length - 1].children)
         }
@@ -140,6 +142,32 @@ export default {
 
         if (node) {
           node.id = menu.id
+          res.push(node)
+        }
+      })
+      return res
+    },
+    /**
+     * 渲染部门列表至树形控件
+     * @param {Array} depts list
+     * @param {Object} parentDept parent dept obj
+     */
+    filterDeptToTree(depts, parentDept) {
+      const res = []
+      depts.forEach(dept => {
+        let node
+        if (!parentDept && !dept.parentId) {
+          // 根菜单
+          const childNode = this.filterDeptToTree(depts, dept)
+          node = { label: dept.name }
+          node.children = childNode
+        } else if (parentDept && parentDept.id === dept.parentId) {
+          const childNode = this.filterDeptToTree(depts, dept)
+          node = { label: dept.name }
+          node.children = childNode
+        }
+        if (node) {
+          node.id = dept.id
           res.push(node)
         }
       })
