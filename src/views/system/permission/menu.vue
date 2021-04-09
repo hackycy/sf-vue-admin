@@ -98,7 +98,6 @@
             >编辑</el-button>
             <WarningConfirmButton
               text="删除"
-              content="确定删除吗"
               :closed="handleRefresh"
               :disabled="!$auth('sysMenu.delete')"
               @confirm="(o) => { handleDelete(scope.row, o) }"

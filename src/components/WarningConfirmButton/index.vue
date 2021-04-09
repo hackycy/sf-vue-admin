@@ -19,7 +19,7 @@ export default {
     },
     content: {
       type: String,
-      default: ''
+      default: '此操作无法恢复，是否继续？'
     },
     title: {
       type: String,
@@ -35,7 +35,10 @@ export default {
     },
     iconType: {
       type: String,
-      default: 'warning'
+      default: 'warning',
+      validator: function(v) {
+        return ['success', 'info', 'warning', 'error'].indexOf(v) !== -1
+      }
     },
     size: {
       type: String,
@@ -72,6 +75,7 @@ export default {
       this.$confirm(this.content, this.title, {
         confirmButtonText: this.confirmButtonText,
         cancelButtonText: this.cancelButtonText,
+        type: this.iconType,
         beforeClose: (action, instance, done) => {
           if (action === 'confirm') {
             instance.confirmButtonLoading = true
