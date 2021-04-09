@@ -1,6 +1,6 @@
 <template>
-  <el-card class="table-layout-container" :class="{ 'fixed-height': !wrap }">
-    <el-container>
+  <el-card class="table-layout-container">
+    <el-container :class="{ 'fixed-height': !wrap }">
       <el-aside v-if="$slots.asside" :width="assideWidth">
         <slot name="asside" />
       </el-aside>
@@ -56,8 +56,8 @@ export default {
   }
 }
 .fixed-height {
-  /* padding top + bottom = 40px + NavBar 50px */
-  height: calc(100vh - 40px - 50px);
+  /* padding top + bottom = 40px + NavBar 50px + el-card padding = 40px */
+  height: calc(100vh - 40px - 50px - 40px);
 
   .el-container {
     height: 100%;
