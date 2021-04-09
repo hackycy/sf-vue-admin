@@ -96,7 +96,7 @@
               type="text"
               @click.stop="handleEdit(scope.row)"
             >编辑</el-button>
-            <WarningConfirmButton
+            <warning-confirm-button
               text="删除"
               :closed="handleRefresh"
               :disabled="!$auth('sysMenu.delete')"
