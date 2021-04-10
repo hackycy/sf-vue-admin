@@ -6,13 +6,14 @@
         <el-tooltip effect="dark" content="点击刷新" placement="top-start">
           <i class="el-icon-refresh-right" @click="refresh" />
         </el-tooltip>
-        <el-tooltip effect="dark" content="点击开启拖拽更新" placement="top-start">
+        <el-tooltip effect="dark" content="点击开启拖拽排序" placement="top-start">
           <i class="el-icon-s-operation" @click="() => { isDrag = true }" />
         </el-tooltip>
         <span v-if="isDrag">
           <warning-confirm-button
             text="保存"
             content="确定保存当前更改的操作？"
+            @confirm="handleSave"
           />
           <el-button size="small" type="text" @click="handleCancel">取消</el-button>
         </span>
@@ -22,19 +23,21 @@
       <el-tree
         style="height: 100%;"
         :props="{ children: 'children', label: 'label' }"
-        :data="depts"
+        :data="nodeList"
         highlight-current
         node-key="id"
         :expand-on-click-node="false"
         default-expand-all
         :draggable="isDrag"
         @node-click="handleNodeClick"
+        @node-drop="handleNodeDrop"
       />
     </div>
   </div>
 </template>
 
 <script>
+import { findIndex, isNumber } from 'lodash'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
 import PermissionMixin from '../../mixin/permission'
 import { getDeptList } from '@/api/sys/dept'
@@ -49,7 +52,13 @@ export default {
     return {
       isDrag: false,
       loading: false,
-      depts: []
+      depts: [],
+      drops: []
+    }
+  },
+  computed: {
+    nodeList() {
+      return this.filterDeptToTree(this.depts, null)
     }
   },
   created() {
@@ -65,18 +74,55 @@ export default {
     async refresh() {
       this.loading = true
       const { data } = await getDeptList()
-      if (data) {
-        this.depts = this.filterDeptToTree(data, null)
-      }
+      this.depts = data || []
       this.loading = false
     },
-    handleSave() {},
+    handleSave({ done }) {
+      // diff 差异
+      const data = this.drops.filter(e => {
+        const index = findIndex(this.depts, (o) => o.id === e.id)
+        if (index < 0) {
+          return false
+        }
+        const parentId = this.depts[index].parentId
+        // 两者都不为number类型时，则一直为根节点无变化
+        if (!isNumber(parentId) && !isNumber(e.parentId)) {
+          return false
+        }
+        // 两者不相等时代表发生变化
+        return e.parentId !== parentId
+      })
+      done()
+      console.log(data)
+    },
     handleCancel() {
+      if (this.drops && this.drops.length > 0) {
+        // 清空并且重新拉去数据刷新内容
+        this.drops = []
+        this.refresh()
+      }
       this.isDrag = false
-      this.refresh()
     },
     handleNodeClick(data, node, ref) {
       this.$emit('node-change', data, node, ref)
+    },
+    handleNodeDrop(before, after, position, _) {
+      // 当拖拽类型不为inner,说明只是同级或者跨级排序，只需要寻找目标节点的父ID，获取其对象以及所有的子节点，并为子节点设置当前对象的ID为父ID即可
+      // 当拖拽类型为inner，说明拖拽节点成为了目标节点的子节点，只需要获取目标节点对象即可
+      // 设置父ID,当level为1说明在第一级，pid为空
+      const { data: dept } = before
+      const { data: parentDept } = position === 'inner' ? after : after.parent
+      // find value
+      const id = dept.id
+      const parentId = position === 'inner' ? parentDept.id : (after.level === 1 ? undefined : parentDept.id)
+      // 是否已存在
+      const index = findIndex(this.drops, (o) => o.id === dept.id)
+      if (index >= 0) {
+        this.drops[index].parentId = parentId
+      } else {
+        // not exist
+        this.drops.push({ id: id, parentId: parentId })
+      }
     }
   }
 }
@@ -89,8 +135,8 @@ export default {
   display: -webkit-flex;
   flex-direction: column;
   border-right: 1px solid #e8e8e8;
-  margin-right: 5px;
-  padding-right: 5px;
+  margin-right: 10px;
+  padding-right: 10px;
 
   .tree-container {
     flex: 1;
