@@ -1,5 +1,5 @@
 <template>
-  <el-card class="table-layout-container">
+  <el-card :style="{ border: 'none' }">
     <el-container :class="{ 'fixed-height': !wrap }">
       <el-aside v-if="$slots.asside" :width="assideWidth">
         <slot name="asside" />
@@ -35,26 +35,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.table-layout-container {
+// 重置main padding
+// overflow：auto 可解决flex-direction: row 子宽度超出问题
+.el-main {
+  padding: 0;
+}
+
+.table-layout-header {
+  margin-bottom: 15px;
   display: flex;
   display: -webkit-flex;
-  background-color: #fff;
-  flex-direction: column;
-
-  // 重置main padding
-  // overflow：auto 可解决flex-direction: row 子宽度超出问题
-  .el-main {
-    padding: 0;
-  }
-
-  .table-layout-header {
-    margin-bottom: 15px;
-    display: flex;
-    display: -webkit-flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
+  flex-direction: row;
+  flex-wrap: wrap;
 }
+
 .fixed-height {
   /* padding top + bottom = 40px + NavBar 50px + el-card padding = 40px */
   height: calc(100vh - 40px - 50px - 40px);
