@@ -7,7 +7,7 @@
           <i class="el-icon-refresh-right" @click="refresh" />
         </el-tooltip>
         <el-tooltip effect="dark" content="点击开启拖拽更新" placement="top-start">
-          <i class="el-icon-s-operation" @click="handleOpenDrag" />
+          <i class="el-icon-s-operation" @click="() => { isDrag = true }" />
         </el-tooltip>
         <span v-if="isDrag">
           <warning-confirm-button
@@ -28,6 +28,7 @@
         :expand-on-click-node="false"
         default-expand-all
         :draggable="isDrag"
+        @node-click="handleNodeClick"
       />
     </div>
   </div>
@@ -55,6 +56,12 @@ export default {
     this.refresh()
   },
   methods: {
+    /**
+     * 供给外部获取自身data值
+     */
+    getDeptList() {
+      return this.depts
+    },
     async refresh() {
       this.loading = true
       const { data } = await getDeptList()
@@ -63,16 +70,13 @@ export default {
       }
       this.loading = false
     },
-    getDeptList() {
-      return this.depts
-    },
-    handleOpenDrag() {
-      this.isDrag = true
-    },
     handleSave() {},
     handleCancel() {
       this.isDrag = false
       this.refresh()
+    },
+    handleNodeClick(data, node, ref) {
+      this.$emit('node-change', data, node, ref)
     }
   }
 }
