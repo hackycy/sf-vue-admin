@@ -84,7 +84,7 @@ export default {
   display: flex;
   display: -webkit-flex;
   flex-direction: column;
-  border-right: 1px solid #f5f5f5;
+  border-right: 1px solid #e8e8e8;
   margin-right: 5px;
   padding-right: 5px;
 
