@@ -117,7 +117,7 @@ export default {
 
       i {
         font-size: 18px;
-        font-weight: 700;
+        font-weight: 500;
         color: black;
         padding: 5px;
         cursor: pointer;
