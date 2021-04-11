@@ -7,3 +7,11 @@ export function getDeptList() {
     method: 'get'
   })
 }
+
+export function moveDeptList(data) {
+  return request({
+    url: DeptApi.move,
+    method: 'post',
+    data
+  })
+}

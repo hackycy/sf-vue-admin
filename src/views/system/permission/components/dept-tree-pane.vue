@@ -40,7 +40,7 @@
 import { findIndex, isNumber } from 'lodash'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
 import PermissionMixin from '../../mixin/permission'
-import { getDeptList } from '@/api/sys/dept'
+import { getDeptList, moveDeptList } from '@/api/sys/dept'
 
 export default {
   name: 'SysDeptTreePane',
@@ -77,7 +77,7 @@ export default {
       this.depts = data || []
       this.loading = false
     },
-    handleSave({ done }) {
+    async handleSave({ done, close }) {
       // diff 差异
       const data = this.drops.filter(e => {
         const index = findIndex(this.depts, (o) => o.id === e.id)
@@ -92,8 +92,14 @@ export default {
         // 两者不相等时代表发生变化
         return e.parentId !== parentId
       })
-      done()
-      console.log(data)
+      try {
+        await moveDeptList({ depts: data })
+        done()
+        close()
+        this.isDrag = false
+      } catch {
+        done()
+      }
     },
     handleCancel() {
       if (this.drops && this.drops.length > 0) {
