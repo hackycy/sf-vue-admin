@@ -97,6 +97,7 @@ export default {
         done()
         close()
         this.isDrag = false
+        this.refresh()
       } catch {
         done()
       }
