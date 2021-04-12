@@ -23,3 +23,27 @@ export function deleteDept(data) {
     data
   })
 }
+
+export function updateDept(data) {
+  return request({
+    url: DeptApi.update,
+    method: 'post',
+    data
+  })
+}
+
+export function createDept(data) {
+  return request({
+    url: DeptApi.add,
+    method: 'post',
+    data
+  })
+}
+
+export function getDeptInfo(query) {
+  return request({
+    url: DeptApi.info,
+    method: 'get',
+    params: query
+  })
+}

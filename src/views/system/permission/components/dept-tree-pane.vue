@@ -42,7 +42,7 @@
       <el-tree
         style="height: 100%;"
         :props="{ children: 'children', label: 'label' }"
-        :data="nodeList"
+        :data="paneTreeList"
         highlight-current
         node-key="id"
         :expand-on-click-node="false"
@@ -53,6 +53,33 @@
         @node-contextmenu="handleShowContextMenu"
       />
     </div>
+
+    <!-- form dialog -->
+    <form-dialog ref="formDialog">
+      <template #slot-parent-node-name="{ scope }">
+        <el-popover placement="bottom-start" width="500">
+          <el-tree
+            :style="{ 'max-height': '400px', 'overflow-y': 'auto' }"
+            node-key="id"
+            :expand-on-click-node="false"
+            :data="scope.parentNode.data"
+            :props="{ children: 'children', label: 'label' }"
+            @node-click="
+              data => {
+                scope.parentNode.id = data.id
+                scope.parentNode.name = data.label
+              }
+            "
+          />
+          <el-input
+            slot="reference"
+            v-model="scope.parentNode.name"
+            placeholder="请选择上级部门"
+            readonly
+          />
+        </el-popover>
+      </template>
+    </form-dialog>
   </div>
 </template>
 
@@ -61,12 +88,14 @@ import { findIndex, isNumber } from 'lodash'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
 import MessageBox from '@/mixins/message-box'
 import PermissionMixin from '../../mixin/permission'
-import { getDeptList, moveDeptList, deleteDept } from '@/api/sys/dept'
+import { getDeptList, moveDeptList, deleteDept, createDept, updateDept, getDeptInfo } from '@/api/sys/dept'
+import FormDialog from '@/components/FormDialog'
 
 export default {
   name: 'SysDeptTreePane',
   components: {
-    WarningConfirmButton
+    WarningConfirmButton,
+    FormDialog
   },
   mixins: [PermissionMixin, MessageBox],
   data() {
@@ -79,8 +108,19 @@ export default {
     }
   },
   computed: {
-    nodeList() {
+    /**
+     * 面板tree树
+     */
+    paneTreeList() {
       return this.filterDeptToTree(this.depts, null)
+    },
+    /**
+     * 弹窗上的tree树
+     */
+    dialogTreeList() {
+      const parentNode = { id: -1, label: '#' }
+      parentNode.children = this.paneTreeList
+      return [parentNode]
     }
   },
   created() {
@@ -91,7 +131,7 @@ export default {
      * 供给外部获取自身data值
      */
     getDeptList() {
-      return this.depts
+      return this.paneTreeList
     },
     async refresh() {
       this.loading = true
@@ -129,7 +169,12 @@ export default {
         done()
       }
     },
-    handleAdd() {},
+    handleAdd() {
+      this.openDialog()
+    },
+    handleUpdate(deptId) {
+      this.openDialog(deptId)
+    },
     handleDelete(deptId) {
       this.openLoadingConfirm({
         on: {
@@ -205,11 +250,121 @@ export default {
     handleContextMenuClick({ item, index, close, meta }) {
       if (index === 0) {
         // update
+        this.handleUpdate(meta.id)
       } else if (index === 1) {
         // delete
         this.handleDelete(meta.id)
       }
       close()
+    },
+    handleDialogOpen(form, { showLoading, hideLoading, close, set }) {
+      if (this.updateDeptId !== -1) {
+        // update mode
+        showLoading()
+        getDeptInfo({ departmentId: this.updateDeptId })
+          .then(res => {
+            const { department, parentDepartment } = res.data
+            department.parentNode = {
+              id: parentDepartment ? department.parentId : -1,
+              name: parentDepartment ? parentDepartment.name : '一级菜单'
+            }
+            // merge
+            for (const fk in form) {
+              if (department[fk]) {
+                form[fk] = department[fk]
+              }
+            }
+
+            hideLoading()
+          })
+          .catch(() => {
+            close()
+          })
+      }
+    },
+    handleFormSubmit(data, { close, done }) {
+      const { parentNode } = data
+      data.parentId = parentNode.id
+      delete data.parentNode
+
+      let req = null
+
+      if (this.updateDeptId === -1) {
+        // create
+        req = createDept(data)
+      } else {
+        data.id = this.id
+        req = updateDept(data)
+      }
+      req
+        .then(_ => {
+          // 刷新pane
+          this.refresh()
+          close()
+        })
+        .catch(() => {
+          done()
+        })
+    },
+    openDialog(updateDeptId = -1) {
+      this.updateDeptId = updateDeptId
+      this.$refs.formDialog.open({
+        title: '编辑部门',
+        on: {
+          open: this.handleDialogOpen,
+          submit: this.handleFormSubmit
+        },
+        items: [
+          {
+            label: '部门名称',
+            value: '',
+            prop: 'name',
+            rules: {
+              required: true,
+              message: '请输入部门名称',
+              trigger: 'blur'
+            },
+            component: {
+              name: 'el-input',
+              attrs: {
+                placeholder: '请输入部门名称'
+              }
+            }
+          },
+          {
+            label: '上级部门',
+            prop: 'parentNode',
+            value: { id: undefined, name: '', data: this.dialogTreeList },
+            rules: {
+              required: true,
+              trigger: 'blur',
+              validator: (rule, value, callback) => {
+                if (!value.id || !isNumber(value.id)) {
+                  callback(new Error('请选择上级节点'))
+                } else {
+                  callback()
+                }
+              }
+            },
+            component: 'slot-parent-node-name'
+          },
+          {
+            label: '排序号',
+            prop: 'orderNum',
+            value: 255,
+            component: {
+              name: 'el-input-number',
+              style: {
+                width: '100%'
+              },
+              props: {
+                'controls-position': 'right',
+                min: 0
+              }
+            }
+          }
+        ]
+      })
     }
   }
 }
