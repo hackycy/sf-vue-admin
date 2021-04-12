@@ -3,19 +3,38 @@
     <div class="header-container">
       <div class="title">组织架构</div>
       <div class="op-container">
+        <el-tooltip effect="dark" content="点击新增" placement="top-start">
+          <i class="el-icon-plus" @click="handleAdd" />
+        </el-tooltip>
         <el-tooltip effect="dark" content="点击刷新" placement="top-start">
           <i class="el-icon-refresh-right" @click="refresh" />
         </el-tooltip>
-        <el-tooltip effect="dark" content="点击开启拖拽排序" placement="top-start">
-          <i class="el-icon-s-operation" @click="() => { isDrag = true }" />
+        <el-tooltip
+          effect="dark"
+          content="点击开启拖拽排序"
+          placement="top-start"
+        >
+          <i
+            class="el-icon-s-operation"
+            @click="
+              () => {
+                isDrag = true
+              }
+            "
+          />
         </el-tooltip>
         <span v-if="isDrag">
           <warning-confirm-button
             text="保存"
             content="确定保存当前更改的操作？"
+            :disabled="!$auth('sysDept.move')"
             @confirm="handleSave"
           />
-          <el-button size="small" type="text" @click="handleCancel">取消</el-button>
+          <el-button
+            size="small"
+            type="text"
+            @click="handleCancel"
+          >取消</el-button>
         </span>
       </div>
     </div>
@@ -31,6 +50,7 @@
         :draggable="isDrag"
         @node-click="handleNodeClick"
         @node-drop="handleNodeDrop"
+        @node-contextmenu="handleShowContextMenu"
       />
     </div>
   </div>
@@ -39,19 +59,21 @@
 <script>
 import { findIndex, isNumber } from 'lodash'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
+import MessageBox from '@/mixins/message-box'
 import PermissionMixin from '../../mixin/permission'
-import { getDeptList, moveDeptList } from '@/api/sys/dept'
+import { getDeptList, moveDeptList, deleteDept } from '@/api/sys/dept'
 
 export default {
   name: 'SysDeptTreePane',
   components: {
     WarningConfirmButton
   },
-  mixins: [PermissionMixin],
+  mixins: [PermissionMixin, MessageBox],
   data() {
     return {
       isDrag: false,
       loading: false,
+      updateDeptId: -1,
       depts: [],
       drops: []
     }
@@ -83,7 +105,7 @@ export default {
     async handleSave({ done, close }) {
       // diff 差异
       const data = this.drops.filter(e => {
-        const index = findIndex(this.depts, (o) => o.id === e.id)
+        const index = findIndex(this.depts, o => o.id === e.id)
         if (index < 0) {
           return false
         }
@@ -96,7 +118,9 @@ export default {
         return e.parentId !== parentId
       })
       try {
-        await moveDeptList({ depts: data })
+        if (data.length > 0) {
+          await moveDeptList({ depts: data })
+        }
         done()
         close()
         this.isDrag = false
@@ -104,6 +128,25 @@ export default {
       } catch {
         done()
       }
+    },
+    handleAdd() {},
+    handleDelete(deptId) {
+      this.openLoadingConfirm({
+        on: {
+          confirm: async({ done, close }) => {
+            try {
+              await deleteDept({ departmentId: deptId })
+              done()
+              close()
+            } catch {
+              done()
+            }
+          },
+          closed: () => {
+            this.refresh()
+          }
+        }
+      })
     },
     handleCancel() {
       if (this.drops && this.drops.length > 0) {
@@ -113,8 +156,8 @@ export default {
       }
       this.isDrag = false
     },
-    handleNodeClick(data, node, ref) {
-      this.$emit('node-change', data, node, ref)
+    handleNodeClick(data) {
+      this.$emit('dept-change', data)
     },
     handleNodeDrop(before, after, position, _) {
       // 当拖拽类型不为inner,说明只是同级或者跨级排序，只需要寻找目标节点的父ID，获取其对象以及所有的子节点，并为子节点设置当前对象的ID为父ID即可
@@ -124,15 +167,49 @@ export default {
       const { data: parentDept } = position === 'inner' ? after : after.parent
       // find value
       const id = dept.id
-      const parentId = position === 'inner' ? parentDept.id : (after.level === 1 ? undefined : parentDept.id)
+      const parentId =
+        position === 'inner'
+          ? parentDept.id
+          : after.level === 1
+            ? null
+            : parentDept.id
       // 是否已存在
-      const index = findIndex(this.drops, (o) => o.id === dept.id)
+      const index = findIndex(this.drops, o => o.id === dept.id)
       if (index >= 0) {
         this.drops[index].parentId = parentId
       } else {
         // not exist
         this.drops.push({ id: id, parentId: parentId })
       }
+    },
+    handleShowContextMenu(event, data) {
+      // 打开右键菜单
+      this.$openContextMenu(event, {
+        meta: data,
+        items: [
+          {
+            disabled: !this.$auth('sysDept.update'),
+            title: '编辑',
+            icon: 'el-icon-edit',
+            callback: this.handleContextMenuClick
+          },
+          {
+            disabled: !this.$auth('sysDept.delete'),
+            title: '删除',
+            icon: 'el-icon-delete',
+            callback: this.handleContextMenuClick
+          }
+        ]
+      })
+    },
+    handleContextMenuClick({ item, index, close, meta }) {
+      if (index === 0) {
+        // update
+      } else if (index === 1) {
+        // delete
+        this.handleDelete(meta.id)
+      }
+      close()
     }
   }
 }
@@ -197,7 +274,7 @@ export default {
 
 <style lang="scss">
 .dept-tree-pane-container {
-  .tree-container{
+  .tree-container {
     .el-tree-node__content {
       height: 36px !important;
       font-weight: 500;

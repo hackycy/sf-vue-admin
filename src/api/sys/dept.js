@@ -15,3 +15,11 @@ export function moveDeptList(data) {
     data
   })
 }
+
+export function deleteDept(data) {
+  return request({
+    url: DeptApi.delete,
+    method: 'post',
+    data
+  })
+}
