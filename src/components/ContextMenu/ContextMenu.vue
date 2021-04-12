@@ -79,8 +79,8 @@ export default {
 
       // calc position
       const { pageX, pageY } = event || {}
-      this.style.left = pageX - offest
-      this.style.top = pageY - offest
+      this.style.left = pageX + offest
+      this.style.top = pageY + offest
 
       event.preventDefault()
       event.stopPropagation()
