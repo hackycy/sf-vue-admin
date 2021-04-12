@@ -266,7 +266,8 @@ export default {
             const { department, parentDepartment } = res.data
             department.parentNode = {
               id: parentDepartment ? department.parentId : -1,
-              name: parentDepartment ? parentDepartment.name : '一级菜单'
+              name: parentDepartment ? parentDepartment.name : '一级菜单',
+              data: this.dialogTreeList
             }
             // merge
             for (const fk in form) {
@@ -293,7 +294,7 @@ export default {
         // create
         req = createDept(data)
       } else {
-        data.id = this.id
+        data.id = this.updateDeptId
         req = updateDept(data)
       }
       req
