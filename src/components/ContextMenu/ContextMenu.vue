@@ -37,6 +37,7 @@ export default {
         top: 0,
         width: 160
       },
+      meta: null,
       /**
        * {
        *  disabled: true,
@@ -65,6 +66,11 @@ export default {
       if (options.width) {
         this.style.width = options.width
       }
+
+      if (options.meta) {
+        this.meta = options.meta
+      }
+
       if (options.items && options.items.length > 0) {
         this.items = options.items
       }
@@ -82,6 +88,7 @@ export default {
       this.visible = true
     },
     close() {
+      this.meta = null
       this.visible = false
     },
     clickRow(item, i) {
@@ -89,8 +96,11 @@ export default {
         return
       }
       if (item.callback) {
-        item.callback(item, i, () => {
-          this.close()
+        item.callback({
+          close: this.close,
+          meta: this.meta,
+          index: i,
+          item
         })
         return
       }
