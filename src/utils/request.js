@@ -64,12 +64,12 @@ service.interceptors.response.use(
           store.dispatch('user/resetToken').then(() => {
             location.reload()
           })
-        })
+        }).catch(() => {})
       }
       // 无权限操作提示
-      if (res.code === 11003) {
-        MessageBox.alert(res.message || '无权限操作', '警告', { type: 'warning' })
-      }
+      // if (res.code === 11003) {
+      //   MessageBox.alert(res.message || '无权限操作', '警告', { type: 'warning' })
+      // }
 
       // throw
       const error = new Error(res.message || 'Error')
