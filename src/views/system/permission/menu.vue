@@ -72,7 +72,7 @@
               :key="i"
               effect="dark"
               size="mini"
-              class="tag-perm-item"
+              :style="{ 'margin-right': '3px' }"
             >{{ i }}</el-tag>
           </template>
         </el-table-column>
@@ -185,16 +185,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.sys-perm-container {
-  .table-layout-container {
-
-  .table-layout-content {
-    .tag-perm-item {
-      margin-right: 3px;
-    }
-  }
-}
-}
-</style>
