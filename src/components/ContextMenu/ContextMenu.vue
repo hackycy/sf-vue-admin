@@ -1,8 +1,27 @@
 <template>
-  <div v-show="visible" class="s-context-menu" :style="{ left: style.left + 'px', top: style.top + 'px' }">
-    <div v-for="(o, i) in items" :key="i" class="item">
-      <span>{{ o.title }}</span>
-      <i v-if="o.icon" :class="o.icon" />
+  <div
+    v-show="visible"
+    class="s-context-menu"
+    :style="{
+      left: style.left + 'px',
+      top: style.top + 'px'
+    }"
+  >
+    <div class="context-menu-box">
+      <div
+        v-for="(o, i) in items"
+        :key="i"
+        class="item"
+        :class="{ enable: !o.disabled }"
+        :style="{
+          cursor: o.disabled ? 'no-drop' : 'pointer',
+          width: style.width + 'px'
+        }"
+        @click="clickRow(o)"
+      >
+        <span>{{ o.title }}</span>
+        <i v-if="o.icon" :class="o.icon" />
+      </div>
     </div>
   </div>
 </template>
@@ -15,20 +34,64 @@ export default {
       visible: false,
       style: {
         left: 0,
-        top: 0
+        top: 0,
+        width: 160
       },
-      on: {
-        rowClick: null
-      },
+      /**
+       * {
+       *  disabled: true,
+       *  title: '测试',
+       *  icon 'icon',
+       *  meta: {}, // custom
+       *  callback: (this, close) => {}
+       * }
+       */
       items: []
     }
   },
   mounted() {
+    document.body.addEventListener('mousedown', this.close)
     window.addEventListener('resize', this.close)
+
+    // append el
+    document.body.appendChild(this.$el)
   },
   methods: {
-    show(event, options) {},
-    close() {}
+    show(event, options) {
+      if (options.width) {
+        this.style.width = options.width
+      }
+      if (options.items && options.items.length > 0) {
+        this.items = options.items
+      }
+
+      const offest = 10
+
+      // calc position
+      const { pageX, pageY } = event || {}
+      this.style.left = pageX - offest
+      this.style.top = pageY - offest
+
+      event.preventDefault()
+      event.stopPropagation()
+
+      this.visible = true
+    },
+    close() {
+      this.visible = false
+    },
+    clickRow(item) {
+      if (item.disabled) {
+        return
+      }
+      if (item.callback) {
+        item.callback(item, () => {
+          this.close()
+        })
+        return
+      }
+      this.close()
+    }
   }
 }
 </script>
@@ -36,11 +99,10 @@ export default {
 <style lang="scss" scoped>
 .s-context-menu {
   position: absolute;
-  z-index: 99999;
+  z-index: 4444;
 
   .context-menu-box {
     box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
-    width: 160px;
     padding: 5px 0;
     background-color: #fff;
     border-radius: 3px;
@@ -52,15 +114,21 @@ export default {
       align-items: center;
       height: 35px;
       font-size: 13px;
-      cursor: pointer;
       padding: 0 15px;
       color: #666;
       position: relative;
+      margin-bottom: 2px;
 
       span {
         height: 35px;
         line-height: 35px;
         flex: 1;
+      }
+    }
+
+    .enable {
+      &:hover {
+        background-color: #f1f1f1;
       }
     }
   }
