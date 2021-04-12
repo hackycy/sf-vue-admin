@@ -17,7 +17,7 @@
           cursor: o.disabled ? 'no-drop' : 'pointer',
           width: style.width + 'px'
         }"
-        @click="clickRow(o)"
+        @click="clickRow(o, i)"
       >
         <span>{{ o.title }}</span>
         <i v-if="o.icon" :class="o.icon" />
@@ -84,12 +84,12 @@ export default {
     close() {
       this.visible = false
     },
-    clickRow(item) {
+    clickRow(item, i) {
       if (item.disabled) {
         return
       }
       if (item.callback) {
-        item.callback(item, () => {
+        item.callback(item, i, () => {
           this.close()
         })
         return
