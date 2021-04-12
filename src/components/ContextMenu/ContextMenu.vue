@@ -50,7 +50,11 @@ export default {
     }
   },
   mounted() {
-    document.body.addEventListener('mousedown', this.close)
+    document.body.addEventListener('mousedown', e => {
+      if (!this.containEl(this.$el, e.target) && e.target !== this.$el) {
+        this.close()
+      }
+    })
     window.addEventListener('resize', this.close)
 
     // append el
@@ -91,6 +95,9 @@ export default {
         return
       }
       this.close()
+    },
+    containEl(parent, node) {
+      return parent !== node && parent.contains(node)
     }
   }
 }
