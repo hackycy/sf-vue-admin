@@ -28,7 +28,8 @@ router.beforeEach(async(to, from, next) => {
       NProgress.done()
     } else {
       // 判断是否有权限路由
-      const hasRoutes = store.getters.permissionRoutes && (store.getters.permissionRoutes.length > constantRoutes.length)
+      const hasRoutes = store.getters.permissionRoutes &&
+        (store.getters.permissionRoutes.length > constantRoutes.length)
 
       if (hasRoutes) {
         // pass
@@ -50,7 +51,7 @@ router.beforeEach(async(to, from, next) => {
         } catch (error) {
           // remove token
           await store.dispatch('user/resetToken')
-          Message.error(error || '发生了一些未知的错误，请重试！')
+          Message.error(`${error}` || '发生了一些未知的错误，请重试！')
 
           // go to login page to re-login
           next(`/login?redirect=${to.path}`)
