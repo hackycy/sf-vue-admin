@@ -73,9 +73,12 @@ export default {
     },
     async refresh() {
       this.loading = true
-      const { data } = await getDeptList()
-      this.depts = data || []
-      this.loading = false
+      try {
+        const { data } = await getDeptList()
+        this.depts = data || []
+      } finally {
+        this.loading = false
+      }
     },
     async handleSave({ done, close }) {
       // diff 差异
