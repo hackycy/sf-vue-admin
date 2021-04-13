@@ -16,11 +16,7 @@
         >
           <i
             class="el-icon-s-operation"
-            @click="
-              () => {
-                isDrag = true
-              }
-            "
+            @click="isDrag = true"
           />
         </el-tooltip>
         <span v-if="isDrag">
@@ -40,6 +36,7 @@
     </div>
     <div v-loading="loading" class="tree-container">
       <el-tree
+        ref="paneTree"
         style="height: 100%;"
         :props="{ children: 'children', label: 'label' }"
         :data="paneTreeList"
@@ -84,7 +81,7 @@
 </template>
 
 <script>
-import { findIndex, isNumber } from 'lodash'
+import { findIndex, isNumber, flattenDeep } from 'lodash'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
 import MessageBox from '@/mixins/message-box'
 import PermissionMixin from '../../mixin/permission'
@@ -132,6 +129,29 @@ export default {
      */
     getDeptList() {
       return this.paneTreeList
+    },
+    /**
+     * 根据部门id获取所有关联子部门的ID，包括自己
+     */
+    getDeptIdChildrenById(id) {
+      if (id) {
+        const node = this.$refs.paneTree.getNode(id)
+        const find = (data) => {
+          const res = []
+          res.push(data.id)
+          // 查找是否还存在子部门
+          if (data.children && data.children.length > 0) {
+            data.children.forEach(e => {
+              res.push(find(e))
+            })
+          }
+          return res
+        }
+        // flatten
+        const result = find(node.data)
+        return flattenDeep(result)
+      }
+      return null
     },
     async refresh() {
       this.loading = true
