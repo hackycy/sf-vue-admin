@@ -127,8 +127,11 @@ export default {
     /**
      * 供给外部获取自身data值
      */
-    getDeptList() {
-      return this.paneTreeList
+    getDeptList(tree = true) {
+      if (tree) {
+        return this.paneTreeList
+      }
+      return this.depts
     },
     /**
      * 根据部门id获取所有关联子部门的ID，包括自己

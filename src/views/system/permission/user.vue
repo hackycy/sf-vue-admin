@@ -10,10 +10,10 @@
       <template #header>
         <div class="user-title">用户管理</div>
         <el-button size="mini" @click="handleRefresh">刷新</el-button>
-        <el-button size="mini" type="primary">新增</el-button>
+        <el-button size="mini" type="primary" :disabled="!$auth('sysUser.add')" @click="handleAdd">新增</el-button>
       </template>
       <template>
-        <s-table ref="userTable" :data-request="getUserList" :show-pagination="true">
+        <s-table ref="userTable" :data-request="getUserList" :show-pagination="true" stripe>
           <el-table-column
             fixed="left"
             type="selection"
@@ -43,9 +43,15 @@
           />
           <el-table-column
             prop="departmentName"
-            label="部门名称"
+            label="部门"
             align="center"
             width="120"
+          />
+          <el-table-column
+            prop="username"
+            label="用户名"
+            align="center"
+            width="220"
           />
           <el-table-column
             prop="roleNames"
@@ -64,12 +70,6 @@
               >{{ i }}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="username"
-            label="登录账号"
-            align="center"
-            width="220"
-          />
           <el-table-column
             prop="nickName"
             label="呢称"
@@ -115,13 +115,14 @@
             width="120"
           >
             <template>
-              <el-button type="text" size="small">编辑</el-button>
-              <el-button type="text" size="small">删除</el-button>
+              <el-button type="text" size="small" :disabled="!$auth('sysUser.update')">编辑</el-button>
+              <el-button type="text" size="small" :disabled="!$auth('sysUser.delete')">删除</el-button>
             </template>
           </el-table-column>
         </s-table>
       </template>
     </table-layout>
+    <system-permission-user-form-dialog ref="userFormDialog" />
   </div>
 </template>
 
@@ -130,13 +131,15 @@ import { getUserListPage } from '@/api/sys/user'
 import STable from '@/components/Table'
 import TableLayout from '@/layout/components/TableLayout'
 import SysDeptTreePane from './components/dept-tree-pane'
+import SystemPermissionUserFormDialog from './components/user-form-dialog'
 
 export default {
   name: 'SystemPermissionUser',
   components: {
     STable,
     TableLayout,
-    SysDeptTreePane
+    SysDeptTreePane,
+    SystemPermissionUserFormDialog
   },
   data() {
     return {
@@ -163,6 +166,9 @@ export default {
     },
     handleRefresh() {
       this.$refs.userTable.refresh()
+    },
+    handleAdd() {
+      this.$refs.userFormDialog.open(this.$refs.deptPane.getDeptList())
     }
   }
 }

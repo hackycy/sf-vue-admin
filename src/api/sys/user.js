@@ -8,3 +8,11 @@ export function getUserListPage(data) {
     data
   })
 }
+
+export function createUser(data) {
+  return request({
+    url: UserApi.add,
+    method: 'post',
+    data
+  })
+}
