@@ -59,7 +59,6 @@
                 v-for="i in scope.row.roleNames"
                 :key="i"
                 type="success"
-                effect="dark"
                 size="small"
                 :style="{ 'margin-right': '3px' }"
               >{{ i }}</el-tag>
