@@ -1,5 +1,5 @@
 import { cloneDeep, merge, isFunction, isBoolean } from 'lodash'
-import { renderVNode } from '@/utils/vnode'
+import { renderVNode } from './vnode'
 
 export default {
   provide() {
@@ -44,7 +44,7 @@ export default {
          *    hidden: Boolean, Function
          *    rules: {}, // 校验规则
          *    value: '', // 表单默认值
-         *    span: 24, // col
+         *    span: 24, // col span
          *    component: {
          *      // 等同于 https://cn.vuejs.org/v2/guide/render-function.html#createElement-参数
          *    }
@@ -223,7 +223,7 @@ export default {
             {/* 渲染表单列表 */}
             {items.map(e => {
               return (
-                <el-row
+                <el-col
                   key={`form-item-${e.prop}`}
                   {
                     ...{
@@ -239,7 +239,7 @@ export default {
                       {(renderVNode.bind(this))(e.component, { scope: this.form, $scopedSlots: this.$scopedSlots, prop: e.prop })}
                     </el-form-item>
                   )}
-                </el-row>
+                </el-col>
               )
             })}
           </el-row>
