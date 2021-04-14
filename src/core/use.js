@@ -3,7 +3,7 @@ import ElementUI from 'element-ui'
 
 import PermissionHelper from '@/core/permission'
 
-import ELDragDialog from '@/directive/el-drag-dialog'
+import ELDragDialog from '@/directives/el-drag-dialog'
 import FormDialog from '@/components/FormDialog'
 import ContextMenu from '@/components/ContextMenu'
 
