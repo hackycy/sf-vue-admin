@@ -83,8 +83,8 @@
 <script>
 import { findIndex, isNumber, flattenDeep } from 'lodash'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
-import MessageBox from '@/mixins/message-box'
-import PermissionMixin from '../../mixin/permission'
+import MessageBoxMixin from '@/mixins/message-box'
+import PermissionMixin from '@/mixins/permission'
 import { getDeptList, moveDeptList, deleteDept, createDept, updateDept, getDeptInfo } from '@/api/sys/dept'
 import FormDialog from '@/components/FormDialog'
 
@@ -94,7 +94,7 @@ export default {
     WarningConfirmButton,
     FormDialog
   },
-  mixins: [PermissionMixin, MessageBox],
+  mixins: [PermissionMixin, MessageBoxMixin],
   data() {
     return {
       isDrag: false,

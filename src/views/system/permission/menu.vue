@@ -116,7 +116,7 @@ import STable from '@/components/Table'
 import MenuFormDialog from './components/menu-form-dialog'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
 import { getMenuList, deleteMenu } from '@/api/sys/menu'
-import PermissionMixin from '../mixin/permission'
+import PermissionMixin from '@/mixins/permission'
 import TableLayout from '@/layout/components/TableLayout.vue'
 
 export default {
