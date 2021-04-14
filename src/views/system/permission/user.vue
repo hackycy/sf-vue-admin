@@ -13,6 +13,12 @@
           :disabled="!$auth('sysUser.add')"
           @click="handleAdd"
         >新增</el-button>
+        <warning-confirm-button
+          button-type="danger"
+          :closed="handleRefresh"
+          :disabled="!$auth('sysUser.delete') || disableMultipleDelete"
+          @confirm="handleMultipleDelete"
+        >删除</warning-confirm-button>
       </template>
       <template>
         <s-table
@@ -20,6 +26,7 @@
           :data-request="getUserList"
           :show-pagination="true"
           stripe
+          @selection-change="handleSelectionChange"
         >
           <el-table-column
             fixed="left"
@@ -161,7 +168,13 @@ export default {
   },
   data() {
     return {
-      currentDeptId: -1
+      currentDeptId: -1,
+      selectionUserList: []
+    }
+  },
+  computed: {
+    disableMultipleDelete() {
+      return this.selectionUserList.length <= 0
     }
   },
   watch: {
@@ -184,6 +197,13 @@ export default {
     handleDeptChange(data) {
       this.currentDeptId = data.id
     },
+    handleSelectionChange(selection) {
+      if (!selection || selection.length <= 0) {
+        this.selectionUserList = []
+      } else {
+        this.selectionUserList = selection.map(e => { return e.id })
+      }
+    },
     handleRefresh() {
       this.$refs.userTable.refresh()
     },
@@ -197,7 +217,15 @@ export default {
       try {
         await deleteUsers({ userIds: [row.id] })
         close()
-      } catch (e) {
+      } catch {
+        done()
+      }
+    },
+    async handleMultipleDelete({ close, done }) {
+      try {
+        await deleteUsers({ userIds: [...this.selectionUserList] })
+        close()
+      } catch {
         done()
       }
     }
