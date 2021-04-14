@@ -280,7 +280,7 @@ export default {
       }
       close()
     },
-    handleDialogOpen(form, { showLoading, hideLoading, close, set }) {
+    handleDialogOpen(form, { showLoading, hideLoading, close, rebind }) {
       if (this.updateDeptId !== -1) {
         // update mode
         showLoading()
@@ -292,12 +292,7 @@ export default {
               name: parentDepartment ? parentDepartment.name : '一级菜单',
               data: this.dialogTreeList
             }
-            // merge
-            for (const fk in form) {
-              if (department[fk]) {
-                form[fk] = department[fk]
-              }
-            }
+            rebind(department)
 
             hideLoading()
           })

@@ -66,6 +66,13 @@ export default {
     getFormData(prop) {
       return prop ? this.form[prop] : this.form
     },
+    rebindFormData(data) {
+      for (const key in this.form) {
+        if (data[key]) {
+          this.form[key] = cloneDeep(data[key])
+        }
+      }
+    },
     close() {
       this.visible = false
       this.saving = false
@@ -138,7 +145,9 @@ export default {
           open(this.form, {
             showLoading: this.showLoading,
             hideLoading: this.hideLoading,
-            close: this.close
+            close: this.close,
+            rebind: this.rebindFormData,
+            set: this.setFormData
           })
         })
       }
