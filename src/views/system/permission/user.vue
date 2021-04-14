@@ -128,11 +128,11 @@
                 :disabled="!$auth('sysUser.update')"
                 @click.stop="handleEdit(scope.row)"
               >编辑</el-button>
-              <el-button
-                type="text"
-                size="small"
+              <warning-confirm-button
+                :closed="handleRefresh"
                 :disabled="!$auth('sysUser.delete')"
-              >删除</el-button>
+                @confirm="(o) => { handleDelete(scope.row, o) }"
+              >删除</warning-confirm-button>
             </template>
           </el-table-column>
         </s-table>
@@ -143,8 +143,9 @@
 </template>
 
 <script>
-import { getUserListPage } from '@/api/sys/user'
+import { getUserListPage, deleteUsers } from '@/api/sys/user'
 import STable from '@/components/Table'
+import WarningConfirmButton from '@/components/WarningConfirmButton'
 import TableLayout from '@/layout/components/TableLayout'
 import SysDeptTreePane from './components/dept-tree-pane'
 import SystemPermissionUserFormDialog from './components/user-form-dialog'
@@ -155,6 +156,7 @@ export default {
     STable,
     TableLayout,
     SysDeptTreePane,
+    WarningConfirmButton,
     SystemPermissionUserFormDialog
   },
   data() {
@@ -190,6 +192,14 @@ export default {
     },
     handleEdit(row) {
       this.$refs.userFormDialog.open(this.$refs.deptPane.getDeptList(), row.id)
+    },
+    async handleDelete(row, { close, done }) {
+      try {
+        await deleteUsers({ userIds: [row.id] })
+        close()
+      } catch (e) {
+        done()
+      }
     }
   }
 }

@@ -32,3 +32,11 @@ export function updateUser(data) {
     data
   })
 }
+
+export function deleteUsers(data) {
+  return request({
+    url: UserApi.delete,
+    method: 'post',
+    data
+  })
+}
