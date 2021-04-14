@@ -5,7 +5,7 @@
     :disabled="disabled"
     @click.stop="_handleClick"
   >
-    {{ text }}
+    <slot />
   </el-button>
 </template>
 
@@ -13,10 +13,6 @@
 export default {
   name: 'WarningConfirmButton',
   props: {
-    text: {
-      type: String,
-      default: ''
-    },
     content: {
       type: String,
       default: '此操作无法恢复，是否继续？'

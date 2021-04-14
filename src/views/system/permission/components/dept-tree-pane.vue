@@ -21,11 +21,10 @@
         </el-tooltip>
         <span v-if="isDrag">
           <warning-confirm-button
-            text="保存"
             content="确定保存当前更改的操作？"
             :disabled="!$auth('sysDept.move')"
             @confirm="handleSave"
-          />
+          >保存</warning-confirm-button>
           <el-button
             size="small"
             type="text"

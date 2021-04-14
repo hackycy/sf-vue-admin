@@ -97,11 +97,10 @@
               @click.stop="handleEdit(scope.row)"
             >编辑</el-button>
             <warning-confirm-button
-              text="删除"
               :closed="handleRefresh"
               :disabled="!$auth('sysMenu.delete')"
               @confirm="(o) => { handleDelete(scope.row, o) }"
-            />
+            >删除</warning-confirm-button>
           </template>
         </el-table-column>
       </s-table>
