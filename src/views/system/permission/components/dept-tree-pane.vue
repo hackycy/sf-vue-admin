@@ -4,7 +4,7 @@
       <div class="title">组织架构</div>
       <div class="op-container">
         <el-tooltip effect="dark" content="点击新增" placement="top-start">
-          <i class="el-icon-plus" @click="handleAdd" />
+          <i v-permission="$permission.sysUser.add" class="el-icon-plus" @click="handleAdd" />
         </el-tooltip>
         <el-tooltip effect="dark" content="点击刷新" placement="top-start">
           <i class="el-icon-refresh-right" @click="refresh" />
