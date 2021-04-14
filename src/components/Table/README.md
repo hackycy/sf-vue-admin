@@ -49,7 +49,6 @@ export default {
   },
   methods: {
     async getList({ page, limit }) {
-      const queryAll = this.currentDeptId === -1
       const { data } = await apiGet({ page, limit })
       return { list: data.list, pagination: { total: data.pagination.total }}
     }
