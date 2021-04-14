@@ -250,3 +250,13 @@ export default {
   }
 }
 </style>
+
+<style lang="scss">
+.sys-user-container {
+  .table-layout-content {
+    .el-avatar--small {
+      vertical-align: middle;
+    }
+  }
+}
+</style>
