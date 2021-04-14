@@ -2,18 +2,25 @@
   <div class="sys-user-container">
     <table-layout :wrap="false" asside-width="320px">
       <template #asside>
-        <sys-dept-tree-pane
-          ref="deptPane"
-          @dept-change="handleDeptChange"
-        />
+        <sys-dept-tree-pane ref="deptPane" @dept-change="handleDeptChange" />
       </template>
       <template #header>
         <div class="user-title">用户管理</div>
         <el-button size="mini" @click="handleRefresh">刷新</el-button>
-        <el-button size="mini" type="primary" :disabled="!$auth('sysUser.add')" @click="handleAdd">新增</el-button>
+        <el-button
+          size="mini"
+          type="primary"
+          :disabled="!$auth('sysUser.add')"
+          @click="handleAdd"
+        >新增</el-button>
       </template>
       <template>
-        <s-table ref="userTable" :data-request="getUserList" :show-pagination="true" stripe>
+        <s-table
+          ref="userTable"
+          :data-request="getUserList"
+          :show-pagination="true"
+          stripe
+        >
           <el-table-column
             fixed="left"
             type="selection"
@@ -114,15 +121,24 @@
             align="center"
             width="120"
           >
-            <template>
-              <el-button type="text" size="small" :disabled="!$auth('sysUser.update')">编辑</el-button>
-              <el-button type="text" size="small" :disabled="!$auth('sysUser.delete')">删除</el-button>
+            <template slot-scope="scope">
+              <el-button
+                type="text"
+                size="small"
+                :disabled="!$auth('sysUser.update')"
+                @click.stop="handleEdit(scope.row)"
+              >编辑</el-button>
+              <el-button
+                type="text"
+                size="small"
+                :disabled="!$auth('sysUser.delete')"
+              >删除</el-button>
             </template>
           </el-table-column>
         </s-table>
       </template>
     </table-layout>
-    <system-permission-user-form-dialog ref="userFormDialog" />
+    <system-permission-user-form-dialog ref="userFormDialog" @save-success="handleRefresh" />
   </div>
 </template>
 
@@ -157,7 +173,9 @@ export default {
       const { data } = await getUserListPage({
         page,
         limit,
-        departmentIds: queryAll ? undefined : this.$refs.deptPane.getDeptIdChildrenById(this.currentDeptId)
+        departmentIds: queryAll
+          ? undefined
+          : this.$refs.deptPane.getDeptIdChildrenById(this.currentDeptId)
       })
       return { list: data.list, pagination: { total: data.pagination.total }}
     },
@@ -169,6 +187,9 @@ export default {
     },
     handleAdd() {
       this.$refs.userFormDialog.open(this.$refs.deptPane.getDeptList())
+    },
+    handleEdit(row) {
+      this.$refs.userFormDialog.open(this.$refs.deptPane.getDeptList(), row.id)
     }
   }
 }

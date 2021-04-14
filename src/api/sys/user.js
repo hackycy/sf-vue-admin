@@ -16,3 +16,19 @@ export function createUser(data) {
     data
   })
 }
+
+export function getUserInfo(query) {
+  return request({
+    url: UserApi.info,
+    method: 'get',
+    params: query
+  })
+}
+
+export function updateUser(data) {
+  return request({
+    url: UserApi.update,
+    method: 'post',
+    data
+  })
+}
