@@ -181,7 +181,7 @@ export default {
             }
           })
 
-          const res = {
+          const uiHandle = {
             done: this.done,
             close: this.close
           }
@@ -189,7 +189,7 @@ export default {
           const submit = this.conf.on.submit
 
           if (isFunction(submit)) {
-            submit(data, res)
+            submit(data, uiHandle)
           } else {
             console.error('Submit Callback Not Found')
           }
