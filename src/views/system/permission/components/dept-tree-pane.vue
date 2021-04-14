@@ -184,7 +184,6 @@ export default {
         if (data.length > 0) {
           await moveDeptList({ depts: data })
         }
-        done()
         close()
         this.isDrag = false
         this.refresh()

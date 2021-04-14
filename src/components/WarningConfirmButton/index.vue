@@ -80,7 +80,10 @@ export default {
           if (action === 'confirm') {
             instance.confirmButtonLoading = true
             this.$emit('confirm', {
-              close: done,
+              close: () => {
+                instance.confirmButtonLoading = false
+                done()
+              },
               done: () => {
                 instance.confirmButtonLoading = false
               }

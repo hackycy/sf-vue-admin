@@ -176,7 +176,6 @@ export default {
     async handleDelete(row, { close, done }) {
       try {
         await deleteMenu({ menuId: row.id })
-        done()
         close()
       } catch (e) {
         done()
