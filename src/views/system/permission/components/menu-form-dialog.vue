@@ -58,7 +58,7 @@ import PermissionCascader from './permission-cascader'
 import MenuIconSelector from './menu-icon-selector'
 import { isNumber } from 'lodash'
 import { getMenuInfo, createMenu, updateMenu } from '@/api/sys/menu'
-import PermissionMixin from '@/mixins/permission'
+import PermissionMixin from '@/core/mixins/permission'
 
 export default {
   name: 'SystemPermissionMenuFormDialog',

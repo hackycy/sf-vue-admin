@@ -82,8 +82,8 @@
 <script>
 import { findIndex, isNumber, flattenDeep } from 'lodash'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
-import MessageBoxMixin from '@/mixins/message-box'
-import PermissionMixin from '@/mixins/permission'
+import MessageBoxMixin from '@/core/mixins/message-box'
+import PermissionMixin from '@/core/mixins/permission'
 import { getDeptList, moveDeptList, deleteDept, createDept, updateDept, getDeptInfo } from '@/api/sys/dept'
 import FormDialog from '@/components/FormDialog'
 

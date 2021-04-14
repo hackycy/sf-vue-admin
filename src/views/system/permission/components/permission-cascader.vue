@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import PermissionMixin from '@/mixins/permission'
+import PermissionMixin from '@/core/mixins/permission'
 
 export default {
   name: 'PermissionCascader',
