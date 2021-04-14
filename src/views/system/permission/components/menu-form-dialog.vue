@@ -70,7 +70,6 @@ export default {
   data() {
     return {
       menuId: -1,
-      selectedParendId: -1,
       menus: []
     }
   },
