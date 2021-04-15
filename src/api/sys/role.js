@@ -7,3 +7,10 @@ export function getRoleList() {
     method: 'get'
   })
 }
+
+export function getRoleListByPage(query) {
+  return request({
+    url: RoleApi.page,
+    method: 'get'
+  })
+}
