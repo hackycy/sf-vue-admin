@@ -1,10 +1,14 @@
 <template>
   <div class="sys-menu-container">
     <table-layout>
-      <s-table :data-request="getRoleList" show-pagination stripe>
-        <el-table-column type="selection" width="55" align="center" />
-        <el-table-column prop="name" label="名称" align="center" />
-        <el-table-column prop="label" label="标识" align="center" />
+      <template v-slot:header>
+        <el-button size="mini" @click="handleRefresh">刷新</el-button>
+        <el-button size="mini" type="primary" @click="handleAdd">新增</el-button>
+      </template>
+      <s-table ref="roleTable" :data-request="getRoleList" show-pagination stripe>
+        <el-table-column prop="id" label="#" align="center" width="55" />
+        <el-table-column prop="name" label="名称" align="center" width="200" />
+        <el-table-column prop="label" label="标识" align="center" width="200" />
         <el-table-column prop="remark" label="备注" align="center" />
         <el-table-column prop="createTime" label="创建时间" align="center" />
         <el-table-column prop="updateTime" label="更新时间" align="center" />
@@ -16,10 +20,13 @@
         </el-table-column>
       </s-table>
     </table-layout>
+    <system-permission-role-form-dialog ref="formDialog" />
   </div>
 </template>
 
 <script>
+import SystemPermissionRoleFormDialog from './components/role-form-dialog'
+import PermissionMixin from '@/core/mixins/permission'
 import TableLayout from '@/layout/components/TableLayout'
 import STable from '@/components/Table'
 import { getRoleListByPage } from '@/api/sys/role'
@@ -28,12 +35,20 @@ export default {
   name: 'SystemPermissionRole',
   components: {
     TableLayout,
-    STable
+    STable,
+    SystemPermissionRoleFormDialog
   },
+  mixins: [PermissionMixin],
   methods: {
     async getRoleList({ page, limit }) {
       const { data } = await getRoleListByPage({ page, limit })
       return { list: data.list, pagination: { total: data.pagination.total }}
+    },
+    handleRefresh() {
+      this.$refs.roleTable.refresh()
+    },
+    handleAdd() {
+      this.$refs.formDialog.open()
     }
   }
 }
