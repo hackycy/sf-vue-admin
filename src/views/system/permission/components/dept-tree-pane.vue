@@ -38,7 +38,7 @@
         ref="paneTree"
         style="height: 100%;"
         :props="{ children: 'children', label: 'label' }"
-        :data="paneTreeList"
+        :data="treeList"
         highlight-current
         node-key="id"
         :expand-on-click-node="false"
@@ -70,7 +70,7 @@
           <el-input
             slot="reference"
             v-model="scope.parentNode.name"
-            placeholder="请选择上级部门"
+            placeholder="请选择所属部门"
             readonly
           />
         </el-popover>
@@ -84,7 +84,7 @@ import { findIndex, isNumber, flattenDeep } from 'lodash'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
 import MessageBoxMixin from '@/core/mixins/message-box'
 import PermissionMixin from '@/core/mixins/permission'
-import { getDeptList, moveDeptList, deleteDept, createDept, updateDept, getDeptInfo } from '@/api/sys/dept'
+import { getDeptList, moveDeptList, deleteDept, createDept, updateDept, getDeptInfo, transferDept } from '@/api/sys/dept'
 import FormDialog from '@/components/FormDialog'
 
 export default {
@@ -107,15 +107,15 @@ export default {
     /**
      * 面板tree树
      */
-    paneTreeList() {
+    treeList() {
       return this.filterDeptToTree(this.depts, null)
     },
     /**
      * 弹窗上的tree树
      */
-    dialogTreeList() {
+    hasRootTreeList() {
       const parentNode = { id: -1, label: '#' }
-      parentNode.children = this.paneTreeList
+      parentNode.children = this.treeList
       return [parentNode]
     }
   },
@@ -128,7 +128,7 @@ export default {
      */
     getDeptList(tree = true) {
       if (tree) {
-        return this.paneTreeList
+        return this.treeList
       }
       return this.depts
     },
@@ -288,7 +288,7 @@ export default {
             department.parentNode = {
               id: parentDepartment ? department.parentId : -1,
               name: parentDepartment ? parentDepartment.name : '一级菜单',
-              data: this.dialogTreeList
+              data: this.hasRootTreeList
             }
             rebind(department)
 
@@ -299,7 +299,7 @@ export default {
           })
       }
     },
-    handleFormSubmit(data, { close, done }) {
+    handleDeptFormSubmit(data, { close, done }) {
       const { parentNode } = data
       data.parentId = parentNode.id
       delete data.parentNode
@@ -323,13 +323,56 @@ export default {
           done()
         })
     },
+    async handleTransferFormSubmit(ids, data, { close, done }) {
+      const { parentNode } = data
+      try {
+        await transferDept({
+          departmentId: parentNode.id,
+          userIds: ids
+        })
+        close()
+        this.$emit('transfer-success')
+      } catch {
+        done()
+      }
+    },
+    transfer(userIdList) {
+      if (!userIdList || userIdList.length <= 0) {
+        return
+      }
+      this.$refs.formDialog.open({
+        title: '转移部门',
+        on: {
+          submit: (data, ui) => { this.handleTransferFormSubmit(userIdList, data, ui) }
+        },
+        items: [
+          {
+            label: '转移至',
+            prop: 'parentNode',
+            value: { id: undefined, name: '', data: this.treeList },
+            rules: {
+              required: true,
+              trigger: 'blur',
+              validator: (rule, value, callback) => {
+                if (!value.id || !isNumber(value.id)) {
+                  callback(new Error('请选择要转移的部门'))
+                } else {
+                  callback()
+                }
+              }
+            },
+            component: 'slot-parent-node-name'
+          }
+        ]
+      })
+    },
     openDialog(updateDeptId = -1) {
       this.updateDeptId = updateDeptId
       this.$refs.formDialog.open({
         title: '编辑部门',
         on: {
           open: this.handleDialogOpen,
-          submit: this.handleFormSubmit
+          submit: this.handleDeptFormSubmit
         },
         items: [
           {
@@ -351,7 +394,7 @@ export default {
           {
             label: '上级部门',
             prop: 'parentNode',
-            value: { id: undefined, name: '', data: this.dialogTreeList },
+            value: { id: undefined, name: '', data: this.hasRootTreeList },
             rules: {
               required: true,
               trigger: 'blur',

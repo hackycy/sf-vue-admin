@@ -2,7 +2,7 @@
   <div class="sys-user-container">
     <table-layout :wrap="false" asside-width="320px">
       <template #asside>
-        <sys-dept-tree-pane ref="deptPane" @dept-change="handleDeptChange" />
+        <sys-dept-tree-pane ref="deptPane" @dept-change="handleDeptChange" @transfer-success="handleRefresh" />
       </template>
       <template #header>
         <div class="user-title">用户管理</div>
@@ -13,10 +13,16 @@
           :disabled="!$auth('sysUser.add')"
           @click="handleAdd"
         >新增</el-button>
+        <el-button
+          size="mini"
+          type="success"
+          :disabled="!$auth('sysDept.transfer') || hasMultipleSelection"
+          @click="handleTransfer"
+        >转移</el-button>
         <warning-confirm-button
           button-type="danger"
           :closed="handleRefresh"
-          :disabled="!$auth('sysUser.delete') || disableMultipleDelete"
+          :disabled="!$auth('sysUser.delete') || hasMultipleSelection"
           @confirm="handleMultipleDelete"
         >删除</warning-confirm-button>
       </template>
@@ -173,7 +179,7 @@ export default {
     }
   },
   computed: {
-    disableMultipleDelete() {
+    hasMultipleSelection() {
       return this.selectionUserList.length <= 0
     }
   },
@@ -212,6 +218,9 @@ export default {
     },
     handleEdit(row) {
       this.$refs.userFormDialog.open(this.$refs.deptPane.getDeptList(), row.id)
+    },
+    handleTransfer() {
+      this.$refs.deptPane.transfer([...this.selectionUserList])
     },
     async handleDelete(row, { close, done }) {
       try {

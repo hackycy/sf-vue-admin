@@ -4,5 +4,6 @@ export default {
   update: 'sys/dept/update',
   delete: 'sys/dept/delete',
   add: 'sys/dept/add',
-  info: 'sys/dept/info'
+  info: 'sys/dept/info',
+  transfer: 'sys/dept/transfer'
 }

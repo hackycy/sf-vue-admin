@@ -47,3 +47,11 @@ export function getDeptInfo(query) {
     params: query
   })
 }
+
+export function transferDept(data) {
+  return request({
+    url: DeptApi.transfer,
+    method: 'post',
+    data
+  })
+}
