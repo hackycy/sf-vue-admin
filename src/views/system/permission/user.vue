@@ -56,16 +56,16 @@
             width="150"
           />
           <el-table-column
-            prop="departmentName"
-            label="部门"
-            align="center"
-            width="120"
-          />
-          <el-table-column
             prop="username"
             label="用户名"
             align="center"
-            width="220"
+            width="180"
+          />
+          <el-table-column
+            prop="departmentName"
+            label="所在部门"
+            align="center"
+            width="180"
           />
           <el-table-column
             prop="roleNames"
