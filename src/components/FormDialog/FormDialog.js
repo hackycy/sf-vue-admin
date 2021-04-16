@@ -268,7 +268,7 @@ export default {
           <el-button { ...{ props: { size: 'mini' }, on: { click: () => { this._beforeClose() } }} }>
             取 消
           </el-button>
-          <el-button { ...{ props: { size: 'mini', type: 'primary', loading: this.saving }, on: { click: () => { this._submit() } }} }>
+          <el-button { ...{ props: { size: 'mini', type: 'success', loading: this.saving }, on: { click: () => { this._submit() } }} }>
             确 定
           </el-button>
         </el-row>
