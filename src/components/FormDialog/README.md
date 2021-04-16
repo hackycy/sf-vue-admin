@@ -237,6 +237,8 @@ export default {
 }
 ```
 
+> 请注意，使用插槽方式，如子组件定义了ref属性，open方法及submit方法中的$refs是无法获取到插槽下的ref属性。如需获取ref请不要使用插槽方式
+
 #### 函数式
 
 - `h` 为 createElement
