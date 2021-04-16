@@ -3,7 +3,7 @@
     <table-layout>
       <template v-slot:header>
         <el-button size="mini" @click="handleRefresh">刷新</el-button>
-        <el-button size="mini" type="primary" @click="handleAdd">新增</el-button>
+        <el-button size="mini" type="primary" :disabled="!$auth('sysMenu.add')" @click="handleAdd">新增</el-button>
       </template>
       <s-table
         ref="menuTable"

@@ -3,7 +3,7 @@
     <table-layout>
       <template v-slot:header>
         <el-button size="mini" @click="handleRefresh">刷新</el-button>
-        <el-button size="mini" type="primary" @click="handleAdd">新增</el-button>
+        <el-button size="mini" type="primary" :disabled="!$auth('sysRole.add')" @click="handleAdd">新增</el-button>
       </template>
       <s-table ref="roleTable" :data-request="getRoleList" show-pagination stripe>
         <el-table-column prop="id" label="#" align="center" width="55" />
@@ -14,7 +14,7 @@
         <el-table-column prop="updateTime" label="更新时间" align="center" />
         <el-table-column label="操作" width="150" align="center" fixed="right">
           <template slot-scope="scope">
-            <el-button size="mini" type="text" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button size="mini" type="text" :disabled="!$auth('sysRole.update')" @click="handleEdit(scope.row)">编辑</el-button>
             <warning-confirm-button
               :closed="handleRefresh"
               :disabled="!$auth('sysRole.delete')"
