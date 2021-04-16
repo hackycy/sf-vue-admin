@@ -184,15 +184,16 @@ export default {
             }
           })
 
-          const uiHandle = {
+          const operate = {
             done: this.done,
-            close: this.close
+            close: this.close,
+            $refs: this.$refs
           }
 
           const submit = this.conf.on.submit
 
           if (isFunction(submit)) {
-            submit(data, uiHandle)
+            submit(data, operate)
           } else {
             console.error('Submit Callback Not Found')
           }
