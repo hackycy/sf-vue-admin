@@ -56,7 +56,6 @@ export default {
   },
   methods: {
     open(options) {
-      this.visible = true
       return this._create(options)
     },
     setFormData(prop, value) {
@@ -124,7 +123,7 @@ export default {
         }
       }
 
-      // 预设表单值
+      // 预设表单值 或者 在items列表项中绑定value值
       if (options.form) {
         for (const key in options.form) {
           this.$set(this.form, key, options.form[key])
@@ -138,16 +137,20 @@ export default {
         }
       })
 
+      // invisible
+      this.visible = true
+
       const { open } = this.conf.on
 
       if (open) {
-        this.$nextTick(() => {
+        this.$nextTick(function() {
           open(this.form, {
             showLoading: this.showLoading,
             hideLoading: this.hideLoading,
             close: this.close,
             rebind: this.rebindFormData,
-            set: this.setFormData
+            set: this.setFormData,
+            $refs: this.$refs
           })
         })
       }
