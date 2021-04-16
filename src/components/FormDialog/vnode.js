@@ -20,7 +20,7 @@ export function renderVNode(vnode, { scope, $scopedSlots, prop }) {
 
   // render函数
   if (isFunction(vnode)) {
-    return vnode({ h, scope })
+    return vnode(h, { scope })
   }
 
   // createElement 参数对象
