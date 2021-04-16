@@ -13,32 +13,36 @@
         <el-table-column prop="createTime" label="创建时间" align="center" />
         <el-table-column prop="updateTime" label="更新时间" align="center" />
         <el-table-column label="操作" width="150" align="center" fixed="right">
-          <template>
-            <el-button size="mini" type="text">编辑</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+          <template slot-scope="scope">
+            <el-button size="mini" type="text" @click="handleEdit(scope.row)">编辑</el-button>
+            <warning-confirm-button
+              :closed="handleRefresh"
+              :disabled="!$auth('sysRole.delete')"
+              @confirm="(o) => { handleDelete(scope.row, o) }"
+            >删除</warning-confirm-button>
           </template>
         </el-table-column>
       </s-table>
     </table-layout>
-    <system-permission-role-form-dialog ref="formDialog" />
+    <system-permission-role-form-dialog ref="formDialog" @save-success="handleRefresh" />
   </div>
 </template>
 
 <script>
 import SystemPermissionRoleFormDialog from './components/role-form-dialog'
-import PermissionMixin from '@/core/mixins/permission'
+import WarningConfirmButton from '@/components/WarningConfirmButton'
 import TableLayout from '@/layout/components/TableLayout'
 import STable from '@/components/Table'
-import { getRoleListByPage } from '@/api/sys/role'
+import { getRoleListByPage, deleteRole } from '@/api/sys/role'
 
 export default {
   name: 'SystemPermissionRole',
   components: {
     TableLayout,
     STable,
+    WarningConfirmButton,
     SystemPermissionRoleFormDialog
   },
-  mixins: [PermissionMixin],
   methods: {
     async getRoleList({ page, limit }) {
       const { data } = await getRoleListByPage({ page, limit })
@@ -49,6 +53,17 @@ export default {
     },
     handleAdd() {
       this.$refs.formDialog.open()
+    },
+    handleEdit(row) {
+      this.$refs.formDialog.open(row.id)
+    },
+    async handleDelete(row, { done, close }) {
+      try {
+        await deleteRole({ roleIds: [row.id] })
+        close()
+      } catch (e) {
+        done()
+      }
     }
   }
 }
