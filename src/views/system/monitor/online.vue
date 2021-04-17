@@ -4,7 +4,7 @@
       <template v-slot:header>
         <el-button size="mini" @click="handleRefresh">刷新</el-button>
       </template>
-      <s-table ref="onlineTable" :data-request="getOnlineList">
+      <s-table ref="onlineTable" :data-request="getOnlineList" row-key="id">
         <el-table-column prop="username" label="用户名" align="center">
           <template slot-scope="scope">
             <span style="margin-right: 16px">{{ scope.row.username }}</span>

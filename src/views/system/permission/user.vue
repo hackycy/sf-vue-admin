@@ -31,6 +31,7 @@
           ref="userTable"
           :data-request="getUserList"
           :show-pagination="true"
+          row-key="id"
           stripe
           @selection-change="handleSelectionChange"
         >

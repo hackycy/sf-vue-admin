@@ -4,7 +4,7 @@
       <template v-slot:header>
         <el-button size="mini" @click="handleRefresh">刷新</el-button>
       </template>
-      <s-table ref="logTable" :data-request="getReqLogList" show-pagination stripe>
+      <s-table ref="logTable" :data-request="getReqLogList" show-pagination stripe row-key="id">
         <el-table-column prop="ip" label="请求IP" align="center" />
         <el-table-column prop="userId" label="操作人ID" align="center" width="100" />
         <el-table-column prop="method" label="请求方式" width="90" align="center">
