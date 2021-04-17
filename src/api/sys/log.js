@@ -8,3 +8,11 @@ export function getReqLogList(query) {
     params: query
   })
 }
+
+export function getLoginLogList(query) {
+  return request({
+    url: LogApi.login,
+    method: 'get',
+    params: query
+  })
+}
