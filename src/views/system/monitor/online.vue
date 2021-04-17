@@ -31,6 +31,7 @@
           <template slot-scope="scope">
             <warning-confirm-button
               :closed="handleRefresh"
+              content="确定下线该用户吗?"
               :disabled="!$auth('sysOnline.kick') || scope.row.disable"
               @confirm="(o) => { handleDelete(scope.row, o) }"
             >下线</warning-confirm-button>
