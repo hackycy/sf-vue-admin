@@ -15,24 +15,27 @@
         :data-request="getTaskList"
         show-pagination
         row-key="id"
+        :border="false"
       >
         <el-table-column label="#" type="expand">
           <template slot-scope="props">
-            <el-form label-position="left" class="table-expand">
-              <el-form-item label="任务ID">
-                <span>{{ props.row.id }}</span>
+            <el-form label-position="left" class="task-detail-table-expand">
+              <el-form-item label="任务编号">
+                <span># {{ props.row.id }}</span>
               </el-form-item>
               <el-form-item label="执行次数">
-                <span>{{ props.row.limit }}</span>
+                <span>{{ props.row.limit > 0 ? `仅 ${props.row.limit} 次` : '无次数限制' }}</span>
               </el-form-item>
-              <el-form-item label="执行间隔">
-                <span>{{ props.row.every }} ms</span>
+              <el-form-item v-if="props.row.type === 1" label="执行间隔">
+                <span>每 {{ props.row.every }} 毫秒执行一次</span>
               </el-form-item>
-              <el-form-item label="cron表达式">
-                <span>{{ props.row.cron }} ms</span>
+              <el-form-item v-else label="Cron表达式">
+                <el-tooltip content="秒 分 小时 日期 月份 星期 年(可选)">
+                  <span>{{ props.row.cron }}</span>
+                </el-tooltip>
               </el-form-item>
-              <el-form-item label="执行时间">
-                <span>{{ props.row.startTime }} - {{ props.row.endTime }}</span>
+              <el-form-item label="执行时间段">
+                <span>{{ parseExecTime(props.row) }}</span>
               </el-form-item>
             </el-form>
           </template>
@@ -43,20 +46,6 @@
           label="任务名称"
           align="center"
           width="240"
-        />
-        <el-table-column
-          prop="service"
-          show-overflow-tooltip
-          label="调用服务"
-          width="350"
-          align="center"
-        />
-        <el-table-column
-          prop="data"
-          show-overflow-tooltip
-          label="执行参数"
-          width="450"
-          align="center"
         />
         <el-table-column prop="status" label="状态" width="120" align="center">
           <template slot-scope="scope">
@@ -74,10 +63,24 @@
         <el-table-column prop="type" label="类型" width="100" align="center">
           <template slot-scope="scope">
             <el-tag type="small" effect="light">{{
-              scope.row.type === 1 ? 'interval' : 'cron'
+              scope.row.type === 1 ? 'Interval' : 'Cron'
             }}</el-tag>
           </template>
         </el-table-column>
+        <el-table-column
+          prop="service"
+          show-overflow-tooltip
+          label="调用服务"
+          width="350"
+          align="center"
+        />
+        <el-table-column
+          prop="data"
+          show-overflow-tooltip
+          label="执行参数"
+          width="450"
+          align="center"
+        />
         <el-table-column
           prop="remark"
           show-overflow-tooltip
@@ -85,6 +88,27 @@
           width="250"
           align="center"
         />
+        <el-table-column label="操作" width="200" align="center" fixed="right">
+          <template>
+            <el-dropdown size="mini">
+              <el-button size="mini" type="text">
+                执行<i style="margin-left: 4px; margin-right: 10px;" class="el-icon-arrow-down" /></el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item>仅一次</el-dropdown-item>
+                <el-dropdown-item icon="el-icon-open">运行</el-dropdown-item>
+                <el-dropdown-item icon="el-icon-turn-off">停止</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+            <el-button
+              size="mini"
+              type="text"
+            >编辑</el-button>
+            <el-button
+              size="mini"
+              type="text"
+            >删除</el-button>
+          </template>
+        </el-table-column>
       </s-table>
     </table-layout>
   </div>
@@ -125,6 +149,18 @@ export default {
         case 1:
           return '#52c41a'
       }
+    },
+    parseExecTime(row) {
+      if (!row.startTime && !row.endTime) {
+        return '无时段限制'
+      }
+      if (!row.startTime && row.endTime) {
+        return `无开始时间限制 - ${row.endTime}`
+      }
+      if (row.startTime && !row.endTime) {
+        return `${row.startTime} - 长期有效`
+      }
+      return `${row.startTime} - ${row.endTime}`
     }
   }
 }
@@ -143,13 +179,6 @@ export default {
 }
 
 .sys-schedule-task-container {
-
-  .table-expand {
-    label {
-      width: 90px;
-      color: #99a9bf;
-    }
-  }
 
   .badge-status {
     position: relative;
@@ -186,6 +215,20 @@ export default {
 
     .tip {
       margin-left: 6px;
+    }
+  }
+}
+</style>
+
+<style lang="scss">
+.sys-schedule-task-container {
+  .task-detail-table-expand {
+    label {
+      width: 90px;
+      color: #99a9bf;
+    }
+    .el-form-item {
+      margin-bottom: 0;
     }
   }
 }
