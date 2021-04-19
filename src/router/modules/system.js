@@ -7,5 +7,6 @@ export default {
   'views/system/permission/role': () => import('@/views/system/permission/role'),
   'views/system/monitor/req-log': () => import('@/views/system/monitor/req-log'),
   'views/system/monitor/online': () => import('@/views/system/monitor/online'),
-  'views/system/monitor/login-log': () => import('@/views/system/monitor/login-log')
+  'views/system/monitor/login-log': () => import('@/views/system/monitor/login-log'),
+  'views/system/schedule/task': () => import('@/views/system/schedule/task')
 }
