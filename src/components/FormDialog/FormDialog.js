@@ -67,7 +67,7 @@ export default {
     },
     rebindFormData(data) {
       for (const key in this.form) {
-        if (data[key]) {
+        if (data[key] !== undefined && data[key] !== null) {
           this.form[key] = cloneDeep(data[key])
         }
       }
