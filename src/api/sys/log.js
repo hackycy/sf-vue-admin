@@ -16,3 +16,11 @@ export function getLoginLogList(query) {
     params: query
   })
 }
+
+export function getTaskLogList(query) {
+  return request({
+    url: LogApi.task,
+    method: 'get',
+    params: query
+  })
+}
