@@ -48,7 +48,7 @@
                   :disabled="!$auth('sysTask.once')"
                   @confirm="
                     o => {
-                      handleOnce(scope.row, o)
+                      handleOnce(props.row, o)
                     }
                   "
                 ><i class="el-icon-magic-stick op-m-5" />仅一次</warning-confirm-button>
@@ -58,7 +58,7 @@
                   :disabled="!$auth('sysTask.start') || !(props.row.status === 0)"
                   @confirm="
                     o => {
-                      handleStart(scope.row, o)
+                      handleStart(props.row, o)
                     }
                   "
                 ><i class="el-icon-caret-right op-m-5" />运行</warning-confirm-button>
@@ -68,7 +68,7 @@
                   :disabled="!$auth('sysTask.stop') || !(props.row.status === 1)"
                   @confirm="
                     o => {
-                      handleStop(scope.row, o)
+                      handleStop(props.row, o)
                     }
                   "
                 ><i class="el-icon-switch-button op-m-5" />停止</warning-confirm-button>
