@@ -17,14 +17,18 @@
         row-key="id"
         :border="false"
       >
-        <el-table-column label="#" type="expand">
+        <el-table-column type="expand">
           <template slot-scope="props">
             <el-form label-position="left" class="task-detail-table-expand">
               <el-form-item label="任务编号">
                 <span># {{ props.row.id }}</span>
               </el-form-item>
               <el-form-item label="执行次数">
-                <span>{{ props.row.limit > 0 ? `仅 ${props.row.limit} 次` : '无次数限制' }}</span>
+                <span>{{
+                  props.row.limit > 0
+                    ? `仅 ${props.row.limit} 次`
+                    : '无次数限制'
+                }}</span>
               </el-form-item>
               <el-form-item v-if="props.row.type === 1" label="执行间隔">
                 <span>每 {{ props.row.every }} 毫秒执行一次</span>
@@ -34,8 +38,25 @@
                   <span>{{ props.row.cron }}</span>
                 </el-tooltip>
               </el-form-item>
-              <el-form-item label="执行时间段">
+              <el-form-item v-if="props.row.type === 0" label="执行时间段">
                 <span>{{ parseExecTime(props.row) }}</span>
+              </el-form-item>
+              <el-form-item label="执行操作">
+                <el-button
+                  type="text"
+                  size="mini"
+                  :disabled="!$auth('sysTask.once')"
+                ><i class="el-icon-magic-stick" />仅一次</el-button>
+                <el-button
+                  type="text"
+                  size="mini"
+                  :disabled="!$auth('sysTask.start') || !(props.row.status === 0)"
+                ><i class="el-icon-caret-right" />运行</el-button>
+                <el-button
+                  type="text"
+                  size="mini"
+                  :disabled="!$auth('sysTask.stop') || !(props.row.status === 1)"
+                ><i class="el-icon-switch-button" />停止</el-button>
               </el-form-item>
             </el-form>
           </template>
@@ -88,34 +109,35 @@
           width="250"
           align="center"
         />
-        <el-table-column label="操作" width="200" align="center" fixed="right">
-          <template>
-            <el-dropdown size="mini">
-              <el-button size="mini" type="text">
-                执行<i style="margin-left: 4px; margin-right: 10px;" class="el-icon-arrow-down" /></el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>仅一次</el-dropdown-item>
-                <el-dropdown-item icon="el-icon-open">运行</el-dropdown-item>
-                <el-dropdown-item icon="el-icon-turn-off">停止</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
+        <el-table-column label="操作" width="150" align="center" fixed="right">
+          <template slot-scope="scope">
             <el-button
               size="mini"
               type="text"
+              :disabled="!$auth('sysTask.update')"
+              @click="handleEdit(scope.row)"
             >编辑</el-button>
-            <el-button
-              size="mini"
-              type="text"
-            >删除</el-button>
+            <warning-confirm-button
+              :closed="handleRefresh"
+              :disabled="!$auth('sysTask.delete')"
+              @confirm="
+                o => {
+                  handleDelete(scope.row, o)
+                }
+              "
+            >删除</warning-confirm-button>
           </template>
         </el-table-column>
       </s-table>
     </table-layout>
+    <system-schedule-task-form-dialog ref="taskFormDialog" @save-success="handleRefresh" />
   </div>
 </template>
 
 <script>
+import SystemScheduleTaskFormDialog from './components/task-form-dialog'
 import TableLayout from '@/layout/components/TableLayout'
+import WarningConfirmButton from '@/components/WarningConfirmButton'
 import STable from '@/components/Table'
 import { getTaskList } from '@/api/sys/task'
 
@@ -123,7 +145,9 @@ export default {
   name: 'SystemScheduleTask',
   components: {
     TableLayout,
-    STable
+    STable,
+    WarningConfirmButton,
+    SystemScheduleTaskFormDialog
   },
   methods: {
     async getTaskList({ page, limit }) {
@@ -133,7 +157,13 @@ export default {
     handleRefresh() {
       this.$refs.taskTable.refresh()
     },
-    handleAdd() {},
+    handleAdd() {
+      this.$refs.taskFormDialog.open()
+    },
+    handleEdit(row) {
+      this.$refs.taskFormDialog.open(row.id)
+    },
+    handleDelete(row, o) {},
     getStatusInfo(status) {
       switch (status) {
         case 0:
@@ -179,6 +209,14 @@ export default {
 }
 
 .sys-schedule-task-container {
+  .task-detail-table-expand {
+    span {
+      i {
+        margin-right: 5px;
+        margin-left: 2px;
+      }
+    }
+  }
 
   .badge-status {
     position: relative;

@@ -8,3 +8,35 @@ export function getTaskList(query) {
     method: 'get'
   })
 }
+
+export function getTaskInfo(query) {
+  return request({
+    url: TaskApi.info,
+    params: query,
+    method: 'get'
+  })
+}
+
+export function createTask(data) {
+  return request({
+    url: TaskApi.add,
+    method: 'post',
+    data
+  })
+}
+
+export function deleteTask(data) {
+  return request({
+    url: TaskApi.delete,
+    method: 'post',
+    data
+  })
+}
+
+export function updateTask(data) {
+  return request({
+    url: TaskApi.update,
+    method: 'post',
+    data
+  })
+}
