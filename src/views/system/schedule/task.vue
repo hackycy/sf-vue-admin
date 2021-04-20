@@ -42,21 +42,36 @@
                 <span>{{ parseExecTime(props.row) }}</span>
               </el-form-item>
               <el-form-item label="执行操作">
-                <el-button
-                  type="text"
-                  size="mini"
+                <warning-confirm-button
+                  :closed="handleRefresh"
+                  content="确认手动执行一次该任务吗"
                   :disabled="!$auth('sysTask.once')"
-                ><i class="el-icon-magic-stick" />仅一次</el-button>
-                <el-button
-                  type="text"
-                  size="mini"
+                  @confirm="
+                    o => {
+                      handleOnce(scope.row, o)
+                    }
+                  "
+                ><i class="el-icon-magic-stick op-m-5" />仅一次</warning-confirm-button>
+                <warning-confirm-button
+                  :closed="handleRefresh"
+                  content="确认运行该任务吗"
                   :disabled="!$auth('sysTask.start') || !(props.row.status === 0)"
-                ><i class="el-icon-caret-right" />运行</el-button>
-                <el-button
-                  type="text"
-                  size="mini"
+                  @confirm="
+                    o => {
+                      handleStart(scope.row, o)
+                    }
+                  "
+                ><i class="el-icon-caret-right op-m-5" />运行</warning-confirm-button>
+                <warning-confirm-button
+                  :closed="handleRefresh"
+                  content="确认停止该任务吗"
                   :disabled="!$auth('sysTask.stop') || !(props.row.status === 1)"
-                ><i class="el-icon-switch-button" />停止</el-button>
+                  @confirm="
+                    o => {
+                      handleStop(scope.row, o)
+                    }
+                  "
+                ><i class="el-icon-switch-button op-m-5" />停止</warning-confirm-button>
               </el-form-item>
             </el-form>
           </template>
@@ -139,7 +154,7 @@ import SystemScheduleTaskFormDialog from './components/task-form-dialog'
 import TableLayout from '@/layout/components/TableLayout'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
 import STable from '@/components/Table'
-import { getTaskList } from '@/api/sys/task'
+import { getTaskList, deleteTask, execOnceTask, startTask, stopTask } from '@/api/sys/task'
 
 export default {
   name: 'SystemScheduleTask',
@@ -163,7 +178,38 @@ export default {
     handleEdit(row) {
       this.$refs.taskFormDialog.open(row.id)
     },
-    handleDelete(row, o) {},
+    async handleDelete(row, { done, close }) {
+      try {
+        await deleteTask({ id: row.id })
+        close()
+      } catch {
+        done()
+      }
+    },
+    async handleOnce(row, { done, close }) {
+      try {
+        await execOnceTask({ id: row.id })
+        close()
+      } catch {
+        done()
+      }
+    },
+    async handleStart(row, { done, close }) {
+      try {
+        await startTask({ id: row.id })
+        close()
+      } catch {
+        done()
+      }
+    },
+    async handleStop(row, { done, close }) {
+      try {
+        await stopTask({ id: row.id })
+        close()
+      } catch {
+        done()
+      }
+    },
     getStatusInfo(status) {
       switch (status) {
         case 0:
@@ -210,11 +256,9 @@ export default {
 
 .sys-schedule-task-container {
   .task-detail-table-expand {
-    span {
-      i {
-        margin-right: 5px;
-        margin-left: 2px;
-      }
+    .op-m-5 {
+      margin-left: 5px;
+      margin-right: 5px;
     }
   }
 

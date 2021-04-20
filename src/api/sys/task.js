@@ -40,3 +40,27 @@ export function updateTask(data) {
     data
   })
 }
+
+export function execOnceTask(data) {
+  return request({
+    url: TaskApi.once,
+    method: 'post',
+    data
+  })
+}
+
+export function startTask(data) {
+  return request({
+    url: TaskApi.start,
+    method: 'post',
+    data
+  })
+}
+
+export function stopTask(data) {
+  return request({
+    url: TaskApi.stop,
+    method: 'post',
+    data
+  })
+}
