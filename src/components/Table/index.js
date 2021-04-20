@@ -1,6 +1,5 @@
 import styles from './index.module.scss'
 import { Table as T } from 'element-ui/'
-import { isBoolean } from 'lodash'
 
 /**
  * Common Table
@@ -107,16 +106,16 @@ export default {
     // table props 遍历
     let tableProps = {}
     Object.keys(T.props).forEach(k => {
-      (isBoolean(this[k]) ? true : this[k]) && (tableProps[k] = this[k])
+      (this[k] !== undefined && this[k] !== null) && (tableProps[k] = this[k])
       return tableProps[k]
     })
+
     // 合并默认配置，统一样式，页面也可单独定制
     tableProps = Object.assign({
       size: 'small',
       headerCellStyle: {
         backgroundColor: '#ebeef4'
-      },
-      border: true
+      }
     }, tableProps, { data: this.localDataSource })
 
     return (

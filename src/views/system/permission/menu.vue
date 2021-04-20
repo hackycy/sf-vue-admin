@@ -9,6 +9,7 @@
         ref="menuTable"
         :data-request="getMenuList"
         row-key="id"
+        border
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         @row-click="handleRowClick"
       >

@@ -33,6 +33,7 @@
           :show-pagination="true"
           row-key="id"
           stripe
+          border
           @selection-change="handleSelectionChange"
         >
           <el-table-column
