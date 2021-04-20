@@ -136,6 +136,35 @@ export default {
 | hidden    | 是否需要隐藏该表单项，隐藏时提交时无法获取该项的值 | Boolean, Function |        |        |
 | component | 组件渲染，支持插槽，函数、或createElement参数      | String, Object    |        |        |
 
+### hidden隐藏项配置
+
+可传入`Boolean`或`Function`值。当为`true`时则该项会隐藏。
+
+如果传入的是一个函数，那么函数会或者一个`{ scope }`参数，返回值需返回成一个布尔值，否则无意义，`scope`值为当前表单的值，例如一项配置：
+
+``` javascript
+{
+  label: '结束日期',
+  prop: 'endTime',
+  value: '',
+  hidden: ({ scope }) => {
+    return scope.type === 1
+  },
+  component: {
+    name: 'el-date-picker',
+    props: {
+      type: 'datetime'
+    },
+    style: {
+      width: '100%'
+    },
+    attrs: {
+      placeholder: '请选择结束日期'
+    }
+  }
+}
+```
+
 ### component组件渲染方式
 
 > 请先了解createElement 参数，具体查看 [vue 文档](https://cn.vuejs.org/v2/guide/render-function.html)
