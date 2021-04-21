@@ -3,5 +3,6 @@ export default {
   page: 'sys/user/page',
   info: 'sys/user/info',
   update: 'sys/user/update',
-  delete: 'sys/user/delete'
+  delete: 'sys/user/delete',
+  password: 'sys/user/password'
 }

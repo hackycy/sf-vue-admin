@@ -33,6 +33,14 @@ export function updateUser(data) {
   })
 }
 
+export function updateUserPassword(data) {
+  return request({
+    url: UserApi.password,
+    method: 'post',
+    data
+  })
+}
+
 export function deleteUsers(data) {
   return request({
     url: UserApi.delete,

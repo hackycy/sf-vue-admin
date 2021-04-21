@@ -134,7 +134,7 @@
             fixed="right"
             label="操作"
             align="center"
-            width="120"
+            width="180"
           >
             <template slot-scope="scope">
               <el-button
@@ -143,6 +143,12 @@
                 :disabled="!$auth('sysUser.update')"
                 @click.stop="handleEdit(scope.row)"
               >编辑</el-button>
+              <el-button
+                type="text"
+                size="small"
+                :disabled="!$auth('sysUser.password')"
+                @click.stop="handleUpdatePassword(scope.row)"
+              >改密</el-button>
               <warning-confirm-button
                 :closed="handleRefresh"
                 :disabled="!$auth('sysUser.delete')"
@@ -158,7 +164,7 @@
 </template>
 
 <script>
-import { getUserListPage, deleteUsers } from '@/api/sys/user'
+import { getUserListPage, deleteUsers, updateUserPassword } from '@/api/sys/user'
 import STable from '@/components/Table'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
 import TableLayout from '@/layout/components/TableLayout'
@@ -220,6 +226,42 @@ export default {
     },
     handleEdit(row) {
       this.$refs.userFormDialog.open(this.$refs.deptPane.getDeptList(), row.id)
+    },
+    handleUpdatePassword(row) {
+      this.$openFormDialog({
+        title: `更改管理员（${row.username}）密码`,
+        on: {
+          submit: async(data, { close, done }) => {
+            try {
+              await updateUserPassword({
+                userId: row.id,
+                password: data.password
+              })
+              close()
+            } catch {
+              done()
+            }
+          }
+        },
+        items: [
+          {
+            label: '新密码',
+            value: '',
+            prop: 'password',
+            rules: {
+              required: true,
+              message: '请输入新密码',
+              trigger: 'blur'
+            },
+            component: {
+              name: 'el-input',
+              attrs: {
+                placeholder: '请输入新密码'
+              }
+            }
+          }
+        ]
+      })
     },
     handleTransfer() {
       this.$refs.deptPane.transfer([...this.selectionUserList])
