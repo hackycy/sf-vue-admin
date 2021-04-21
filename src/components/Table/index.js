@@ -67,6 +67,18 @@ export default {
       this.loadData()
     },
     /**
+     * 获取表格绑定的数据
+     */
+    getData() {
+      return this.localDataSource
+    },
+    /**
+     * 获取真正的Table示例
+     */
+    getTable() {
+      return this.$refs.table
+    },
+    /**
      * 加载数据方法
      * @param {Object} pagination 分页选项器
      */
@@ -97,9 +109,6 @@ export default {
     // currentPage 改变时会触发
     onCurrentChange(current) {
       this.localPagination.currentPage = current
-    },
-    getTable() {
-      return this.$refs.table
     }
   },
   render() {
