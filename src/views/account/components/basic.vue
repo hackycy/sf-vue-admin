@@ -22,8 +22,7 @@
 </template>
 
 <script>
-import { getInfo } from '@/api/login'
-import { updateAccountInfo } from '@/api/account'
+import { updateAccountInfo, getInfo } from '@/api/account'
 
 export default {
   name: 'AccountBasicSetting',
