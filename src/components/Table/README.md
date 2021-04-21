@@ -59,9 +59,11 @@ export default {
 
 ## 内置方法
 
-通过 `this.$refs.table` 调用
-
-`this.$refs.table.refresh(true)` 刷新列表  (用户新增/修改数据后，重载列表数据)
+| 属性        | 说明                       | 参数    | 类型   |
+| ----------- | -------------------------- | ------- | ------ |
+| refresh     | 刷新当前表格 | init | Boolean |
+| getData | 获取原始数据 |         |        |
+| getTable | 获取真正的`el-table`实例对象 |         |        |
 
 > 注意：要调用 `refresh(bool)` 需要给表格组件设定 `ref` 值
 >
