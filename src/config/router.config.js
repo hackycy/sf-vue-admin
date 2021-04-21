@@ -60,6 +60,19 @@ export const constantRoutes = [
       component: () => import('@/views/dashboard/index'),
       meta: { title: dashboardName, icon: 'dashboard' }
     }]
+  },
+
+  {
+    path: '/account',
+    component: Layout,
+    redirect: '/account/settings',
+    hidden: true,
+    children: [{
+      path: 'settings',
+      name: 'Settings',
+      component: () => import('@/views/account/settings'),
+      meta: { title: '个人设置' }
+    }]
   }
 
   // {
