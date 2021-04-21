@@ -8,6 +8,14 @@ export function updateAccountInfo(data) {
   })
 }
 
+export function updatePassword(data) {
+  return request({
+    url: 'common/account/password',
+    method: 'post',
+    data
+  })
+}
+
 export function getInfo() {
   return request({
     url: 'common/account/info',
