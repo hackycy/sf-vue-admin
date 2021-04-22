@@ -6,7 +6,7 @@
 
 后端项目地址：[传送门](https://github.com/hackycy/sf-midway-admin)
 
-> egg分支支持[egg版本](https://github.com/hackycy/sf-egg-admin)，但egg版本可能后续因精力有限不再作维护，Midway版本的使用体验更佳。
+> egg分支仍然支持[egg版本](https://github.com/hackycy/sf-egg-admin)，但后续新功能只会在Midway版本进行更新。
 
 ### 演示地址
 
