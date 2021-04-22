@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= webpackConfig.name %></title>
-    <style>.global-pre-page-loading{position:absolute;margin:auto;top:0;bottom:0;left:0;right:0;width:6.250em;height:6.250em;animation:rotate 2.4s linear infinite}.global-pre-page-loading .gp-loading-center{top:0;bottom:0;left:0;right:0;background:white;animation:flash 2.4s linear infinite;opacity:0}.global-pre-page-loading .gp-loading-dot{position:absolute;margin:auto;width:2.4em;height:2.4em;border-radius:100%;transition:all 1s ease}.gp-loading-dot:nth-child(2){top:0;bottom:0;left:0;background:#f44;animation:dotsY 2.4s linear infinite}.gp-loading-dot:nth-child(3){left:0;right:0;top:0;background:#fb3;animation:dotsX 2.4s linear infinite}.gp-loading-dot:nth-child(4){top:0;bottom:0;right:0;background:#9c0;animation:dotsY 2.4s linear infinite}.gp-loading-dot:nth-child(5){left:0;right:0;bottom:0;background:#33b5e5;animation:dotsX 2.4s linear infinite}@keyframes rotate{0%{transform:rotate(0)}10%{width:6.250em;height:6.250em}66%{width:2.4em;height:2.4em}100%{transform:rotate(360deg);width:6.250em;height:6.250em}}@keyframes dotsY{66%{opacity:.1;width:2.4em}77%{opacity:1;width:0}}@keyframes dotsX{66%{opacity:.1;height:2.4em}77%{opacity:1;height:0}}@keyframes flash{33%{opacity:0;border-radius:0}55%{opacity:.6;border-radius:100%}66%{opacity:0}}</style>
+    <style>.gp-loading-box{position:absolute;top:50%;left:40%;margin-left:10%;transform:translate3d(-50%,-50%,0)}.gp-loading-dot{width:24px;height:24px;background:#3ac;border-radius:100%;display:inline-block;animation:gp-loading-slide 1s infinite}.gp-loading-dot:nth-child(1){animation-delay:.1s;background:#32aacc}.gp-loading-dot:nth-child(2){animation-delay:.2s;background:#64aacc}.gp-loading-dot:nth-child(3){animation-delay:.3s;background:#96aacc}.gp-loading-dot:nth-child(4){animation-delay:.4s;background:#c8aacc}.gp-loading-dot:nth-child(5){animation-delay:.5s;background:#faaacc}@-moz-keyframes gp-loading-slide{0%{transform:scale(1)}50%{opacity:.3;transform:scale(2)}100%{transform:scale(1)}}@-webkit-keyframes gp-loading-slide{0%{transform:scale(1)}50%{opacity:.3;transform:scale(2)}100%{transform:scale(1)}}@-o-keyframes gp-loading-slide{0%{transform:scale(1)}50%{opacity:.3;transform:scale(2)}100%{transform:scale(1)}}@keyframes gp-loading-slide{0%{transform:scale(1)}50%{opacity:.3;transform:scale(2)}100%{transform:scale(1)}}</style>
   </head>
   <body>
     <noscript>
-      <strong>We're sorry but <%= webpackConfig.name %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+      <strong>抱歉, 但是 <%= webpackConfig.name %> 无法工作，可能是因为JavaScript功能被禁用，请启用后再尝试。</strong>
     </noscript>
     <div id="app">
       <!-- pre loading -->
-      <div class="global-pre-page-loading">
-        <div class="gp-loading-dot gp-loading-center"></div>
+      <div class="gp-loading-box">
+        <div class="gp-loading-dot"></div>
         <div class="gp-loading-dot"></div>
         <div class="gp-loading-dot"></div>
         <div class="gp-loading-dot"></div>
