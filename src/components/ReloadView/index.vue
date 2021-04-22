@@ -12,9 +12,6 @@ export default {
       rorate: false
     }
   },
-  beforeDestroy() {
-    this.destroy()
-  },
   methods: {
     click() {
       this.rorate = !this.rorate
