@@ -6,6 +6,7 @@
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
+        <reload-view id="reloadview" class="right-menu-item hover-effect" />
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
       </template>
 
@@ -32,6 +33,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import Screenfull from '@/components/Screenfull'
+import ReloadView from '@/components/ReloadView'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
@@ -39,7 +41,8 @@ export default {
   components: {
     Breadcrumb,
     Hamburger,
-    Screenfull
+    Screenfull,
+    ReloadView
   },
   computed: {
     ...mapGetters([

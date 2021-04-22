@@ -7,11 +7,15 @@ import PermissionDirective from '@/core/directives/permission'
 import ELDragDialog from '@/core/directives/el-drag-dialog'
 import FormDialog from '@/components/FormDialog'
 import ContextMenu from '@/components/ContextMenu'
+import EventBus from '@/utils/event-bus'
 
-// use
-Vue.use(ElementUI)
+Vue.use(EventBus)
+// di
 Vue.use(PermissionHelper)
 Vue.use(PermissionDirective)
+
+// ui
+Vue.use(ElementUI)
 Vue.use(ELDragDialog)
 Vue.use(FormDialog)
 Vue.use(ContextMenu)

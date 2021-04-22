@@ -1,7 +1,7 @@
 <template>
   <section class="app-main">
     <transition name="fade-transform" mode="out-in">
-      <router-view :key="key" />
+      <router-view v-if="reloadFlag" :key="key" />
     </transition>
   </section>
 </template>
@@ -9,9 +9,25 @@
 <script>
 export default {
   name: 'AppMain',
+  data() {
+    return {
+      reloadFlag: true
+    }
+  },
   computed: {
     key() {
       return this.$route.path
+    }
+  },
+  mounted() {
+    this.$eventBus.on('reloadView', this.reload)
+  },
+  methods: {
+    reload() {
+      this.reloadFlag = false
+      this.$nextTick(() => {
+        this.reloadFlag = true
+      })
     }
   }
 }
