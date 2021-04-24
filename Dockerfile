@@ -1,6 +1,6 @@
 FROM node:lts-alpine as builder
 WORKDIR /sf-vue-admin
-RUN npm set registry https://registry.npm.taobao.org
+# RUN npm set registry https://registry.npm.taobao.org
 # cache step
 COPY package.json /sf-vue-admin/package.json
 RUN npm install
