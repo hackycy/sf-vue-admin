@@ -93,7 +93,7 @@ export default {
 | hideLoading    | 关闭Form表单的loading状态         |                 |              |
 | validateField  | 等同`el-form`的validateField方法  |                 |              |
 | validate       | 等同`el-form`的validateField方法  |                 |              |
-| resetField     | 等同`el-form`的validateField方法  |                 |              |
+| resetFields     | 等同`el-form`的validateField方法  |                 |              |
 | clearValidate  | 等同`el-form`的validateField方法  |                 |              |
 
 ## open方法参数

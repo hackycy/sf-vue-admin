@@ -77,7 +77,7 @@ export default {
               type: 'success'
             })
             // reset form
-            this.$refs.form.resetField()
+            this.$refs.form.resetFields()
           } finally {
             this.submitting = false
           }

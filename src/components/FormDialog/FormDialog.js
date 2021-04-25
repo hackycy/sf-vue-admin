@@ -97,9 +97,9 @@ export default {
         this.$refs.form.validate(callback)
       }
     },
-    resetField() {
+    resetFields() {
       if (this.$refs.form) {
-        this.$refs.form.resetField()
+        this.$refs.form.resetFields()
       }
     },
     clearValidate() {
