@@ -6,11 +6,16 @@
       </el-aside>
       <el-container>
         <el-main>
-          <div v-if="$slots.header" class="table-layout-header">
-            <slot name="header" />
-          </div>
-          <div class="table-layout-content">
-            <slot />
+          <div class="table-container">
+            <div v-if="$slots.header" class="table-layout-header">
+              <slot name="header" />
+            </div>
+            <div
+              class="table-layout-content"
+              :class="{ 'fixed-table-height': !wrap }"
+            >
+              <slot />
+            </div>
           </div>
         </el-main>
       </el-container>
@@ -41,12 +46,27 @@ export default {
   padding: 0;
 }
 
-.table-layout-header {
-  margin-bottom: 15px;
+.table-container {
   display: flex;
   display: -webkit-flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-direction: column;
+
+  .table-layout-content {
+    box-sizing: border-box;
+  }
+
+  .fixed-table-height {
+    flex: 1;
+    overflow: auto;
+  }
+
+  .table-layout-header {
+    margin-bottom: 15px;
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
 }
 
 .fixed-height {
@@ -55,6 +75,10 @@ export default {
 
   .el-container {
     height: 100%;
+
+    .table-container {
+      height: 100%;
+    }
   }
 }
 </style>
