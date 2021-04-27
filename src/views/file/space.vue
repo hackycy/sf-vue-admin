@@ -4,6 +4,7 @@
       <template #header>
         <div class="space-header">
           <el-page-header title="" @back="goBack" />
+          <i v-show="isLoading" class="el-icon-loading" style="margin-right: 10px;" />
           <el-breadcrumb separator="/" class="breadcrumb">
             <el-breadcrumb-item>根目录</el-breadcrumb-item>
             <el-breadcrumb-item
@@ -13,13 +14,16 @@
               {{ item }}
             </el-breadcrumb-item>
           </el-breadcrumb>
-          <el-button size="mini" type="primary">上传</el-button>
+          <el-button size="mini" type="primary" @click="loadData">上传</el-button>
           <el-button size="mini" type="danger">删除</el-button>
         </div>
       </template>
       <el-table
+        ref="fileTable"
         v-infinite-scroll="loadData"
-        infinite-scroll-disabled="disabledLoadMore"
+        infinite-scroll-disabled="loadMoreDisabled"
+        infinite-scroll-immediate="loadMoreDisabled"
+        empty-text="暂无文件"
         height="100%"
         :data="fileList"
         size="small"
@@ -59,6 +63,7 @@
 import TableLayout from '@/layout/components/TableLayout'
 import { getFileList } from '@/api/file/space'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
+import { isEmpty } from 'lodash'
 
 export default {
   name: 'SystemFileSpace',
@@ -70,12 +75,16 @@ export default {
       fileList: [],
       currentPathList: [],
       marker: '',
-      disabledLoadMore: false
+      isLoading: false
+    }
+  },
+  computed: {
+    loadMoreDisabled() {
+      return isEmpty(this.marker)
     }
   },
   watch: {
     currentPathList: function() {
-      this.toggleDisableLoadMore(false)
       this.marker = '' // 目录发生变化时清空marker标志
       this.loadData()
     }
@@ -85,41 +94,45 @@ export default {
   },
   methods: {
     async loadData() {
-      let path = ''
-      if (this.currentPathList.length > 0) {
-        path = `${this.currentPathList.join('/')}/`
+      if (this.isLoading) {
+        return
       }
-      console.log(path)
-      const { data } = await getFileList({
-        marker: this.marker,
-        path: path
-      })
-      if (this.marker !== '') {
-        // 上次为分页记录下拉去，目录可能会重复，需要去重在进行追加
-        const fl = data.list.filter((f) => {
-          if (f.type === 'file') {
-            return true
-          } else {
-            return !(this.fileList.find(e => {
-              if (e.type === 'file') {
-                return false
-              }
-              return e.name === f.name
-            }))
-          }
+      try {
+        this.isLoading = true
+        let path = ''
+        if (this.currentPathList.length > 0) {
+          path = `${this.currentPathList.join('/')}/`
+        }
+        const { data } = await getFileList({
+          marker: this.marker || '',
+          path: path
         })
-        this.fileList.push(...fl)
-      } else {
-        // 非分页，直接赋值
-        this.fileList = data.list
-      }
-      // 记录分页加载标志
-      if (data.marker) {
+        if (!isEmpty(this.marker)) {
+          // 上次为分页记录下拉去，目录可能会重复，需要去重在进行追加
+          const fl = data.list.filter((f) => {
+            if (f.type === 'file') {
+              return true
+            } else {
+              return !(this.fileList.find(e => {
+                if (e.type === 'file') {
+                  return false
+                }
+                return e.name === f.name
+              }))
+            }
+          })
+          if (!isEmpty(fl)) {
+            this.fileList.push(...fl)
+          }
+        } else {
+          // 非分页，直接赋值
+          this.fileList = data.list || []
+        }
+        // 记录分页加载标志
         this.marker = data.marker
-        this.toggleDisableLoadMore(false)
-      } else {
-        this.toggleDisableLoadMore(true)
-        this.marker = ''
+      } finally {
+        // invisible loading
+        this.isLoading = false
       }
     },
     goBack() {
@@ -145,11 +158,6 @@ export default {
         return formatSizeUnits(size)
       }
       return ''
-    },
-    toggleDisableLoadMore(disable) {
-      if (this.disabledLoadMore !== disable) {
-        this.disabledLoadMore = disable
-      }
     }
   }
 }
