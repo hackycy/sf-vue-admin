@@ -1,6 +1,7 @@
 /**
  * Created by PanJiaChen on 16/11/18.
  */
+import * as mime from 'mime'
 
 /**
  * Parse the time to string
@@ -17,8 +18,8 @@ export function parseTime(time, cFormat) {
   if (typeof time === 'object') {
     date = time
   } else {
-    if ((typeof time === 'string')) {
-      if ((/^[0-9]+$/.test(time))) {
+    if (typeof time === 'string') {
+      if (/^[0-9]+$/.test(time)) {
         // support "1548221490638"
         time = parseInt(time)
       } else {
@@ -28,7 +29,7 @@ export function parseTime(time, cFormat) {
       }
     }
 
-    if ((typeof time === 'number') && (time.toString().length === 10)) {
+    if (typeof time === 'number' && time.toString().length === 10) {
       time = time * 1000
     }
     date = new Date(time)
@@ -45,7 +46,9 @@ export function parseTime(time, cFormat) {
   const time_str = format.replace(/{([ymdhisa])+}/g, (result, key) => {
     const value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
-    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value ] }
+    if (key === 'a') {
+      return ['日', '一', '二', '三', '四', '五', '六'][value]
+    }
     return value.toString().padStart(2, '0')
   })
   return time_str
@@ -121,9 +124,11 @@ export function param2Obj(url) {
  * @param {*} name name
  */
 export function toHump(name) {
-  return name.replace(/[\-\/\_](\w)/g, function(all, letter) {
-    return letter.toUpperCase()
-  }).replace('views', '')
+  return name
+    .replace(/[\-\/\_](\w)/g, function(all, letter) {
+      return letter.toUpperCase()
+    })
+    .replace('views', '')
 }
 
 /**
@@ -132,6 +137,70 @@ export function toHump(name) {
  */
 export function toLine(name) {
   return name.replace(/([A-Z])/g, '_$1').toLowerCase()
+}
+
+/**
+ * 将文件mime type转为文件类型后缀
+ * @param {string} mimeType mime type
+ * @returns svg icon name
+ */
+export function parseMimeTypeToIconName(mimeType) {
+  if (!mimeType) {
+    return 'file-type-unknown'
+  }
+  const ext = mime.getExtension(mimeType)
+  if (['png', 'jpg', 'jpeg', 'ico', 'gif', 'bmp', 'webp'].includes(ext)) {
+    return 'file-type-img'
+  }
+  if (['markdown', 'md', 'txt'].includes(ext)) {
+    return 'file-type-txt'
+  }
+  if (['docx', 'doc', 'docm', 'dot', 'dotx'].includes(ext)) {
+    return 'file-type-docx'
+  }
+  if (['csv', 'xls', 'xlsb', 'xlsm', 'xlsx', 'xltx'].includes(ext)) {
+    return 'file-type-excel'
+  }
+  if (ext === 'pdf') {
+    return 'file-type-pdf'
+  }
+  if (['pptx', 'ppt', 'pptm'].includes(ext)) {
+    return 'file-type-ppt'
+  }
+  if (['zip', 'rar', '7z', 'tar', 'gz', 'tgz', 'tar.gz', 'tar.xz'].includes(ext)) {
+    return 'file-type-zip'
+  }
+  if (['mp4', 'avi', 'wmv', 'rmvb', '3gp', 'mov', 'm4v', 'flv', 'mkv'].includes(ext)) {
+    return 'file-type-video'
+  }
+  if (['mp3', 'wav'].includes(ext)) {
+    return 'file-type-music'
+  }
+  if (['vue', 'js', 'go', 'java', 'ts', 'css', 'html', 'php', 'c', 'cpp', 'swift', 'kt'].includes(ext)) {
+    return 'file-type-code'
+  }
+  return 'file-type-unknown'
+}
+
+/**
+ *
+ * byte to size
+ * formatBytes(1024);       // 1 KB
+ * formatBytes('1024');     // 1 KB
+ * formatBytes(1234);       // 1.21 KB
+ * formatBytes(1234, 3);    // 1.205 KB
+ * @param {number} bytes file size
+ */
+export function formatSizeUnits(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes'
+
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
 
 /**
