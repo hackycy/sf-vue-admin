@@ -1,7 +1,6 @@
 /**
  * Created by PanJiaChen on 16/11/18.
  */
-import * as mime from 'mime'
 
 /**
  * Parse the time to string
@@ -139,16 +138,22 @@ export function toLine(name) {
   return name.replace(/([A-Z])/g, '_$1').toLowerCase()
 }
 
+export function getFileExtension(filename) {
+  return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename)[0] : undefined
+}
 /**
- * 将文件mime type转为文件类型后缀
- * @param {string} mimeType mime type
+ * 将文件文件名转为文件类型后缀
+ * @param {string} fileName mime type
  * @returns svg icon name
  */
-export function parseMimeTypeToIconName(mimeType) {
-  if (!mimeType) {
+export function parseMimeTypeToIconName(fileName) {
+  if (!fileName) {
     return 'file-type-unknown'
   }
-  const ext = mime.getExtension(mimeType)
+  const ext = getFileExtension(fileName)
+  if (!ext) {
+    return 'file-type-unknown'
+  }
   if (['png', 'jpg', 'jpeg', 'ico', 'gif', 'bmp', 'webp'].includes(ext)) {
     return 'file-type-img'
   }

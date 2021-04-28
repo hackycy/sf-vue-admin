@@ -33,7 +33,7 @@
             <el-link
               :underline="false"
               @click="handleFileClick(scope.row)"
-            ><svg-icon :icon-class="parseType(scope.row.mimeType, scope.row.type)" />{{ scope.row.name }}</el-link>
+            ><svg-icon :icon-class="parseType(scope.row.name, scope.row.type)" />{{ scope.row.name }}</el-link>
           </template>
         </el-table-column>
         <el-table-column
@@ -86,7 +86,9 @@ export default {
   watch: {
     currentPathList: function() {
       this.marker = '' // 目录发生变化时清空marker标志
-      this.loadData()
+      this.$nextTick(() => {
+        this.loadData()
+      })
     }
   },
   created() {
@@ -147,11 +149,11 @@ export default {
         this.currentPathList.push(row.name)
       }
     },
-    parseType(mimeType, type) {
+    parseType(fileName, type) {
       if (type === 'dir') {
         return 'file-type-dir'
       }
-      return parseMimeTypeToIconName(mimeType)
+      return parseMimeTypeToIconName(fileName)
     },
     formatSize(size) {
       if (size) {
