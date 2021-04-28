@@ -3,7 +3,7 @@
     <table-layout :wrap="false">
       <template #header>
         <div class="space-header">
-          <el-page-header title="" @back="goBack" />
+          <el-page-header title="" @back="handleBack" />
           <i v-show="isLoading" class="el-icon-loading" style="margin-right: 10px;" />
           <el-breadcrumb separator="/" class="breadcrumb">
             <el-breadcrumb-item>根目录</el-breadcrumb-item>
@@ -14,17 +14,18 @@
               {{ item }}
             </el-breadcrumb-item>
           </el-breadcrumb>
-          <el-button size="mini" type="primary" @click="loadData">上传</el-button>
-          <el-button size="mini" type="danger">删除</el-button>
+          <el-button size="mini" @click="handleMkdir">创建文件夹</el-button>
+          <el-button size="mini" type="primary" @click="handleUpload">上传</el-button>
+          <el-button size="mini" type="danger" @click="handleUpload">删除</el-button>
         </div>
       </template>
       <el-table
         ref="fileTable"
         v-infinite-scroll="loadData"
         infinite-scroll-disabled="loadMoreDisabled"
-        infinite-scroll-immediate="loadMoreDisabled"
         empty-text="暂无文件"
         height="100%"
+        row-key="id"
         :data="fileList"
         size="small"
       >
@@ -86,9 +87,7 @@ export default {
   watch: {
     currentPathList: function() {
       this.marker = '' // 目录发生变化时清空marker标志
-      this.$nextTick(() => {
-        this.loadData()
-      })
+      this.loadData()
     }
   },
   created() {
@@ -137,7 +136,7 @@ export default {
         this.isLoading = false
       }
     },
-    goBack() {
+    handleBack() {
       if (this.currentPathList.length === 0) {
         this.$message('当前已经是根目录啦')
       } else {
@@ -149,6 +148,10 @@ export default {
         this.currentPathList.push(row.name)
       }
     },
+    handleUpload() {
+      console.log(this.loadMoreDisabled)
+    },
+    handleMkdir() {},
     parseType(fileName, type) {
       if (type === 'dir') {
         return 'file-type-dir'
