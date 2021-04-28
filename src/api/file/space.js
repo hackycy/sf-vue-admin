@@ -8,3 +8,11 @@ export function getFileList(query) {
     params: query
   })
 }
+
+export function createDir(data) {
+  return request({
+    url: FileSpaceApi.mkdir,
+    method: 'post',
+    data
+  })
+}

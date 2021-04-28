@@ -62,7 +62,7 @@
 
 <script>
 import TableLayout from '@/layout/components/TableLayout'
-import { getFileList } from '@/api/file/space'
+import { getFileList, createDir } from '@/api/file/space'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
 
@@ -149,9 +149,52 @@ export default {
       }
     },
     handleUpload() {
-      console.log(this.loadMoreDisabled)
+
     },
-    handleMkdir() {},
+    handleMkdir() {
+      this.$openFormDialog({
+        title: '创建文件夹',
+        formProps: {
+          'label-width': '100px'
+        },
+        on: {
+          submit: async(data, { close, done }) => {
+            try {
+              await createDir(data)
+              close()
+              // reload
+              this.loadData()
+            } catch {
+              done()
+            }
+          }
+        },
+        items: [
+          {
+            prop: 'dirName',
+            label: '文件夹名称',
+            rules: {
+              required: true,
+              trigger: 'blur',
+              validator: (rule, value, callback) => {
+                // 不可同时存在 // 此种路径
+                if (value && !(/([\\/])\1/.test(value))) {
+                  callback()
+                } else {
+                  callback(new Error('请输入合法的文件夹路径'))
+                }
+              }
+            },
+            component: {
+              name: 'el-input',
+              attrs: {
+                placeholder: '可创建多级文件夹，以 / 分隔'
+              }
+            }
+          }
+        ]
+      })
+    },
     parseType(fileName, type) {
       if (type === 'dir') {
         return 'file-type-dir'
