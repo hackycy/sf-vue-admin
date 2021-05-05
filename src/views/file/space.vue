@@ -178,7 +178,7 @@ export default {
               trigger: 'blur',
               validator: (rule, value, callback) => {
                 // 不可同时存在 // 此种路径
-                if (value && !(/([\\/])\1/.test(value))) {
+                if (value && !(/([\\/])\1/.test(value)) && !(value.endsWith('/')) && value.startsWith('/')) {
                   callback()
                 } else {
                   callback(new Error('请输入合法的文件夹路径'))
