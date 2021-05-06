@@ -204,7 +204,7 @@ export default {
               validator: (rule, value, callback) => {
                 if (value && value === row.name) {
                   callback(new Error('修改前后名称一致'))
-                } else if (value && !value.includes('/') && !value.endsWith('/') && !value.startsWith('/')) {
+                } else if (value && !value.includes('/')) {
                   callback()
                 } else {
                   callback(new Error(`请输入合法${row.type === 'dir' ? '文件夹' : '文件'}的名称`))
