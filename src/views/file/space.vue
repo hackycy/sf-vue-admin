@@ -54,22 +54,22 @@
             <span>{{ formatSize(scope.row.fsize) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="280" align="center">
+        <el-table-column label="操作" width="300" align="center">
           <template slot-scope="scope">
             <el-button
               size="mini"
               :disabled="scope.row.type === 'dir'"
-              @click="handleEdit(scope.$index, scope.row)"
+              @click="handleDownload(scope.row)"
             >下载</el-button>
             <el-button
               size="mini"
               type="success"
-              @click="handleEdit(scope.$index, scope.row)"
+              @click="handleRename(scope.row)"
             >重命名</el-button>
             <el-button
               size="mini"
               type="danger"
-              @click="handleDelete(scope.$index, scope.row)"
+              @click="handleDelete(scope.row)"
             >删除</el-button>
           </template>
         </el-table-column>
@@ -82,7 +82,7 @@
 <script>
 import TableLayout from '@/layout/components/TableLayout'
 import FileUploadDialog from './components/file-upload-dialog'
-import { getFileList, createDir } from '@/api/file/space'
+import { getFileList, createDir, renameDirOrFile } from '@/api/file/space'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
 
@@ -169,6 +169,61 @@ export default {
     handleUpload() {
       this.$refs.uploadDialog.open(this.parsePath())
     },
+    handleDownload() {},
+    handleRename(row) {
+      this.$openFormDialog({
+        title: '重命名',
+        formProps: {
+          'label-width': '100px'
+        },
+        on: {
+          submit: async(data, { close, done }) => {
+            try {
+              await renameDirOrFile({
+                type: row.type,
+                toName: data.toName,
+                name: row.name,
+                path: this.parsePath()
+              })
+              close()
+              // reload
+              this.loadData()
+            } catch {
+              done()
+            }
+          }
+        },
+        items: [
+          {
+            prop: 'toName',
+            label: `${row.type === 'dir' ? '文件夹' : '文件'}名称`,
+            value: row.name,
+            rules: {
+              required: true,
+              trigger: 'blur',
+              validator: (rule, value, callback) => {
+                if (value && value === row.name) {
+                  callback(new Error('修改前后名称一致'))
+                } else if (value && row.type === 'dir' && !(/([\\/])\1/.test(value)) && !value.endsWith('/') && !value.startsWith('/')) {
+                  callback()
+                } else if (value && row.type !== 'dir' && !value.includes('/')) {
+                  callback()
+                } else {
+                  callback(new Error(`请输入合法${row.type === 'dir' ? '文件夹' : '文件'}的名称`))
+                }
+              }
+            },
+            component: {
+              name: 'el-input',
+              attrs: {
+                placeholder: '输入重命名后的名称'
+              }
+            }
+          }
+        ]
+      })
+    },
+    handleDelete() {},
     handleMkdir() {
       this.$openFormDialog({
         title: '创建文件夹',

@@ -17,6 +17,14 @@ export function createDir(data) {
   })
 }
 
+export function renameDirOrFile(data) {
+  return request({
+    url: FileSpaceApi.rename,
+    method: 'post',
+    data
+  })
+}
+
 export function getToken() {
   return request({
     url: FileSpaceApi.token,
