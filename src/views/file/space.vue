@@ -14,9 +14,8 @@
               {{ item }}
             </el-breadcrumb-item>
           </el-breadcrumb>
-          <el-button size="mini" @click="handleMkdir">创建文件夹</el-button>
-          <el-button size="mini" type="primary" @click="handleUpload">上传</el-button>
-          <el-button size="mini" type="danger" @click="handleUpload">删除</el-button>
+          <el-button type="primary" size="mini" @click="handleUpload"><i class="el-icon-upload" />上传文件</el-button>
+          <el-button size="mini" @click="handleMkdir"><i class="el-icon-folder-add" />创建文件夹</el-button>
         </div>
       </template>
       <el-table
@@ -49,19 +48,40 @@
           show-overflow-tooltip
           label="大小"
           align="center"
-          width="300"
+          width="120"
         >
           <template slot-scope="scope">
             <span>{{ formatSize(scope.row.fsize) }}</span>
           </template>
         </el-table-column>
+        <el-table-column label="操作" width="280" align="center">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              :disabled="scope.row.type === 'dir'"
+              @click="handleEdit(scope.$index, scope.row)"
+            >下载</el-button>
+            <el-button
+              size="mini"
+              type="success"
+              @click="handleEdit(scope.$index, scope.row)"
+            >重命名</el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)"
+            >删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </table-layout>
+    <file-upload-dialog ref="uploadDialog" @closed="loadData" />
   </div>
 </template>
 
 <script>
 import TableLayout from '@/layout/components/TableLayout'
+import FileUploadDialog from './components/file-upload-dialog'
 import { getFileList, createDir } from '@/api/file/space'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
@@ -69,7 +89,8 @@ import { isEmpty } from 'lodash'
 export default {
   name: 'SystemFileSpace',
   components: {
-    TableLayout
+    TableLayout,
+    FileUploadDialog
   },
   data() {
     return {
@@ -100,10 +121,7 @@ export default {
       }
       try {
         this.isLoading = true
-        let path = ''
-        if (this.currentPathList.length > 0) {
-          path = `${this.currentPathList.join('/')}/`
-        }
+        const path = this.parsePath()
         const { data } = await getFileList({
           marker: this.marker || '',
           path: path
@@ -149,7 +167,7 @@ export default {
       }
     },
     handleUpload() {
-
+      this.$refs.uploadDialog.open(this.parsePath())
     },
     handleMkdir() {
       this.$openFormDialog({
@@ -178,7 +196,7 @@ export default {
               trigger: 'blur',
               validator: (rule, value, callback) => {
                 // 不可同时存在 // 此种路径
-                if (value && !(/([\\/])\1/.test(value)) && !(value.endsWith('/')) && value.startsWith('/')) {
+                if (value && !(/([\\/])\1/.test(value)) && !value.endsWith('/') && !value.startsWith('/')) {
                   callback()
                 } else {
                   callback(new Error('请输入合法的文件夹路径'))
@@ -194,6 +212,13 @@ export default {
           }
         ]
       })
+    },
+    parsePath() {
+      let path = ''
+      if (this.currentPathList.length > 0) {
+        path = `${this.currentPathList.join('/')}/`
+      }
+      return path
     },
     parseType(fileName, type) {
       if (type === 'dir') {
@@ -221,6 +246,10 @@ export default {
     display: -webkit-flex;
     flex-direction: row;
     align-items: center;
+
+    i {
+      margin-right: 5px;
+    }
 
     .breadcrumb {
       flex: 1;

@@ -16,3 +16,10 @@ export function createDir(data) {
     data
   })
 }
+
+export function getToken() {
+  return request({
+    url: FileSpaceApi.token,
+    method: 'get'
+  })
+}

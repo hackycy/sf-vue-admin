@@ -1,4 +1,5 @@
 export default {
   list: 'file/space/list',
-  mkdir: 'file/space/mkdir'
+  mkdir: 'file/space/mkdir',
+  token: 'file/space/token'
 }
