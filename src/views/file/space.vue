@@ -14,8 +14,8 @@
               {{ item }}
             </el-breadcrumb-item>
           </el-breadcrumb>
-          <el-button type="primary" size="mini" @click="handleUpload"><i class="el-icon-upload" />上传文件</el-button>
-          <el-button size="mini" @click="handleMkdir"><i class="el-icon-folder-add" />创建文件夹</el-button>
+          <el-button type="primary" size="mini" :disabled="!$auth('fileSpace.token')" @click="handleUpload"><i class="el-icon-upload" />上传文件</el-button>
+          <el-button size="mini" :disabled="!$auth('fileSpace.mkdir')" @click="handleMkdir"><i class="el-icon-folder-add" />创建文件夹</el-button>
         </div>
       </template>
       <el-table
@@ -58,17 +58,19 @@
           <template slot-scope="scope">
             <el-button
               size="mini"
-              :disabled="scope.row.type === 'dir'"
+              :disabled="scope.row.type === 'dir' || !$auth('fileSpace.download')"
               @click="handleDownload(scope.row)"
             >下载</el-button>
             <el-button
               size="mini"
               type="success"
+              :disabled="!$auth('fileSpace.rename')"
               @click="handleRename(scope.row)"
             >重命名</el-button>
             <el-button
               size="mini"
               type="danger"
+              :disabled="!$auth('fileSpace.delete')"
               @click="handleDelete(scope.row)"
             >删除</el-button>
           </template>
