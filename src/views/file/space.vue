@@ -6,12 +6,12 @@
           <el-page-header title="" @back="handleBack" />
           <i v-show="isLoading" class="el-icon-loading" style="margin-right: 10px;" />
           <el-breadcrumb separator="/" class="breadcrumb">
-            <el-breadcrumb-item>根目录</el-breadcrumb-item>
+            <el-breadcrumb-item><el-link :underline="false" @click="handleJumpPath(-1)">根目录</el-link></el-breadcrumb-item>
             <el-breadcrumb-item
               v-for="(item, index) in currentPathList"
               :key="index"
             >
-              {{ item }}
+              <el-link :underline="false" @click="handleJumpPath(index, item)">{{ item }}</el-link>
             </el-breadcrumb-item>
           </el-breadcrumb>
           <el-button type="primary" size="mini" :disabled="!$auth('fileSpace.token')" @click="handleUpload"><i class="el-icon-upload" />上传文件</el-button>
@@ -161,6 +161,13 @@ export default {
         this.$message('当前已经是根目录啦')
       } else {
         this.currentPathList.pop()
+      }
+    },
+    handleJumpPath(index) {
+      if (index === -1 && this.currentPathList.length > 0) {
+        this.currentPathList = []
+      } else if (index >= 0 && this.currentPathList.length - 1 !== index) {
+        this.currentPathList = this.currentPathList.slice(0, index + 1)
       }
     },
     handleFileClick(row) {
@@ -320,6 +327,10 @@ export default {
 
     .breadcrumb {
       flex: 1;
+
+      a {
+        vertical-align: baseline !important;
+      }
     }
   }
 
