@@ -33,6 +33,14 @@ export function getDownloadLink(data) {
   })
 }
 
+export function deleteFileOrDir(data) {
+  return request({
+    url: FileSpaceApi.delete,
+    method: 'post',
+    data
+  })
+}
+
 export function getToken() {
   return request({
     url: FileSpaceApi.token,

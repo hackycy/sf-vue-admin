@@ -67,12 +67,12 @@
               :disabled="!$auth('fileSpace.rename')"
               @click="handleRename(scope.row)"
             >重命名</el-button>
-            <el-button
-              size="mini"
-              type="danger"
+            <warning-confirm-button
+              :closed="loadData"
+              button-type="danger"
               :disabled="!$auth('fileSpace.delete')"
-              @click="handleDelete(scope.row)"
-            >删除</el-button>
+              @confirm="(o) => { handleDelete(scope.row, o) }"
+            >删除</warning-confirm-button>
           </template>
         </el-table-column>
       </el-table>
@@ -84,7 +84,8 @@
 <script>
 import TableLayout from '@/layout/components/TableLayout'
 import FileUploadDialog from './components/file-upload-dialog'
-import { getFileList, createDir, renameDirOrFile, getDownloadLink } from '@/api/file/space'
+import WarningConfirmButton from '@/components/WarningConfirmButton'
+import { getFileList, createDir, renameDirOrFile, getDownloadLink, deleteFileOrDir } from '@/api/file/space'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
 
@@ -92,7 +93,8 @@ export default {
   name: 'SystemFileSpace',
   components: {
     TableLayout,
-    FileUploadDialog
+    FileUploadDialog,
+    WarningConfirmButton
   },
   data() {
     return {
@@ -245,7 +247,18 @@ export default {
         ]
       })
     },
-    handleDelete() {},
+    async handleDelete(row, { close, done }) {
+      try {
+        await deleteFileOrDir({
+          path: this.parsePath(),
+          name: row.name,
+          type: row.type
+        })
+        close()
+      } catch {
+        done()
+      }
+    },
     handleMkdir() {
       this.$openFormDialog({
         title: '创建文件夹',
