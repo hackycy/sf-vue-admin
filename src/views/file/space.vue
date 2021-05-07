@@ -84,7 +84,7 @@
 <script>
 import TableLayout from '@/layout/components/TableLayout'
 import FileUploadDialog from './components/file-upload-dialog'
-import { getFileList, createDir, renameDirOrFile } from '@/api/file/space'
+import { getFileList, createDir, renameDirOrFile, getDownloadLink } from '@/api/file/space'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
 
@@ -171,7 +171,19 @@ export default {
     handleUpload() {
       this.$refs.uploadDialog.open(this.parsePath())
     },
-    handleDownload() {},
+    async handleDownload(row) {
+      try {
+        this.isLoading = true
+        const { data } = await getDownloadLink({
+          path: this.parsePath(),
+          name: row.name
+        })
+        // handle
+        window.open(data)
+      } finally {
+        this.isLoading = false
+      }
+    },
     handleRename(row) {
       this.$openFormDialog({
         title: '重命名',

@@ -25,6 +25,14 @@ export function renameDirOrFile(data) {
   })
 }
 
+export function getDownloadLink(data) {
+  return request({
+    url: FileSpaceApi.download,
+    method: 'post',
+    data
+  })
+}
+
 export function getToken() {
   return request({
     url: FileSpaceApi.token,
