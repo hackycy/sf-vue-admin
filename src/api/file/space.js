@@ -47,3 +47,11 @@ export function getToken() {
     method: 'get'
   })
 }
+
+export function checkTaskStatus(data) {
+  return request({
+    url: FileSpaceApi.check,
+    method: 'post',
+    data
+  })
+}

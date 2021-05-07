@@ -85,7 +85,7 @@
 import TableLayout from '@/layout/components/TableLayout'
 import FileUploadDialog from './components/file-upload-dialog'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
-import { getFileList, createDir, renameDirOrFile, getDownloadLink, deleteFileOrDir } from '@/api/file/space'
+import { getFileList, createDir, renameDirOrFile, getDownloadLink, deleteFileOrDir, checkTaskStatus } from '@/api/file/space'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
 
@@ -205,15 +205,43 @@ export default {
         on: {
           submit: async(data, { close, done }) => {
             try {
+              const path = this.parsePath()
               await renameDirOrFile({
                 type: row.type,
                 toName: data.toName,
                 name: row.name,
-                path: this.parsePath()
+                path
               })
               close()
               // reload
-              this.loadData()
+              if (row.type === 'dir') {
+                // listen status
+                this.$message.success('已成功加入任务队列，请勿重复操作')
+                const val = setInterval(async() => {
+                  try {
+                    const { data } = await checkTaskStatus({
+                      action: 'rename',
+                      name: row.name,
+                      path
+                    })
+                    if (data.status === 1) {
+                      this.loadData()
+                      clearInterval(val)
+                    } else if (data.status === 2) {
+                      this.$notify.error({
+                        title: '重命名文件夹失败',
+                        message: data.err,
+                        duration: 0
+                      })
+                      clearInterval(val)
+                    }
+                  } catch {
+                    clearInterval(val)
+                  }
+                }, 3000)
+              } else {
+                this.loadData()
+              }
             } catch {
               done()
             }
