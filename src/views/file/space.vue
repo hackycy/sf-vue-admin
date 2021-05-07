@@ -225,13 +225,14 @@ export default {
                       path
                     })
                     if (data.status === 1) {
+                      this.$message.success('重命名文件夹成功')
                       this.loadData()
                       clearInterval(val)
                     } else if (data.status === 2) {
                       this.$notify.error({
                         title: '重命名文件夹失败',
                         message: data.err,
-                        duration: 0
+                        duration: 3000
                       })
                       clearInterval(val)
                     }
