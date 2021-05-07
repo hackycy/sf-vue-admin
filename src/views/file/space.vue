@@ -3,8 +3,8 @@
     <table-layout :wrap="false">
       <template #header>
         <div class="space-header">
-          <el-page-header title="" @back="handleBack" />
-          <i v-show="isLoading" class="el-icon-loading" style="margin-right: 10px;" />
+          <el-button icon="el-icon-back" size="mini" :disabled="backDisabled" @click="handleBack" />
+          <i :class="isLoading ? 'el-icon-loading' : 'el-icon-folder-checked'" style="margin-right: 14px;margin-left: 14px" />
           <el-breadcrumb separator="/" class="breadcrumb">
             <el-breadcrumb-item><el-link :underline="false" @click="handleJumpPath(-1)">根目录</el-link></el-breadcrumb-item>
             <el-breadcrumb-item
@@ -105,6 +105,9 @@ export default {
   computed: {
     loadMoreDisabled() {
       return isEmpty(this.marker)
+    },
+    backDisabled() {
+      return this.currentPathList.length === 0
     }
   },
   watch: {
