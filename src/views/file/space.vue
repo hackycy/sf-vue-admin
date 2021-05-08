@@ -196,6 +196,46 @@ export default {
         this.isLoading = false
       }
     },
+    async handleDelete(row, { close, done }) {
+      try {
+        const path = this.parsePath()
+        await deleteFileOrDir({
+          path,
+          name: row.name,
+          type: row.type
+        })
+        if (row.type === 'dir') {
+          // listen status
+          this.$message.success('已成功加入任务队列，请勿重复操作')
+          const val = setInterval(async() => {
+            try {
+              const { data } = await checkTaskStatus({
+                action: 'delete',
+                name: row.name,
+                path
+              })
+              if (data.status === 1) {
+                this.$message.success('删除文件夹成功')
+              } else if (data.status === 2) {
+                this.$notify.error({
+                  title: '删除文件夹失败',
+                  message: data.err,
+                  duration: 3000
+                })
+              }
+              clearInterval(val)
+              close()
+            } catch {
+              clearInterval(val)
+            }
+          }, 3000)
+        } else {
+          close()
+        }
+      } catch {
+        done()
+      }
+    },
     handleRename(row) {
       this.$openFormDialog({
         title: '重命名',
@@ -212,7 +252,6 @@ export default {
                 name: row.name,
                 path
               })
-              close()
               // reload
               if (row.type === 'dir') {
                 // listen status
@@ -227,20 +266,21 @@ export default {
                     if (data.status === 1) {
                       this.$message.success('重命名文件夹成功')
                       this.loadData()
-                      clearInterval(val)
                     } else if (data.status === 2) {
                       this.$notify.error({
                         title: '重命名文件夹失败',
                         message: data.err,
                         duration: 3000
                       })
-                      clearInterval(val)
                     }
+                    clearInterval(val)
+                    close()
                   } catch {
                     clearInterval(val)
                   }
                 }, 3000)
               } else {
+                close()
                 this.loadData()
               }
             } catch {
@@ -275,18 +315,6 @@ export default {
           }
         ]
       })
-    },
-    async handleDelete(row, { close, done }) {
-      try {
-        await deleteFileOrDir({
-          path: this.parsePath(),
-          name: row.name,
-          type: row.type
-        })
-        close()
-      } catch {
-        done()
-      }
     },
     handleMkdir() {
       this.$openFormDialog({
