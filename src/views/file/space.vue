@@ -176,7 +176,7 @@ export default {
       }
     },
     handleFileClick(row) {
-      if (row.type === 'dir') {
+      if (row.type === 'dir' && !this.isLoading) {
         this.currentPathList.push(row.name)
       }
     },
