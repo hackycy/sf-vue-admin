@@ -227,6 +227,7 @@ export default {
               close()
             } catch {
               clearInterval(val)
+              done()
             }
           }, 3000)
         } else {
@@ -277,6 +278,7 @@ export default {
                     close()
                   } catch {
                     clearInterval(val)
+                    done()
                   }
                 }, 3000)
               } else {
