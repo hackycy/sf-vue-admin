@@ -340,23 +340,39 @@ export default {
         ]
       })
     },
+    /**
+     * 打开右键菜单
+     */
     handleRowContextMenu(row, column, e) {
       this.$openContextMenu(e, {
+        width: 120,
         items: [
           {
             title: '下载',
+            disabled: row.type === 'dir' || !this.$auth('netdiskManage.download'),
+            callback: ({ close }) => {
+              close()
+              this.handleDownload(row)
+            }
+          },
+          {
+            title: '剪切',
+            disabled: !this.$auth('netdiskManage.cut'),
             callback: ({ close }) => {
               close()
             }
           },
           {
             title: '重命名',
+            disabled: !this.$auth('netdiskManage.rename'),
             callback: ({ close }) => {
               close()
+              this.handleRename(row)
             }
           },
           {
             title: '删除',
+            disabled: !this.$auth('netdiskManage.delete'),
             callback: ({ close }) => {
               close()
             }
@@ -381,7 +397,7 @@ export default {
       if (size) {
         return formatSizeUnits(size)
       }
-      return ''
+      return '-'
     }
   }
 }
