@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import FileSpaceApi from '@/core/permission/modules/file/space'
+import FileSpaceApi from '@/core/permission/modules/netdisk/manage'
 
 export function getFileList(query) {
   return request({

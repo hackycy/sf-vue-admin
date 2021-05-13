@@ -14,8 +14,8 @@
               <el-link :underline="false" @click="handleJumpPath(index, item)">{{ item }}</el-link>
             </el-breadcrumb-item>
           </el-breadcrumb>
-          <el-button type="primary" size="mini" :disabled="!$auth('fileSpace.token')" @click="handleUpload"><i class="el-icon-upload" />上传文件</el-button>
-          <el-button size="mini" :disabled="!$auth('fileSpace.mkdir')" @click="handleMkdir"><i class="el-icon-folder-add" />创建文件夹</el-button>
+          <el-button type="primary" size="mini" :disabled="!$auth('netdiskManage.token')" @click="handleUpload"><i class="el-icon-upload" />上传文件</el-button>
+          <el-button size="mini" :disabled="!$auth('netdiskManage.mkdir')" @click="handleMkdir"><i class="el-icon-folder-add" />创建文件夹</el-button>
         </div>
       </template>
       <el-table
@@ -58,19 +58,19 @@
           <template slot-scope="scope">
             <el-button
               size="mini"
-              :disabled="scope.row.type === 'dir' || !$auth('fileSpace.download')"
+              :disabled="scope.row.type === 'dir' || !$auth('netdiskManage.download')"
               @click="handleDownload(scope.row)"
             >下载</el-button>
             <el-button
               size="mini"
               type="success"
-              :disabled="!$auth('fileSpace.rename')"
+              :disabled="!$auth('netdiskManage.rename')"
               @click="handleRename(scope.row)"
             >重命名</el-button>
             <warning-confirm-button
               :closed="loadData"
               button-type="danger"
-              :disabled="!$auth('fileSpace.delete')"
+              :disabled="!$auth('netdiskManage.delete')"
               @confirm="(o) => { handleDelete(scope.row, o) }"
             >删除</warning-confirm-button>
           </template>
@@ -85,7 +85,7 @@
 import TableLayout from '@/layout/components/TableLayout'
 import FileUploadDialog from './components/file-upload-dialog'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
-import { getFileList, createDir, renameDirOrFile, getDownloadLink, deleteFileOrDir, checkTaskStatus } from '@/api/file/space'
+import { getFileList, createDir, renameDirOrFile, getDownloadLink, deleteFileOrDir, checkTaskStatus } from '@/api/netdisk/manage'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
 

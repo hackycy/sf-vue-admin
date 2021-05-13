@@ -37,7 +37,7 @@
 
 <script>
 import { isEmpty } from 'lodash'
-import { getToken } from '@/api/file/space'
+import { getToken } from '@/api/netdisk/manage'
 import * as qiniu from 'qiniu-js'
 
 export default {
