@@ -27,6 +27,7 @@
         row-key="id"
         :data="fileList"
         size="small"
+        @row-contextmenu="handleRowContextMenu"
       >
         <el-table-column show-overflow-tooltip label="文件名">
           <template slot-scope="scope">
@@ -36,13 +37,6 @@
             ><svg-icon :icon-class="parseType(scope.row.name, scope.row.type)" />{{ scope.row.name }}</el-link>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="putTime"
-          show-overflow-tooltip
-          label="上传时间"
-          align="center"
-          width="220"
-        />
         <el-table-column
           prop="fsize"
           show-overflow-tooltip
@@ -54,27 +48,13 @@
             <span>{{ formatSize(scope.row.fsize) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="300" align="center">
-          <template slot-scope="scope">
-            <el-button
-              size="mini"
-              :disabled="scope.row.type === 'dir' || !$auth('netdiskManage.download')"
-              @click="handleDownload(scope.row)"
-            >下载</el-button>
-            <el-button
-              size="mini"
-              type="success"
-              :disabled="!$auth('netdiskManage.rename')"
-              @click="handleRename(scope.row)"
-            >重命名</el-button>
-            <warning-confirm-button
-              :closed="loadData"
-              button-type="danger"
-              :disabled="!$auth('netdiskManage.delete')"
-              @confirm="(o) => { handleDelete(scope.row, o) }"
-            >删除</warning-confirm-button>
-          </template>
-        </el-table-column>
+        <el-table-column
+          prop="putTime"
+          show-overflow-tooltip
+          label="上传时间"
+          align="center"
+          width="220"
+        />
       </el-table>
     </table-layout>
     <file-upload-dialog ref="uploadDialog" @closed="loadData" />
@@ -84,7 +64,6 @@
 <script>
 import TableLayout from '@/layout/components/TableLayout'
 import FileUploadDialog from './components/file-upload-dialog'
-import WarningConfirmButton from '@/components/WarningConfirmButton'
 import { getFileList, createDir, renameDirOrFile, getDownloadLink, deleteFileOrDir, checkTaskStatus } from '@/api/netdisk/manage'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
@@ -93,8 +72,7 @@ export default {
   name: 'SystemFileSpace',
   components: {
     TableLayout,
-    FileUploadDialog,
-    WarningConfirmButton
+    FileUploadDialog
   },
   data() {
     return {
@@ -357,6 +335,30 @@ export default {
               attrs: {
                 placeholder: '可创建多级文件夹，以 / 分隔'
               }
+            }
+          }
+        ]
+      })
+    },
+    handleRowContextMenu(row, column, e) {
+      this.$openContextMenu(e, {
+        items: [
+          {
+            title: '下载',
+            callback: ({ close }) => {
+              close()
+            }
+          },
+          {
+            title: '重命名',
+            callback: ({ close }) => {
+              close()
+            }
+          },
+          {
+            title: '删除',
+            callback: ({ close }) => {
+              close()
             }
           }
         ]
