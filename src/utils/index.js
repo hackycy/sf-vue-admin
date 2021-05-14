@@ -150,7 +150,7 @@ export function parseMimeTypeToIconName(fileName) {
   if (!fileName) {
     return 'file-type-unknown'
   }
-  const ext = getFileExtension(fileName)
+  const ext = getFileExtension(fileName).toLowerCase()
   if (!ext) {
     return 'file-type-unknown'
   }
