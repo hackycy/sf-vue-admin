@@ -34,7 +34,10 @@
             <el-link
               :underline="false"
               @click="handleFileClick(scope.row)"
-            ><svg-icon :icon-class="parseType(scope.row.name, scope.row.type)" />{{ scope.row.name }}</el-link>
+            ><svg-icon :icon-class="parseType(scope.row.name, scope.row.type)" />
+              <span v-if="isSearching" v-html="hignlightSearchKey(scope.row.name)" />
+              <span v-else>{{ scope.row.name }}</span>
+            </el-link>
           </template>
         </el-table-column>
         <el-table-column
@@ -64,6 +67,7 @@
 <script>
 import TableLayout from '@/layout/components/TableLayout'
 import FileUploadDialog from './components/file-upload-dialog'
+import MessageBoxMixin from '@/core/mixins/message-box'
 import { getFileList, createDir, renameDirOrFile, getDownloadLink, deleteFileOrDir, checkTaskStatus } from '@/api/netdisk/manage'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
@@ -74,26 +78,59 @@ export default {
     TableLayout,
     FileUploadDialog
   },
+  mixins: [MessageBoxMixin],
   data() {
     return {
       fileList: [],
       currentPathList: [],
       marker: '',
+      localSearchKey: '',
+      // cur & copy 两者对立，不能存在两个都为true
+      cutMode: false,
+      copyMode: false,
+      pasteOriginPath: '',
+      // 菊花加载
       isLoading: false
     }
   },
   computed: {
+    isSearching() {
+      return !isEmpty(this.localSearchKey)
+    },
     loadMoreDisabled() {
       return isEmpty(this.marker)
     },
     backDisabled() {
       return this.currentPathList.length === 0
+    },
+    pasteDisabled() {
+      return !this.cutMode && !this.copyMode
     }
   },
   watch: {
+    cutMode: function(mode) {
+      if (mode) {
+        this.copyMode = false
+        // record current path
+        this.pasteOriginPath = this.parsePath()
+      }
+    },
+    copyMode: function(mode) {
+      if (mode) {
+        this.cutMode = false
+        // record current path
+        this.pasteOriginPath = this.parsePath()
+      }
+    },
     currentPathList: function() {
       this.marker = '' // 目录发生变化时清空marker标志
       this.loadData()
+    },
+    localSearchKey: function(k) {
+      if (isEmpty(k)) {
+        this.marker = ''
+        this.loadData()
+      }
     }
   },
   created() {
@@ -109,7 +146,8 @@ export default {
         const path = this.parsePath()
         const { data } = await getFileList({
           marker: this.marker || '',
-          path: path
+          path: path,
+          key: this.localSearchKey
         })
         if (!isEmpty(this.marker)) {
           // 上次为分页记录下拉去，目录可能会重复，需要去重在进行追加
@@ -183,34 +221,25 @@ export default {
           type: row.type
         })
         if (row.type === 'dir') {
-          // listen status
-          this.$message.success('已成功加入任务队列，请勿重复操作')
-          const val = setInterval(async() => {
-            try {
-              const { data } = await checkTaskStatus({
-                action: 'delete',
-                name: row.name,
-                path
+          this.pollingCheckStatus('delete', row.name, path, {
+            success: () => {
+              this.$message.success('已删除该文件夹')
+              this.loadData()
+            },
+            fail: (e) => {
+              this.$notify.error({
+                title: '删除文件夹失败',
+                message: e,
+                duration: 3000
               })
-              if (data.status === 1) {
-                this.$message.success('删除文件夹成功')
-              } else if (data.status === 2) {
-                this.$notify.error({
-                  title: '删除文件夹失败',
-                  message: data.err,
-                  duration: 3000
-                })
-              }
-              clearInterval(val)
-              close()
-            } catch {
-              clearInterval(val)
-              done()
             }
-          }, 3000)
+          })
         } else {
-          close()
+          this.$message.success('已删除该文件')
+          this.loadData()
         }
+        done()
+        close()
       } catch {
         done()
       }
@@ -233,32 +262,20 @@ export default {
               })
               // reload
               if (row.type === 'dir') {
-                // listen status
-                this.$message.success('已成功加入任务队列，请勿重复操作')
-                const val = setInterval(async() => {
-                  try {
-                    const { data } = await checkTaskStatus({
-                      action: 'rename',
-                      name: row.name,
-                      path
+                this.pollingCheckStatus('delete', row.name, path, {
+                  success: () => {
+                    this.$message.success('重命名文件夹成功')
+                    this.loadData()
+                  },
+                  fail: (e) => {
+                    this.$notify.error({
+                      title: '重命名文件夹失败',
+                      message: e,
+                      duration: 3000
                     })
-                    if (data.status === 1) {
-                      this.$message.success('重命名文件夹成功')
-                      this.loadData()
-                    } else if (data.status === 2) {
-                      this.$notify.error({
-                        title: '重命名文件夹失败',
-                        message: data.err,
-                        duration: 3000
-                      })
-                    }
-                    clearInterval(val)
-                    close()
-                  } catch {
-                    clearInterval(val)
-                    done()
                   }
-                }, 3000)
+                })
+                close()
               } else {
                 close()
                 this.loadData()
@@ -290,6 +307,44 @@ export default {
               name: 'el-input',
               attrs: {
                 placeholder: '输入重命名后的名称'
+              }
+            }
+          }
+        ]
+      })
+    },
+    handleLocalSearch() {
+      this.$openFormDialog({
+        title: '搜索当前文件夹',
+        on: {
+          submit: (data, { close }) => {
+            this.localSearchKey = data.key
+            this.marker = ''
+            this.loadData()
+            close()
+          }
+        },
+        items: [
+          {
+            prop: 'key',
+            label: '关键字',
+            value: '',
+            rules: {
+              required: true,
+              trigger: 'blur',
+              validator: (rule, value, callback) => {
+                // 不可同时存在 // 此种路径
+                if (value && !value.includes('/')) {
+                  callback()
+                } else {
+                  callback(new Error('请输入合法的名称'))
+                }
+              }
+            },
+            component: {
+              name: 'el-input',
+              attrs: {
+                placeholder: '请输入搜索关键字'
               }
             }
           }
@@ -341,11 +396,11 @@ export default {
       })
     },
     /**
-     * 打开右键菜单
+     * 行右键打开右键菜单
      */
     handleRowContextMenu(row, column, e) {
       this.$openContextMenu(e, {
-        width: 120,
+        width: 100,
         items: [
           {
             title: '下载',
@@ -356,8 +411,30 @@ export default {
             }
           },
           {
+            title: this.isSearching ? '取消搜索' : '搜索',
+            disabled: !this.$auth('netdiskManage.list'),
+            callback: ({ close }) => {
+              close()
+              this.isSearching ? this.localSearchKey = '' : this.handleLocalSearch()
+            }
+          },
+          {
             title: '剪切',
             disabled: !this.$auth('netdiskManage.cut'),
+            callback: ({ close }) => {
+              close()
+            }
+          },
+          {
+            title: '复制',
+            disabled: !this.$auth('netdiskManage.copy'),
+            callback: ({ close }) => {
+              close()
+            }
+          },
+          {
+            title: '粘贴',
+            disabled: this.pasteDisabled,
             callback: ({ close }) => {
               close()
             }
@@ -375,10 +452,42 @@ export default {
             disabled: !this.$auth('netdiskManage.delete'),
             callback: ({ close }) => {
               close()
+              this.openLoadingConfirm({ on: {
+                confirm: (op) => {
+                  this.handleDelete(row, op)
+                }
+              }})
             }
           }
         ]
       })
+    },
+    /**
+     * 每三秒轮训任务状态
+     */
+    pollingCheckStatus(action, name, path, { success, fail }) {
+      this.$message.success('已加入后台任务，请勿重复操作')
+      const val = setInterval(async() => {
+        try {
+          const { data } = await checkTaskStatus({
+            action,
+            name: name,
+            path
+          })
+          if (data.status === 1) {
+            if (success) {
+              success()
+            }
+          } else if (data.status === 2) {
+            if (fail) {
+              fail(data.err)
+            }
+          }
+          clearInterval(val)
+        } catch {
+          clearInterval(val)
+        }
+      }, 3000)
     },
     parsePath() {
       let path = ''
@@ -398,6 +507,9 @@ export default {
         return formatSizeUnits(size)
       }
       return '-'
+    },
+    hignlightSearchKey(name) {
+      return name.replace(new RegExp(`${this.localSearchKey}`, 'g'), `<span style='color: red;'>${this.localSearchKey}</span>`)
     }
   }
 }
