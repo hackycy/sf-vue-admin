@@ -62,13 +62,15 @@
         />
       </el-table>
     </table-layout>
-    <file-upload-drawer ref="uploadDialog" @closed="loadData" />
+    <file-upload-drawer ref="uploadDrawer" @closed="loadData" />
+    <file-preview-drawer ref="previewDrawer" @closed="loadData" />
   </div>
 </template>
 
 <script>
 import TableLayout from '@/layout/components/TableLayout'
 import FileUploadDrawer from './components/file-upload-drawer'
+import FilePreviewDrawer from './components/file-preview-drawer'
 import MessageBoxMixin from '@/core/mixins/message-box'
 import { getFileList, createDir, renameDirOrFile, getDownloadLink, deleteFileOrDir, checkTaskStatus } from '@/api/netdisk/manage'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
@@ -78,7 +80,8 @@ export default {
   name: 'SystemFileSpace',
   components: {
     TableLayout,
-    FileUploadDrawer
+    FileUploadDrawer,
+    FilePreviewDrawer
   },
   mixins: [MessageBoxMixin],
   data() {
@@ -196,10 +199,12 @@ export default {
     handleFileClick(row) {
       if (row.type === 'dir' && !this.isLoading) {
         this.currentPathList.push(row.name)
+      } else {
+        this.$refs.previewDrawer.open()
       }
     },
     handleUpload() {
-      this.$refs.uploadDialog.open(this.parsePath())
+      this.$refs.uploadDrawer.open(this.parsePath())
     },
     async handleDownload(row) {
       try {
