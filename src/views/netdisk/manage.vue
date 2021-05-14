@@ -316,6 +316,9 @@ export default {
     handleLocalSearch() {
       this.$openFormDialog({
         title: '搜索当前文件夹',
+        formProps: {
+          'label-width': '80px'
+        },
         on: {
           submit: (data, { close }) => {
             this.localSearchKey = data.key
@@ -360,7 +363,10 @@ export default {
         on: {
           submit: async(data, { close, done }) => {
             try {
-              await createDir(data)
+              await createDir({
+                path: this.parsePath(),
+                dirName: data.dirName
+              })
               close()
               // reload
               this.loadData()
@@ -378,7 +384,7 @@ export default {
               trigger: 'blur',
               validator: (rule, value, callback) => {
                 // 不可同时存在 // 此种路径
-                if (value && !(/([\\/])\1/.test(value)) && !value.endsWith('/') && !value.startsWith('/')) {
+                if (value && !(value.includes('/'))) {
                   callback()
                 } else {
                   callback(new Error('请输入合法的文件夹路径'))
@@ -388,7 +394,7 @@ export default {
             component: {
               name: 'el-input',
               attrs: {
-                placeholder: '可创建多级文件夹，以 / 分隔'
+                placeholder: '请输入文件夹名称'
               }
             }
           }
