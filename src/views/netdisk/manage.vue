@@ -28,6 +28,7 @@
         :data="fileList"
         size="small"
         @row-contextmenu="handleRowContextMenu"
+        @header-contextmenu="handleHeaderContextMenu"
       >
         <el-table-column show-overflow-tooltip label="文件名">
           <template slot-scope="scope">
@@ -401,6 +402,29 @@ export default {
         ]
       })
     },
+    handleHeaderContextMenu(column, e) {
+      this.$openContextMenu(e, {
+        width: 100,
+        items: [
+          {
+            title: '刷新',
+            callback: ({ close }) => {
+              close()
+              this.marker = ''
+              this.loadData()
+            }
+          },
+          {
+            title: this.isSearching ? '取消搜索' : '搜索',
+            disabled: !this.$auth('netdiskManage.list'),
+            callback: ({ close }) => {
+              close()
+              this.isSearching ? this.localSearchKey = '' : this.handleLocalSearch()
+            }
+          }
+        ]
+      })
+    },
     /**
      * 行右键打开右键菜单
      */
@@ -414,14 +438,6 @@ export default {
             callback: ({ close }) => {
               close()
               this.handleDownload(row)
-            }
-          },
-          {
-            title: this.isSearching ? '取消搜索' : '搜索',
-            disabled: !this.$auth('netdiskManage.list'),
-            callback: ({ close }) => {
-              close()
-              this.isSearching ? this.localSearchKey = '' : this.handleLocalSearch()
             }
           },
           {
