@@ -62,13 +62,13 @@
         />
       </el-table>
     </table-layout>
-    <file-upload-dialog ref="uploadDialog" @closed="loadData" />
+    <file-upload-drawer ref="uploadDialog" @closed="loadData" />
   </div>
 </template>
 
 <script>
 import TableLayout from '@/layout/components/TableLayout'
-import FileUploadDialog from './components/file-upload-dialog'
+import FileUploadDrawer from './components/file-upload-drawer'
 import MessageBoxMixin from '@/core/mixins/message-box'
 import { getFileList, createDir, renameDirOrFile, getDownloadLink, deleteFileOrDir, checkTaskStatus } from '@/api/netdisk/manage'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
@@ -78,7 +78,7 @@ export default {
   name: 'SystemFileSpace',
   components: {
     TableLayout,
-    FileUploadDialog
+    FileUploadDrawer
   },
   mixins: [MessageBoxMixin],
   data() {
