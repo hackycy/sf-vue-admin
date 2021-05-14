@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import { cloneDeep } from 'lodash'
+
 export default {
   name: 'SContextMenu',
   data() {
@@ -72,7 +74,7 @@ export default {
       }
 
       if (options.items && options.items.length > 0) {
-        this.items = options.items
+        this.items = cloneDeep(options.items)
       }
 
       const offest = 10
