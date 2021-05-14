@@ -14,6 +14,7 @@
               <el-link :underline="false" @click="handleJumpPath(index, item)">{{ item }}</el-link>
             </el-breadcrumb-item>
           </el-breadcrumb>
+          <el-button v-show="isShowPasteButton" type="info" plain size="mini"><i class="el-icon-s-claim" />粘贴</el-button>
           <el-button type="primary" size="mini" :disabled="!$auth('netdiskManage.token')" @click="handleUpload"><i class="el-icon-upload" />上传文件</el-button>
           <el-button size="mini" :disabled="!$auth('netdiskManage.mkdir')" @click="handleMkdir"><i class="el-icon-folder-add" />创建文件夹</el-button>
         </div>
@@ -104,8 +105,8 @@ export default {
     backDisabled() {
       return this.currentPathList.length === 0
     },
-    pasteDisabled() {
-      return !this.cutMode && !this.copyMode
+    isShowPasteButton() {
+      return this.cutMode || this.copyMode
     }
   },
   watch: {
@@ -450,13 +451,6 @@ export default {
           {
             title: '复制',
             disabled: !this.$auth('netdiskManage.copy'),
-            callback: ({ close }) => {
-              close()
-            }
-          },
-          {
-            title: '粘贴',
-            disabled: this.pasteDisabled,
             callback: ({ close }) => {
               close()
             }
