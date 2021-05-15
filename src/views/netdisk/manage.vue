@@ -22,6 +22,7 @@
       <el-table
         ref="fileTable"
         v-el-table-infinite-scroll="loadData"
+        infinite-scroll-distance="10"
         infinite-scroll-disabled="loadMoreDisabled"
         empty-text="暂无文件"
         height="100%"
@@ -60,10 +61,18 @@
           align="center"
           width="220"
         />
+        <template v-if="!loadMoreDisabled" slot="append">
+          <el-row type="flex" justify="center">
+            <span style="line-height: 50px;">
+              <i class="el-icon-loading" style="font-size: 16px; margin-right: 10px;" />
+              <span style="font-size: 14px;">加载中...</span>
+            </span>
+          </el-row>
+        </template>
       </el-table>
     </table-layout>
-    <file-upload-drawer ref="uploadDrawer" @closed="loadData" />
-    <file-preview-drawer ref="previewDrawer" @closed="loadData" />
+    <file-upload-drawer ref="uploadDrawer" @closed="refresh" />
+    <file-preview-drawer ref="previewDrawer" />
   </div>
 </template>
 
@@ -128,13 +137,11 @@ export default {
       }
     },
     currentPathList: function() {
-      this.marker = '' // 目录发生变化时清空marker标志
-      this.loadData()
+      this.refresh()
     },
     localSearchKey: function(k) {
       if (isEmpty(k)) {
-        this.marker = ''
-        this.loadData()
+        this.refresh()
       }
     }
   },
@@ -142,6 +149,11 @@ export default {
     this.marker = ' '
   },
   methods: {
+    refresh() {
+      this.marker = ' '
+      this.fileList = []
+      this.loadData()
+    },
     async loadData() {
       if (this.isLoading) {
         return
@@ -231,7 +243,7 @@ export default {
           this.pollingCheckStatus('delete', row.name, path, {
             success: () => {
               this.$message.success('已删除该文件夹')
-              this.loadData()
+              this.refresh()
             },
             fail: (e) => {
               this.$notify.error({
@@ -243,7 +255,7 @@ export default {
           })
         } else {
           this.$message.success('已删除该文件')
-          this.loadData()
+          this.refresh()
         }
         done()
         close()
@@ -272,7 +284,7 @@ export default {
                 this.pollingCheckStatus('delete', row.name, path, {
                   success: () => {
                     this.$message.success('重命名文件夹成功')
-                    this.loadData()
+                    this.refresh()
                   },
                   fail: (e) => {
                     this.$notify.error({
@@ -285,7 +297,7 @@ export default {
                 close()
               } else {
                 close()
-                this.loadData()
+                this.refresh()
               }
             } catch {
               done()
@@ -329,8 +341,7 @@ export default {
         on: {
           submit: (data, { close }) => {
             this.localSearchKey = data.key
-            this.marker = ''
-            this.loadData()
+            this.refresh()
             close()
           }
         },
@@ -376,7 +387,7 @@ export default {
               })
               close()
               // reload
-              this.loadData()
+              this.refresh()
             } catch {
               done()
             }
@@ -416,8 +427,7 @@ export default {
             title: '刷新',
             callback: ({ close }) => {
               close()
-              this.marker = ''
-              this.loadData()
+              this.refresh()
             }
           },
           {
