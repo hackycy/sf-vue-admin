@@ -14,7 +14,7 @@
             width: disabledPreview ? '130px' : '100%',
             height: disabledPreview ? '85px' : '210px'
           }"
-          :src="disabledPreview ? unPreviewImage : previewSrc"
+          :src="disabledPreview ? unPreviewImage : imageView2Handle"
           :preview-src-list="[previewSrc]"
           :z-index="999999"
         />
@@ -75,6 +75,10 @@ export default {
   computed: {
     disabledPreview() {
       return isEmpty(this.previewSrc)
+    },
+    // 使用七牛图片处理，减少预览耗费流量
+    imageView2Handle() {
+      return `${this.previewSrc}?imageView2/2/w/500/h/210`
     }
   },
   methods: {
