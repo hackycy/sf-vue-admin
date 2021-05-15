@@ -14,7 +14,7 @@
             width: disabledPreview ? '130px' : '100%',
             height: disabledPreview ? '85px' : '210px'
           }"
-          :src="previewSrc"
+          :src="disabledPreview ? unPreviewImage : previewSrc"
           :preview-src-list="[previewSrc]"
           :z-index="999999"
         />
@@ -40,6 +40,7 @@
 <script>
 import { getFileDetailInfo, getDownloadLink } from '@/api/netdisk/manage'
 import { formatSizeUnits } from '@/utils'
+import { isEmpty } from 'lodash'
 import noPreviewImage from '@/assets/no-preview.png'
 
 export default {
@@ -67,12 +68,13 @@ export default {
         '操作人'
       ],
       detailInfos: [],
-      previewSrc: noPreviewImage
+      previewSrc: '',
+      unPreviewImage: noPreviewImage
     }
   },
   computed: {
     disabledPreview() {
-      return this.previewSrc === noPreviewImage
+      return isEmpty(this.previewSrc)
     }
   },
   methods: {
@@ -96,7 +98,7 @@ export default {
           }
           if (
             this.$auth('netdiskManage.download') &&
-            data.mimeType.includes('image')
+            data.mimeType.includes('image/')
           ) {
             // 可预览
             const { data: url } = await getDownloadLink(fileInfo)
@@ -111,6 +113,7 @@ export default {
     },
     handleClose() {
       this.visible = false
+      this.previewSrc = ''
       this.detailInfos = []
     }
   }
