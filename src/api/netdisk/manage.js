@@ -1,9 +1,9 @@
 import request from '@/utils/request'
-import FileSpaceApi from '@/core/permission/modules/netdisk/manage'
+import ManageApi from '@/core/permission/modules/netdisk/manage'
 
 export function getFileList(query) {
   return request({
-    url: FileSpaceApi.list,
+    url: ManageApi.list,
     method: 'get',
     params: query
   })
@@ -11,7 +11,7 @@ export function getFileList(query) {
 
 export function createDir(data) {
   return request({
-    url: FileSpaceApi.mkdir,
+    url: ManageApi.mkdir,
     method: 'post',
     data
   })
@@ -19,7 +19,7 @@ export function createDir(data) {
 
 export function renameDirOrFile(data) {
   return request({
-    url: FileSpaceApi.rename,
+    url: ManageApi.rename,
     method: 'post',
     data
   })
@@ -27,7 +27,7 @@ export function renameDirOrFile(data) {
 
 export function getDownloadLink(data) {
   return request({
-    url: FileSpaceApi.download,
+    url: ManageApi.download,
     method: 'post',
     data
   })
@@ -35,7 +35,7 @@ export function getDownloadLink(data) {
 
 export function deleteFileOrDir(data) {
   return request({
-    url: FileSpaceApi.delete,
+    url: ManageApi.delete,
     method: 'post',
     data
   })
@@ -43,14 +43,22 @@ export function deleteFileOrDir(data) {
 
 export function getToken() {
   return request({
-    url: FileSpaceApi.token,
+    url: ManageApi.token,
     method: 'get'
   })
 }
 
 export function checkTaskStatus(data) {
   return request({
-    url: FileSpaceApi.check,
+    url: ManageApi.check,
+    method: 'post',
+    data
+  })
+}
+
+export function getFileDetailInfo(data) {
+  return request({
+    url: ManageApi.info,
     method: 'post',
     data
   })

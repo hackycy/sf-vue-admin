@@ -36,6 +36,7 @@
         <el-table-column show-overflow-tooltip label="文件名">
           <template slot-scope="scope">
             <el-link
+              :disabled="scope.row.type === 'file' && !$auth('netdiskManage.info')"
               :underline="false"
               @click="handleFileClick(scope.row)"
             ><svg-icon :icon-class="parseType(scope.row.name, scope.row.type)" />
@@ -215,7 +216,7 @@ export default {
       if (row.type === 'dir' && !this.isLoading) {
         this.currentPathList.push(row.name)
       } else {
-        this.$refs.previewDrawer.open()
+        this.$refs.previewDrawer.open(row.name, this.parsePath())
       }
     },
     handleUpload() {
@@ -229,7 +230,7 @@ export default {
           name: row.name
         })
         // handle
-        window.open(data)
+        window.open(`${data}?attname=${encodeURIComponent(row.name)}`)
       } finally {
         this.isLoading = false
       }

@@ -5,5 +5,6 @@ export default {
   rename: 'netdisk/manage/rename',
   download: 'netdisk/manage/download',
   delete: 'netdisk/manage/delete',
-  check: 'netdisk/manage/check'
+  check: 'netdisk/manage/check',
+  info: 'netdisk/manage/info'
 }
