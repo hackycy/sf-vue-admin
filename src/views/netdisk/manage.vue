@@ -20,6 +20,7 @@
         </div>
       </template>
       <el-table
+        :key="tableKey"
         ref="fileTable"
         v-el-table-infinite-scroll="loadData"
         infinite-scroll-distance="10"
@@ -104,7 +105,8 @@ export default {
       copyMode: false,
       pasteOriginPath: '',
       // 菊花加载
-      isLoading: false
+      isLoading: false,
+      tableKey: 1
     }
   },
   computed: {
@@ -152,7 +154,8 @@ export default {
     refresh() {
       this.marker = ' '
       this.fileList = []
-      this.loadData()
+      // 让el-table重新渲染，否则滚动在重置数据时候数据过少不会触发滚动加载
+      this.tableKey += 1
     },
     async loadData() {
       if (this.isLoading) {
