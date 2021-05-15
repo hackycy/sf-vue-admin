@@ -159,44 +159,35 @@ export default {
       this.tableKey += 1
     },
     async loadData() {
-      if (this.isLoading) {
-        return
-      }
-      try {
-        this.isLoading = true
-        const path = this.parsePath()
-        const { data } = await getFileList({
-          marker: this.marker.trim() || '',
-          path: path,
-          key: this.localSearchKey
-        })
-        if (!isEmpty(this.marker)) {
-          // 上次为分页记录下拉去，目录可能会重复，需要去重在进行追加
-          const fl = data.list.filter((f) => {
-            if (f.type === 'file') {
-              return true
-            } else {
-              return !(this.fileList.find(e => {
-                if (e.type === 'file') {
-                  return false
-                }
-                return e.name === f.name
-              }))
-            }
-          })
-          if (!isEmpty(fl)) {
-            this.fileList.push(...fl)
+      const path = this.parsePath()
+      const { data } = await getFileList({
+        marker: this.marker.trim() || '',
+        path: path,
+        key: this.localSearchKey
+      })
+      if (!isEmpty(this.marker)) {
+        // 上次为分页记录下拉去，目录可能会重复，需要去重在进行追加
+        const fl = data.list.filter(f => {
+          if (f.type === 'file') {
+            return true
+          } else {
+            return !this.fileList.find(e => {
+              if (e.type === 'file') {
+                return false
+              }
+              return e.name === f.name
+            })
           }
-        } else {
-          // 非分页，直接赋值
-          this.fileList = data.list || []
+        })
+        if (!isEmpty(fl)) {
+          this.fileList.push(...fl)
         }
-        // 记录分页加载标志
-        this.marker = data.marker
-      } finally {
-        // invisible loading
-        this.isLoading = false
+      } else {
+        // 非分页，直接赋值
+        this.fileList = data.list || []
       }
+      // 记录分页加载标志
+      this.marker = data.marker
     },
     handleBack() {
       if (this.currentPathList.length === 0) {
@@ -213,7 +204,7 @@ export default {
       }
     },
     handleFileClick(row) {
-      if (row.type === 'dir' && !this.isLoading) {
+      if (row.type === 'dir') {
         this.currentPathList.push(row.name)
       } else {
         this.$refs.previewDrawer.open(row.name, this.parsePath())
