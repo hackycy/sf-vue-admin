@@ -15,7 +15,7 @@
             height: disabledPreview ? '85px' : '210px'
           }"
           :src="disabledPreview ? unPreviewImage : imageView2Handle"
-          :preview-src-list="[previewSrc]"
+          :preview-src-list="disabledPreview ? [] : [previewSrc]"
           :z-index="999999"
         />
       </div>
