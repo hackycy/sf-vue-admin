@@ -73,7 +73,7 @@
         </template>
       </el-table>
     </table-layout>
-    <file-upload-drawer ref="uploadDrawer" @closed="refresh" />
+    <file-upload-drawer ref="uploadDrawer" @changed="refresh" />
     <file-preview-drawer ref="previewDrawer" />
   </div>
 </template>

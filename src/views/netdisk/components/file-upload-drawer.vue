@@ -50,7 +50,9 @@ export default {
       visible: false,
       path: '',
       token: '',
-      subscribes: []
+      subscribes: [],
+      // 成功的请求
+      successSubs: []
     }
   },
   computed: {
@@ -82,8 +84,8 @@ export default {
       })
     },
     handleClose() {
-      if (this.subscribes.length > 0) {
-        this.$confirm('关闭可能会取消未上传的文件，确认关闭吗？', '提示', {
+      if (this.subscribes.length > 0 && this.subscribes.length !== this.successSubs.length) {
+        this.$confirm('关闭会取消未上传的文件，确认关闭吗？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -103,9 +105,6 @@ export default {
       this.path = ''
       this.token = ''
       this.clear()
-      this.$nextTick(() => {
-        this.$emit('closed')
-      })
     },
     /**
      * 使用qiniu-js上传
@@ -127,6 +126,7 @@ export default {
           onError(err)
         },
         complete: res => {
+          this.successSubs.push(sub)
           onSuccess(res)
         }
       })
@@ -142,13 +142,26 @@ export default {
       })
     },
     clear() {
-      for (let i = 0; i < this.subscribes.length; i++) {
-        this.subscribes[i].unsubscribe()
-        this.subscribes[i] = null
+      if (this.subscribes.length <= 0) {
+        return
       }
+      const subsTmpArr = this.subscribes
+      const successSubsTmpArr = this.successSubs
       // clean
       this.subscribes = []
+      this.successSubs = []
+      // un sub
+      if (subsTmpArr.length !== successSubsTmpArr.length) {
+        for (let i = 0; i < subsTmpArr.length; i++) {
+          subsTmpArr[i].unsubscribe()
+          subsTmpArr[i] = null
+        }
+      }
       this.$refs.upload && this.$refs.upload.clearFiles()
+      // emit
+      this.$nextTick(() => {
+        this.$emit('changed')
+      })
     }
   }
 }
