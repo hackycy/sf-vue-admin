@@ -21,7 +21,7 @@
       </template>
       <el-table
         ref="fileTable"
-        v-infinite-scroll="loadData"
+        v-el-table-infinite-scroll="loadData"
         infinite-scroll-disabled="loadMoreDisabled"
         empty-text="暂无文件"
         height="100%"
@@ -139,7 +139,7 @@ export default {
     }
   },
   created() {
-    this.loadData()
+    this.marker = ' '
   },
   methods: {
     async loadData() {
@@ -150,7 +150,7 @@ export default {
         this.isLoading = true
         const path = this.parsePath()
         const { data } = await getFileList({
-          marker: this.marker || '',
+          marker: this.marker.trim() || '',
           path: path,
           key: this.localSearchKey
         })
