@@ -33,6 +33,17 @@
           :span="18"
         ><span class="info">{{ detailInfos[index] }}</span></el-col>
       </el-row>
+      <el-row class="item-box">
+        <el-col :span="6"><span class="label">文件备注</span></el-col>
+        <el-col :span="18">
+          <el-input
+            type="textarea"
+            placeholder="请输入内容，支持最多输入100字符"
+            maxlength="100"
+            :rows="4"
+            show-word-limit
+          /></el-col>
+      </el-row>
     </div>
   </el-drawer>
 </template>
