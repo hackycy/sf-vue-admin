@@ -23,33 +23,39 @@
         v-for="(item, index) in detailKeys"
         :key="index"
         type="flex"
-        :gutter="4"
+        :gutter="10"
         class="item-box"
       >
         <el-col
-          :span="6"
+          :span="4"
         ><span class="label">{{ detailLabels[index] }}</span></el-col>
         <el-col
-          :span="18"
+          :span="20"
         ><span class="info">{{ detailInfos[index] }}</span></el-col>
       </el-row>
+      <!-- mark -->
       <el-row class="item-box">
-        <el-col :span="6"><span class="label">文件备注</span></el-col>
-        <el-col :span="18">
+        <el-col :span="4"><span class="label">文件备注</span></el-col>
+        <el-col :span="20">
           <el-input
+            v-model="mark"
+            :disabled="!$auth('netdiskManage.mark')"
             type="textarea"
-            placeholder="请输入内容，支持最多输入100字符"
+            placeholder="请输入文件备注"
             maxlength="100"
             :rows="4"
             show-word-limit
           /></el-col>
+      </el-row>
+      <el-row type="flex" justify="end">
+        <el-button :loading="updateMarkLoading" :disabled="!$auth('netdiskManage.mark')" type="primary" size="mini" @click="updateMark">更新</el-button>
       </el-row>
     </div>
   </el-drawer>
 </template>
 
 <script>
-import { getFileDetailInfo, getDownloadLink } from '@/api/netdisk/manage'
+import { getFileDetailInfo, getDownloadLink, updateFileMark } from '@/api/netdisk/manage'
 import { formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
 import noPreviewImage from '@/assets/no-preview.png'
@@ -60,6 +66,8 @@ export default {
     return {
       loading: false,
       visible: false,
+      name: '',
+      path: '',
       detailKeys: [
         'name',
         'mimeType',
@@ -80,6 +88,8 @@ export default {
       ],
       detailInfos: [],
       previewSrc: '',
+      mark: '',
+      updateMarkLoading: false,
       unPreviewImage: noPreviewImage
     }
   },
@@ -95,6 +105,8 @@ export default {
   methods: {
     open(name, path) {
       this.visible = true
+      this.name = name
+      this.path = path
       this.$nextTick(async() => {
         try {
           this.loading = true
@@ -104,6 +116,7 @@ export default {
           }
           const { data } = await getFileDetailInfo(fileInfo)
           this.detailInfos.push(name)
+          this.mark = data.mark
           for (let i = 1; i < this.detailKeys.length; i++) {
             if (this.detailKeys[i] === 'fsize') {
               this.detailInfos.push(formatSizeUnits(data[this.detailKeys[i]]))
@@ -126,10 +139,26 @@ export default {
         }
       })
     },
+    async updateMark() {
+      try {
+        this.updateMarkLoading = true
+        await updateFileMark({
+          name: this.name,
+          path: this.path,
+          mark: this.mark
+        })
+        this.$message.success('已更新文件备注')
+      } finally {
+        this.updateMarkLoading = false
+      }
+    },
     handleClose() {
-      this.visible = false
+      this.name = ''
+      this.path = ''
       this.previewSrc = ''
+      this.mark = ''
       this.detailInfos = []
+      this.visible = false
     }
   }
 }

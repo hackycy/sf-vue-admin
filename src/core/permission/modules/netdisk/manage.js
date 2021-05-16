@@ -6,5 +6,6 @@ export default {
   download: 'netdisk/manage/download',
   delete: 'netdisk/manage/delete',
   check: 'netdisk/manage/check',
-  info: 'netdisk/manage/info'
+  info: 'netdisk/manage/info',
+  mark: 'netdisk/manage/mark'
 }

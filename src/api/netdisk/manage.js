@@ -63,3 +63,11 @@ export function getFileDetailInfo(data) {
     data
   })
 }
+
+export function updateFileMark(data) {
+  return request({
+    url: ManageApi.mark,
+    method: 'post',
+    data
+  })
+}
