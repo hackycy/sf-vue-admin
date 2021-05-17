@@ -149,7 +149,7 @@ export default {
     }
   },
   created() {
-    this.marker = ' '
+    this.refresh()
   },
   methods: {
     refresh() {
@@ -166,7 +166,7 @@ export default {
         key: this.localSearchKey
       })
       if (!isEmpty(this.marker)) {
-        // 上次为分页记录下拉去，目录可能会重复，需要去重在进行追加
+        // 上次有分页记录时，目录可能会重复，需要去重在进行追加
         const fl = data.list.filter(f => {
           if (f.type === 'file') {
             return true
@@ -181,6 +181,10 @@ export default {
         })
         if (!isEmpty(fl)) {
           this.fileList.push(...fl)
+        } else {
+          // 重复分页只有目录时没有数据滚动，则会导致分页无法正常加载
+          // this.fileList = cloneDeep(this.fileList)
+          this.tableKey += 1
         }
       } else {
         // 非分页，直接赋值
