@@ -31,7 +31,6 @@
         :data="fileList"
         size="small"
         @row-contextmenu="handleRowContextMenu"
-        @header-contextmenu="handleHeaderContextMenu"
       >
         <el-table-column show-overflow-tooltip label="文件名">
           <template slot-scope="scope">
@@ -107,7 +106,9 @@ export default {
       pasteOriginPath: '',
       // 菊花加载
       isLoading: false,
-      tableKey: 1
+      tableKey: 1,
+      // 防止滚动加载速度过快导致出现数据不同步
+      lock: false
     }
   },
   computed: {
@@ -159,6 +160,10 @@ export default {
       this.tableKey += 1
     },
     async loadData() {
+      if (this.lock) {
+        return
+      }
+      this.lock = true
       const path = this.parsePath()
       const { data } = await getFileList({
         marker: this.marker.trim() || '',
@@ -192,6 +197,7 @@ export default {
       }
       // 记录分页加载标志
       this.marker = data.marker
+      this.lock = false
     },
     handleBack() {
       if (this.currentPathList.length === 0) {
@@ -331,9 +337,9 @@ export default {
         ]
       })
     },
-    handleLocalSearch() {
+    handleSearch() {
       this.$openFormDialog({
-        title: '搜索当前文件夹',
+        title: '空间搜索',
         formProps: {
           'label-width': '80px'
         },
@@ -413,28 +419,6 @@ export default {
               attrs: {
                 placeholder: '请输入文件夹名称'
               }
-            }
-          }
-        ]
-      })
-    },
-    handleHeaderContextMenu(column, e) {
-      this.$openContextMenu(e, {
-        width: 100,
-        items: [
-          {
-            title: '刷新',
-            callback: ({ close }) => {
-              close()
-              this.refresh()
-            }
-          },
-          {
-            title: this.isSearching ? '取消搜索' : '搜索',
-            disabled: !this.$auth('netdiskManage.list'),
-            callback: ({ close }) => {
-              close()
-              this.isSearching ? this.localSearchKey = '' : this.handleLocalSearch()
             }
           }
         ]
