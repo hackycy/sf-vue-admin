@@ -3,8 +3,8 @@
     <table-layout :wrap="false">
       <template #header>
         <div class="space-header">
-          <el-button icon="el-icon-back" size="mini" :disabled="backDisabled" @click="handleBack" />
-          <i :class="isLoading ? 'el-icon-loading' : 'el-icon-folder-checked'" style="margin-right: 14px;margin-left: 14px" />
+          <el-button icon="el-icon-back" size="mini" :disabled="backDisabled || isSearching" @click="handleBack" />
+          <i :class="isLoading ? 'el-icon-loading' : 'el-icon-folder'" style="margin-right: 14px;margin-left: 14px; cursor: pointer;" @click="refresh" />
           <el-breadcrumb separator="/" class="breadcrumb">
             <el-breadcrumb-item><el-link :underline="false" @click="handleJumpPath(-1)">根目录</el-link></el-breadcrumb-item>
             <el-breadcrumb-item
@@ -15,6 +15,9 @@
             </el-breadcrumb-item>
           </el-breadcrumb>
           <el-button v-show="isShowPasteButton" type="info" plain size="mini"><i class="el-icon-s-claim" />粘贴</el-button>
+          <el-button :plain="isSearching" type="success" size="mini" :disabled="!$auth('netdiskManage.list')" @click="handleSearch"><i class="el-icon-search" />
+            {{ isSearching ? '取消搜索' : '全盘搜索' }}
+          </el-button>
           <el-button type="primary" size="mini" :disabled="!$auth('netdiskManage.token')" @click="handleUpload"><i class="el-icon-upload" />上传文件</el-button>
           <el-button size="mini" :disabled="!$auth('netdiskManage.mkdir')" @click="handleMkdir"><i class="el-icon-folder-add" />创建文件夹</el-button>
         </div>
@@ -62,6 +65,24 @@
           align="center"
           width="220"
         />
+        <el-table-column
+          v-if="isSearching"
+          prop="belongTo"
+          show-overflow-tooltip
+          label="所属目录"
+          align="center"
+          width="220"
+        >
+          <template slot-scope="scope">
+            <el-link
+              :disabled="scope.row.type === 'file' && !$auth('netdiskManage.info')"
+              :underline="false"
+              type="info"
+            >
+              {{ scope.row.belongTo ? scope.row.belongTo : '根目录' }}
+            </el-link>
+          </template>
+        </el-table-column>
         <template v-if="!loadMoreDisabled" slot="append">
           <el-row type="flex" justify="center">
             <span style="line-height: 50px;">
@@ -141,12 +162,11 @@ export default {
       }
     },
     currentPathList: function() {
+      // clear key
       this.refresh()
     },
     localSearchKey: function(k) {
-      if (isEmpty(k)) {
-        this.refresh()
-      }
+      this.refresh()
     }
   },
   created() {
@@ -207,6 +227,9 @@ export default {
       }
     },
     handleJumpPath(index) {
+      if (this.isSearching) {
+        return
+      }
       if (index === -1 && this.currentPathList.length > 0) {
         this.currentPathList = []
       } else if (index >= 0 && this.currentPathList.length - 1 !== index) {
@@ -215,9 +238,19 @@ export default {
     },
     handleFileClick(row) {
       if (row.type === 'dir') {
-        this.currentPathList.push(row.name)
+        if (this.isSearching) {
+          const pathList = isEmpty(row.belongTo) ? [] : pathList.split('/')
+          pathList.push(row.name)
+          this.currentPathList = pathList
+        } else {
+          this.currentPathList.push(row.name)
+        }
       } else {
-        this.$refs.previewDrawer.open(row.name, this.parsePath())
+        if (this.isSearching) {
+          this.$refs.previewDrawer.open(row.name, `${row.belongTo}/`)
+        } else {
+          this.$refs.previewDrawer.open(row.name, this.parsePath())
+        }
       }
     },
     handleUpload() {
@@ -338,15 +371,18 @@ export default {
       })
     },
     handleSearch() {
+      if (this.isSearching) {
+        this.localSearchKey = ''
+        return
+      }
       this.$openFormDialog({
-        title: '空间搜索',
+        title: '全盘搜索',
         formProps: {
           'label-width': '80px'
         },
         on: {
           submit: (data, { close }) => {
             this.localSearchKey = data.key
-            this.refresh()
             close()
           }
         },
