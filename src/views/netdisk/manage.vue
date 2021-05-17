@@ -5,15 +5,17 @@
         <div class="space-header">
           <el-button icon="el-icon-back" size="mini" :disabled="backDisabled || isSearching" @click="handleBack" />
           <i :class="isLoading ? 'el-icon-loading' : 'el-icon-folder'" style="margin-right: 14px;margin-left: 14px; cursor: pointer;" @click="refresh" />
-          <el-breadcrumb separator="/" class="breadcrumb">
-            <el-breadcrumb-item><el-link :underline="false" @click="handleJumpPath(-1)">根目录</el-link></el-breadcrumb-item>
-            <el-breadcrumb-item
-              v-for="(item, index) in currentPathList"
-              :key="index"
-            >
-              <el-link :underline="false" @click="handleJumpPath(index, item)">{{ item }}</el-link>
-            </el-breadcrumb-item>
-          </el-breadcrumb>
+          <div class="breadcrumb">
+            <el-breadcrumb v-show="!isSearching" separator="/">
+              <el-breadcrumb-item><el-link :underline="false" @click="handleJumpPath(-1)">根目录</el-link></el-breadcrumb-item>
+              <el-breadcrumb-item
+                v-for="(item, index) in currentPathList"
+                :key="index"
+              >
+                <el-link :underline="false" @click="handleJumpPath(index, item)">{{ item }}</el-link>
+              </el-breadcrumb-item>
+            </el-breadcrumb>
+          </div>
           <el-button v-show="isShowPasteButton" type="info" plain size="mini"><i class="el-icon-s-claim" />粘贴</el-button>
           <el-button :plain="isSearching" type="success" size="mini" :disabled="!$auth('netdiskManage.list')" @click="handleSearch"><i class="el-icon-search" />
             {{ isSearching ? '取消搜索' : '全盘搜索' }}
@@ -78,6 +80,7 @@
               :disabled="scope.row.type === 'file' && !$auth('netdiskManage.info')"
               :underline="false"
               type="info"
+              @click="handleClickBelong(scope.row)"
             >
               {{ scope.row.belongTo ? scope.row.belongTo : '根目录' }}
             </el-link>
@@ -236,11 +239,23 @@ export default {
         this.currentPathList = this.currentPathList.slice(0, index + 1)
       }
     },
+    handleClickBelong(row) {
+      // clear search key
+      this.localSearchKey = ''
+      if (isEmpty(row.belongTo)) {
+        // root
+        this.currentPathList = []
+      } else {
+        this.currentPathList = row.belongTo.split('/')
+      }
+    },
     handleFileClick(row) {
       if (row.type === 'dir') {
         if (this.isSearching) {
           const pathList = isEmpty(row.belongTo) ? [] : pathList.split('/')
           pathList.push(row.name)
+          // clear search key
+          this.localSearchKey = ''
           this.currentPathList = pathList
         } else {
           this.currentPathList.push(row.name)
