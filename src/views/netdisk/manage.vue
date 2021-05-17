@@ -262,7 +262,7 @@ export default {
         }
       } else {
         if (this.isSearching) {
-          this.$refs.previewDrawer.open(row.name, `${row.belongTo}/`)
+          this.$refs.previewDrawer.open(row.name, isEmpty(row.belongTo) ? '' : `${row.belongTo}/`)
         } else {
           this.$refs.previewDrawer.open(row.name, this.parsePath())
         }
