@@ -179,6 +179,10 @@ export default {
     refresh() {
       this.marker = ' '
       this.fileList = []
+      // unlock
+      if (this.lock) {
+        this.lock = false
+      }
       // 让el-table重新渲染，否则滚动在重置数据时候数据过少不会触发滚动加载
       this.tableKey += 1
     },
