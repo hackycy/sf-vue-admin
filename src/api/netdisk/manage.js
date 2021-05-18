@@ -71,3 +71,19 @@ export function updateFileMark(data) {
     data
   })
 }
+
+export function cutFiles(data) {
+  return request({
+    url: ManageApi.cut,
+    method: 'post',
+    data
+  })
+}
+
+export function copyFiles(data) {
+  return request({
+    url: ManageApi.copy,
+    method: 'post',
+    data
+  })
+}

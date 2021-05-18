@@ -3,8 +3,7 @@
     <table-layout :wrap="false">
       <template #header>
         <div class="space-header">
-          <el-button icon="el-icon-back" size="mini" :disabled="backDisabled || isSearching" @click="handleBack" />
-          <i :class="isLoading ? 'el-icon-loading' : 'el-icon-folder'" style="margin-right: 14px;margin-left: 14px; cursor: pointer;" @click="refresh" />
+          <i :class="loading ? 'el-icon-loading' : 'el-icon-folder'" style="margin-right: 12px;margin-left: 12px;" />
           <div class="breadcrumb">
             <el-breadcrumb v-show="!isSearching" separator="/">
               <el-breadcrumb-item><el-link :underline="false" @click="handleJumpPath(-1)">根目录</el-link></el-breadcrumb-item>
@@ -16,7 +15,7 @@
               </el-breadcrumb-item>
             </el-breadcrumb>
           </div>
-          <el-button v-show="isShowPasteButton" type="info" plain size="mini"><i class="el-icon-s-claim" />粘贴</el-button>
+          <el-button v-show="isShowPasteButton" type="info" plain size="mini" :disabled="cutMode && pasteOriginPath === parsePath()" @click="handlePaste"><i class="el-icon-s-claim" />粘贴</el-button>
           <el-button :plain="isSearching" type="success" size="mini" :disabled="!$auth('netdiskManage.list')" @click="handleSearch"><i class="el-icon-search" />
             {{ isSearching ? '取消搜索' : '全盘搜索' }}
           </el-button>
@@ -106,7 +105,7 @@ import TableLayout from '@/layout/components/TableLayout'
 import FileUploadDrawer from './components/file-upload-drawer'
 import FilePreviewDrawer from './components/file-preview-drawer'
 import MessageBoxMixin from '@/core/mixins/message-box'
-import { getFileList, createDir, renameDirOrFile, getDownloadLink, deleteFileOrDir, checkTaskStatus } from '@/api/netdisk/manage'
+import { getFileList, createDir, renameDirOrFile, getDownloadLink, deleteFileOrDir, checkTaskStatus, cutFiles, copyFiles } from '@/api/netdisk/manage'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
 
@@ -128,8 +127,11 @@ export default {
       cutMode: false,
       copyMode: false,
       pasteOriginPath: '',
+      // { type, name }
+      pasteFileList: [],
       // 菊花加载
       isLoading: false,
+      pollingLoading: false,
       tableKey: 1,
       // 防止滚动加载速度过快导致出现数据不同步
       lock: false
@@ -147,21 +149,28 @@ export default {
     },
     isShowPasteButton() {
       return this.cutMode || this.copyMode
+    },
+    loading() {
+      return this.isLoading || this.pollingLoading
     }
   },
   watch: {
     cutMode: function(mode) {
       if (mode) {
         this.copyMode = false
-        // record current path
+        // record
         this.pasteOriginPath = this.parsePath()
+      } else {
+        this.clearPasteCache()
       }
     },
     copyMode: function(mode) {
       if (mode) {
         this.cutMode = false
-        // record current path
+        // record
         this.pasteOriginPath = this.parsePath()
+      } else {
+        this.clearPasteCache()
       }
     },
     currentPathList: function() {
@@ -479,6 +488,26 @@ export default {
         ]
       })
     },
+    async handlePaste() {
+      const opData = {
+        files: this.pasteFileList,
+        originPath: this.pasteOriginPath,
+        toPath: this.parsePath()
+      }
+      if (this.cutMode && !this.copyMode) {
+        // cut
+        await cutFiles(opData)
+        this.cutMode = false
+        this.clearPasteCache()
+        this.refresh()
+      } else if (!this.cutMode && this.copyMode) {
+        // copy
+        await copyFiles(opData)
+        this.copyMode = false
+        this.clearPasteCache()
+        this.refresh()
+      }
+    },
     /**
      * 行右键打开右键菜单
      */
@@ -498,6 +527,13 @@ export default {
             title: '剪切',
             disabled: !this.$auth('netdiskManage.cut'),
             callback: ({ close }) => {
+              this.clearPasteCache()
+              this.pasteFileList.push({
+                type: row.type,
+                name: row.name
+              })
+              this.$message.success('已剪切')
+              this.cutMode = true
               close()
             }
           },
@@ -505,6 +541,13 @@ export default {
             title: '复制',
             disabled: !this.$auth('netdiskManage.copy'),
             callback: ({ close }) => {
+              this.clearPasteCache()
+              this.pasteFileList.push({
+                type: row.type,
+                name: row.name
+              })
+              this.$message.success('已复制')
+              this.copyMode = true
               close()
             }
           },
@@ -536,6 +579,7 @@ export default {
      */
     pollingCheckStatus(action, name, path, { success, fail }) {
       this.$message.success('已加入后台任务，请勿重复操作')
+      this.pollingLoading = true
       const val = setInterval(async() => {
         try {
           const { data } = await checkTaskStatus({
@@ -544,19 +588,25 @@ export default {
             path
           })
           if (data.status === 1) {
-            if (success) {
-              success()
-            }
+            setTimeout(() => {
+              success && success()
+              this.pollingLoading = false
+            }, 3000)
+            clearInterval(val)
           } else if (data.status === 2) {
-            if (fail) {
-              fail(data.err)
-            }
+            fail && fail(data.err)
+            this.pollingLoading = false
+            clearInterval(val)
           }
-          clearInterval(val)
         } catch {
+          this.pollingLoading = false
           clearInterval(val)
         }
       }, 3000)
+    },
+    clearPasteCache() {
+      this.pasteOriginPath = ''
+      this.pasteFileList = []
     },
     parsePath() {
       let path = ''

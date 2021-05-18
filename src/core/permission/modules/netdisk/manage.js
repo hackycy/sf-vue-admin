@@ -7,5 +7,7 @@ export default {
   delete: 'netdisk/manage/delete',
   check: 'netdisk/manage/check',
   info: 'netdisk/manage/info',
-  mark: 'netdisk/manage/mark'
+  mark: 'netdisk/manage/mark',
+  cut: 'netdisk/manage/cut',
+  copy: 'netdisk/manage/copy'
 }
