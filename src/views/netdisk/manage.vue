@@ -152,7 +152,7 @@ export default {
       // item must a obj like this : { type: 'file' , name: 'xxx.jpg' }
       pasteFileList: [],
       // item must a obj like this : { type: 'file' , name: 'xxx.jpg' }
-      opFileList: [],
+      selectedFileList: [],
       // 菊花加载
       isLoading: false,
       pollingLoading: false,
@@ -178,7 +178,7 @@ export default {
       return this.isLoading || this.pollingLoading
     },
     disabledMultiOp() {
-      return this.opFileList.length <= 0
+      return this.selectedFileList.length <= 0
     }
   },
   watch: {
@@ -479,10 +479,10 @@ export default {
     handleMoreOpCommand(command) {
       if (command === 'copy') {
         this.copyMode = true
-        this.pasteFileList = clone(this.opFileList)
+        this.pasteFileList = clone(this.selectedFileList)
       } else if (command === 'cut') {
         this.cutMode = true
-        this.pasteFileList = clone(this.opFileList)
+        this.pasteFileList = clone(this.selectedFileList)
       } else if (command === 'delete') {
         // delete
         this.openLoadingConfirm({ on: {
@@ -498,7 +498,7 @@ export default {
       }
     },
     handleSelectionChange(rows) {
-      this.opFileList = rows.map((item) => { return { type: item.type, name: item.name } })
+      this.selectedFileList = rows.map((item) => { return { type: item.type, name: item.name } })
     },
     clearPasteCache() {
       this.pasteOriginPath = ''
@@ -546,7 +546,7 @@ export default {
     async handleDelete({ close, done }) {
       try {
         const path = this.parsePath()
-        const files = clone(this.opFileList)
+        const files = clone(this.selectedFileList)
         await deleteFileOrDir({
           path,
           files
