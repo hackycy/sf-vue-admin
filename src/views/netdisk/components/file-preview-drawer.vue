@@ -84,7 +84,7 @@ export default {
         '文件MD5',
         '文件大小',
         '上传时间',
-        '操作人'
+        '上传人员'
       ],
       detailInfos: [],
       previewSrc: '',
