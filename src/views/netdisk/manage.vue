@@ -20,7 +20,7 @@
           <el-button v-show="copyMode || cutMode" type="info" plain size="mini" :disabled="disabledPasteButton" @click="handlePaste"><i class="el-icon-s-claim" />粘贴</el-button>
           <el-dropdown size="small" @command="handleMoreOpCommand">
             <el-tooltip effect="dark" content="注意：复制或剪切时会覆盖重名文件" placement="top">
-              <el-button type="warning" size="mini" style="margin: 0 10px;" :disabled="disabledMultiOp">
+              <el-button type="warning" size="mini" style="margin: 0 10px;">
                 <i class="el-icon-s-operation" />批量操作
               </el-button>
             </el-tooltip>
@@ -176,9 +176,6 @@ export default {
     },
     loading() {
       return this.isLoading || this.pollingLoading
-    },
-    disabledMultiOp() {
-      return this.selectedFileList.length <= 0
     }
   },
   watch: {
