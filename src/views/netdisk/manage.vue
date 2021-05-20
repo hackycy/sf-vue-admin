@@ -164,6 +164,7 @@ export default {
     refresh() {
       this.marker = ' '
       this.fileList = []
+      this.selectedFileList = []
       // unlock
       if (this.lock) {
         this.lock = false
