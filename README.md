@@ -6,7 +6,9 @@
 
 后端项目地址：[传送门](https://github.com/hackycy/sf-midway-admin)
 
-> egg分支仍然支持[egg版本](https://github.com/hackycy/sf-egg-admin)，但后续新功能只会在Midway版本进行更新。
+> egg分支仍然支持[egg版本](https://github.com/hackycy/sf-egg-admin)
+> midway分支支持[midway版本](https://github.com/hackycy/sf-midway-admin)
+> 后续计划egg版本放弃维护，midway维护已有功能并修复bug，nest在维护的基础上会更新更多的功能。
 
 ### 演示地址
 
