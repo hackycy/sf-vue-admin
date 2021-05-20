@@ -3,7 +3,7 @@
     <table-layout :wrap="false">
       <template #header>
         <div class="space-header">
-          <i :class="loading ? 'el-icon-loading' : 'el-icon-folder'" style="margin-right: 16px;margin-left: 16px;" />
+          <i :class="isLoading ? 'el-icon-loading' : 'el-icon-folder'" style="margin-right: 16px;margin-left: 16px;" />
           <!-- 目录列表 -->
           <div class="breadcrumb">
             <el-breadcrumb v-show="!isSearching" separator="/">
@@ -17,25 +17,12 @@
             </el-breadcrumb>
           </div>
           <!-- 按钮操作栏 -->
-          <el-button v-show="copyMode || cutMode" type="info" plain size="mini" :disabled="disabledPasteButton" @click="handlePaste"><i class="el-icon-s-claim" />粘贴</el-button>
-          <el-dropdown size="small" @command="handleMoreOpCommand">
-            <el-tooltip effect="dark" content="注意：复制或剪切时会覆盖重名文件" placement="top">
-              <el-button type="warning" size="mini" style="margin: 0 10px;">
-                <i class="el-icon-s-operation" />批量操作
-              </el-button>
-            </el-tooltip>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item icon="el-icon-document-copy" command="copy" :disabled="!$auth('netdiskManage.copy')"> 复制所选 </el-dropdown-item>
-              <el-dropdown-item icon="el-icon-scissors" command="cut" :disabled="!$auth('netdiskManage.cut')"> 剪切所选 </el-dropdown-item>
-              <el-dropdown-item icon="el-icon-folder-remove" command="delete" :disabled="!$auth('netdiskManage.delete')"> 删除所选 </el-dropdown-item>
-              <el-dropdown-item icon="el-icon-close" divider command="cancel" :disabled="!copyMode && !cutMode"> 取消粘贴 </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-          <el-button :plain="isSearching" type="success" size="mini" :disabled="!$auth('netdiskManage.list')" @click="handleSearch"><i class="el-icon-search" />
-            {{ isSearching ? '取消搜索' : '全盘搜索' }}
-          </el-button>
-          <el-button type="primary" size="mini" :disabled="!$auth('netdiskManage.token')" @click="handleUpload"><i class="el-icon-upload" />上传文件</el-button>
-          <el-button size="mini" :disabled="!$auth('netdiskManage.mkdir')" @click="handleMkdir"><i class="el-icon-folder-add" />创建文件夹</el-button>
+          <file-operate-button-list
+            :search-key.sync="localSearchKey"
+            :selected-file-list="selectedFileList"
+            :parse-path="parsePath"
+            @changed="refresh"
+          />
         </div>
       </template>
       <!-- file table -->
@@ -63,7 +50,7 @@
             <el-link
               :disabled="scope.row.type === 'file' && !$auth('netdiskManage.info')"
               :underline="false"
-              @click="handleFileClick(scope.row)"
+              @click="handleClickFileItem(scope.row)"
             ><svg-icon :icon-class="parseType(scope.row.name, scope.row.type)" />
               <span v-if="isSearching" v-html="hignlightSearchKey(scope.row.name)" />
               <span v-else>{{ scope.row.name }}</span>
@@ -117,86 +104,51 @@
         </template>
       </el-table>
     </table-layout>
-    <file-upload-drawer ref="uploadDrawer" @changed="refresh" />
     <file-preview-drawer ref="previewDrawer" />
   </div>
 </template>
 
 <script>
 import TableLayout from '@/layout/components/TableLayout'
-import FileUploadDrawer from './components/file-upload-drawer'
+import FileOperateButtonList from './components/file-operate-button-list'
 import FilePreviewDrawer from './components/file-preview-drawer'
-import MessageBoxMixin from '@/core/mixins/message-box'
-import { getFileList, createDir, renameDirOrFile, getDownloadLink, deleteFileOrDir, checkTaskStatus, cutFiles, copyFiles } from '@/api/netdisk/manage'
+import PollingMixin from './mixins/polling'
+import { getFileList, renameDirOrFile, getDownloadLink } from '@/api/netdisk/manage'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
-import { isEmpty, clone } from 'lodash'
+import { isEmpty } from 'lodash'
 
 export default {
   name: 'SystemFileSpace',
   components: {
     TableLayout,
-    FileUploadDrawer,
-    FilePreviewDrawer
+    FilePreviewDrawer,
+    FileOperateButtonList
   },
-  mixins: [MessageBoxMixin],
+  mixins: [PollingMixin],
   data() {
     return {
       fileList: [],
       currentPathList: [],
       marker: '',
       localSearchKey: '',
-      // cur & copy 两者对立，不能存在两个都为true
-      cutMode: false,
-      copyMode: false,
-      pasteOriginPath: '',
-      // item must a obj like this : { type: 'file' , name: 'xxx.jpg' }
-      pasteFileList: [],
       // item must a obj like this : { type: 'file' , name: 'xxx.jpg' }
       selectedFileList: [],
       // 菊花加载
       isLoading: false,
-      pollingLoading: false,
       tableKey: 1,
       // 防止滚动加载速度过快导致出现数据不同步
       lock: false
     }
   },
   computed: {
-    isSearching() {
-      return !isEmpty(this.localSearchKey)
-    },
     loadMoreDisabled() {
       return isEmpty(this.marker)
     },
-    disabledPasteButton() {
-      if (this.pasteFileList.length <= 0) {
-        return true
-      }
-      return this.cutMode && this.pasteOriginPath === this.parsePath()
-    },
-    loading() {
-      return this.isLoading || this.pollingLoading
+    isSearching() {
+      return !isEmpty(this.localSearchKey)
     }
   },
   watch: {
-    cutMode: function(mode) {
-      if (mode) {
-        this.copyMode && (this.copyMode = false)
-        // record
-        this.pasteOriginPath = this.parsePath()
-      } else {
-        this.clearPasteCache()
-      }
-    },
-    copyMode: function(mode) {
-      if (mode) {
-        this.cutMode && (this.cutMode = false)
-        // record
-        this.pasteOriginPath = this.parsePath()
-      } else {
-        this.clearPasteCache()
-      }
-    },
     currentPathList: function() {
       // clear key
       this.refresh()
@@ -279,7 +231,7 @@ export default {
         this.currentPathList = row.belongTo.split('/')
       }
     },
-    handleFileClick(row) {
+    handleClickFileItem(row) {
       if (row.type === 'dir') {
         if (this.isSearching) {
           const pathList = isEmpty(row.belongTo) ? [] : pathList.split('/')
@@ -297,9 +249,6 @@ export default {
           this.$refs.previewDrawer.open(row.name, this.parsePath())
         }
       }
-    },
-    handleUpload() {
-      this.$refs.uploadDrawer.open(this.parsePath())
     },
     async handleDownload(row) {
       try {
@@ -383,195 +332,6 @@ export default {
         ]
       })
     },
-    handleSearch() {
-      if (this.isSearching) {
-        this.localSearchKey = ''
-        return
-      }
-      this.$openFormDialog({
-        title: '全盘搜索',
-        formProps: {
-          'label-width': '80px'
-        },
-        on: {
-          submit: (data, { close }) => {
-            this.localSearchKey = data.key
-            close()
-          }
-        },
-        items: [
-          {
-            prop: 'key',
-            label: '关键字',
-            value: '',
-            rules: {
-              required: true,
-              trigger: 'blur',
-              validator: (rule, value, callback) => {
-                // 不可同时存在 // 此种路径
-                if (value && !value.includes('/')) {
-                  callback()
-                } else {
-                  callback(new Error('请输入合法的名称'))
-                }
-              }
-            },
-            component: {
-              name: 'el-input',
-              attrs: {
-                placeholder: '请输入搜索关键字'
-              }
-            }
-          }
-        ]
-      })
-    },
-    handleMkdir() {
-      this.$openFormDialog({
-        title: '创建文件夹',
-        formProps: {
-          'label-width': '100px'
-        },
-        on: {
-          submit: async(data, { close, done }) => {
-            try {
-              await createDir({
-                path: this.parsePath(),
-                dirName: data.dirName
-              })
-              close()
-              // reload
-              this.refresh()
-            } catch {
-              done()
-            }
-          }
-        },
-        items: [
-          {
-            prop: 'dirName',
-            label: '文件夹名称',
-            rules: {
-              required: true,
-              trigger: 'blur',
-              validator: (rule, value, callback) => {
-                // 不可同时存在 // 此种路径
-                if (value && !(value.includes('/'))) {
-                  callback()
-                } else {
-                  callback(new Error('请输入合法的文件夹路径'))
-                }
-              }
-            },
-            component: {
-              name: 'el-input',
-              attrs: {
-                placeholder: '请输入文件夹名称'
-              }
-            }
-          }
-        ]
-      })
-    },
-    handleMoreOpCommand(command) {
-      if (command === 'copy') {
-        this.copyMode = true
-        this.pasteFileList = clone(this.selectedFileList)
-      } else if (command === 'cut') {
-        this.cutMode = true
-        this.pasteFileList = clone(this.selectedFileList)
-      } else if (command === 'delete') {
-        // delete
-        this.openLoadingConfirm({ on: {
-          confirm: (op) => {
-            this.handleDelete(op)
-          }
-        }})
-      } else if (command === 'cancel') {
-        this.cutMode = false
-        this.copyMode = false
-        this.clearPasteCache()
-        this.$refs.fileTable.clearSelection()
-      }
-    },
-    handleSelectionChange(rows) {
-      this.selectedFileList = rows.map((item) => { return { type: item.type, name: item.name } })
-    },
-    clearPasteCache() {
-      this.pasteOriginPath = ''
-      this.pasteFileList = []
-    },
-    async handlePaste() {
-      try {
-        const opData = {
-          files: this.pasteFileList,
-          originPath: this.pasteOriginPath,
-          toPath: this.parsePath()
-        }
-        if (this.cutMode && !this.copyMode) {
-          // cut
-          await cutFiles(opData)
-          this.cutMode = false
-        } else if (!this.cutMode && this.copyMode) {
-          // copy
-          await copyFiles(opData)
-          this.copyMode = false
-        }
-        this.clearPasteCache()
-        if (opData.files.length === 1 && opData.files[0].type === 'file') {
-          this.refresh()
-        } else {
-          this.pollingCheckStatus('copy', opData.originPath, opData.toPath, {
-            success: () => {
-              this.$message.success('复制成功')
-              this.refresh()
-            },
-            fail: (e) => {
-              this.$notify.error({
-                title: '复制失败',
-                message: e,
-                duration: 3000
-              })
-            }
-          })
-        }
-      } catch (e) {
-        // nothing to do
-      }
-    },
-
-    async handleDelete({ close, done }) {
-      try {
-        const path = this.parsePath()
-        const files = clone(this.selectedFileList)
-        await deleteFileOrDir({
-          path,
-          files
-        })
-        if (files.length === 1 && files[0] === 'file') {
-          this.$message.success('已删除该文件')
-          this.refresh()
-        } else {
-          this.pollingCheckStatus('delete', '', path, {
-            success: () => {
-              this.$message.success('已删除所选列表')
-              this.refresh()
-            },
-            fail: (e) => {
-              this.$notify.error({
-                title: '删除所选列表失败',
-                message: e,
-                duration: 3000
-              })
-            }
-          })
-        }
-        done()
-        close()
-      } catch {
-        done()
-      }
-    },
     /**
      * 行右键打开右键菜单
      */
@@ -598,35 +358,8 @@ export default {
         ]
       })
     },
-    /**
-     * 每三秒轮训任务状态
-     */
-    pollingCheckStatus(action, name, path, { success, fail }) {
-      this.$message.success('已加入后台任务，请勿重复操作')
-      this.pollingLoading = true
-      const val = setInterval(async() => {
-        try {
-          const { data } = await checkTaskStatus({
-            action,
-            name: name,
-            path
-          })
-          if (data.status === 1) {
-            setTimeout(() => {
-              success && success()
-              this.pollingLoading = false
-            }, 3000)
-            clearInterval(val)
-          } else if (data.status === 2) {
-            fail && fail(data.err)
-            this.pollingLoading = false
-            clearInterval(val)
-          }
-        } catch {
-          this.pollingLoading = false
-          clearInterval(val)
-        }
-      }, 3000)
+    handleSelectionChange(rows) {
+      this.selectedFileList = rows.map((item) => { return { type: item.type, name: item.name } })
     },
     parsePath() {
       let path = ''
@@ -664,10 +397,6 @@ export default {
     display: -webkit-flex;
     flex-direction: row;
     align-items: center;
-
-    i {
-      margin-right: 5px;
-    }
 
     .breadcrumb {
       flex: 1;
