@@ -5,14 +5,13 @@ export default {
     /**
      * 每三秒轮训任务状态
      */
-    pollingCheckStatus(action, name, path, { success, fail }) {
+    pollingCheckStatus(action, taskId, { success, fail }) {
       this.$message.success('已加入后台任务处理...请勿重复操作')
       const val = setInterval(async() => {
         try {
           const { data } = await checkTaskStatus({
             action,
-            name: name,
-            path
+            taskId
           })
           if (data.status === 1) {
             setTimeout(() => {

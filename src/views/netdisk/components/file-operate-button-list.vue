@@ -174,20 +174,24 @@ export default {
           originPath: this.pasteOriginPath,
           toPath: this.parsePath()
         }
+        let result
         if (this.cutMode && !this.copyMode) {
           // cut
-          await cutFiles(opData)
+          result = await cutFiles(opData)
           this.cutMode = false
         } else if (!this.cutMode && this.copyMode) {
           // copy
-          await copyFiles(opData)
+          result = await copyFiles(opData)
           this.copyMode = false
+        } else {
+          throw new Error('un support')
         }
         this.clearPasteCache()
-        if (opData.files.length === 1 && opData.files[0].type === 'file') {
+        const { data } = result
+        if (!data.bgMode) {
           this.$emit('changed')
         } else {
-          this.pollingCheckStatus('copy', opData.originPath, opData.toPath, {
+          this.pollingCheckStatus('copy', data.taskId, {
             success: () => {
               this.$message.success('复制成功')
               this.$emit('changed')
@@ -210,15 +214,15 @@ export default {
       try {
         const path = this.parsePath()
         const files = clone(this.selectedFileList)
-        await deleteFileOrDir({
+        const { data } = await deleteFileOrDir({
           path,
           files
         })
-        if (files.length === 1 && files[0] === 'file') {
+        if (!data.bgMode) {
           this.$message.success('已删除该文件')
           this.$emit('changed')
         } else {
-          this.pollingCheckStatus('delete', '', path, {
+          this.pollingCheckStatus('delete', data.taskId, {
             success: () => {
               this.$message.success('已删除所选列表')
               this.$emit('changed')

@@ -271,18 +271,18 @@ export default {
           'label-width': '100px'
         },
         on: {
-          submit: async(data, { close, done }) => {
+          submit: async(form, { close, done }) => {
             try {
               const path = this.parsePath()
-              await renameDirOrFile({
+              const { data } = await renameDirOrFile({
                 type: row.type,
-                toName: data.toName,
+                toName: form.toName,
                 name: row.name,
                 path
               })
               // reload
-              if (row.type === 'dir') {
-                this.pollingCheckStatus('delete', row.name, path, {
+              if (data.bgMode) {
+                this.pollingCheckStatus('delete', data.taskId, {
                   success: () => {
                     this.$message.success('重命名文件夹成功')
                     this.refresh()
