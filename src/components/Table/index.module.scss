@@ -5,6 +5,22 @@
   display: -webkit-flex;
   flex-direction: column;
 
+  .sf-table-header {
+    padding: 10px 5px;
+
+    .tb-option-box {
+      display: flex;
+      display: -webkit-flex;
+      align-items: center;
+      justify-content: flex-end;
+      font-size: 18px;
+      i {
+        cursor: pointer;
+        margin-left: 15px;
+      }
+    }
+  }
+
   .sf-table-content {
     width: 100%;
   }
@@ -17,5 +33,4 @@
     width: 100%;
     margin-top: 20px;
   }
-
 }

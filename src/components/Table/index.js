@@ -1,12 +1,17 @@
 import styles from './index.module.scss'
 import { Table as T } from 'element-ui/'
+import draggable from 'vuedraggable'
 
 /**
  * Common Table
  */
 export default {
+  components: {
+    draggable
+  },
   data() {
     return {
+      tableKey: 1,
       localLoading: false,
       localPagination: Object.assign({}, {
         background: true,
@@ -16,7 +21,9 @@ export default {
         pageSize: this.pageSize,
         currentPage: this.currentPage
       }),
-      localDataSource: []
+      localDataSource: [],
+      // sort
+      theaderItems: []
     }
   },
   props: Object.assign({}, T.props, {
@@ -44,6 +51,7 @@ export default {
     }
   }),
   created() {
+    this.initTheaderItem()
     // 加载数据
     this.loadData()
   },
@@ -109,6 +117,34 @@ export default {
     // currentPage 改变时会触发
     onCurrentChange(current) {
       this.localPagination.currentPage = current
+    },
+    // init header sort pane
+    initTheaderItem() {
+      if (this.$slots['default']) {
+        this.$slots['default']
+          .filter(
+            vnode =>
+              vnode &&
+              vnode.componentOptions &&
+              vnode.componentOptions.tag === 'el-table-column' &&
+              vnode.componentOptions.propsData &&
+              vnode.componentOptions.propsData.type !== 'selection'
+          )
+          .forEach(vnode => {
+            this.theaderItems.push({
+              prop: vnode.componentOptions.propsData.prop,
+              label: vnode.componentOptions.propsData.label
+            })
+          })
+      }
+    },
+    // reader sort
+    renderHeaderSelectionIcon() {
+      return (
+        <el-popover width='300' placement='bottom-start'>
+          <i slot='reference' class='el-icon-setting' />
+        </el-popover>
+      )
     }
   },
   render() {
@@ -127,8 +163,25 @@ export default {
       }
     }, tableProps, { data: this.localDataSource })
 
+    // table slot
+    const tableColumns = (this.$slots['default'] || [])
+    const tableAppend = this.$slots['append'] || ''
+
     return (
       <div class={styles['sf-table-wrapper']}>
+        {/* header */}
+        <el-row type='flex' class={styles['sf-table-header']}>
+          <el-col {...{ props: { span: 22 }}}></el-col>
+          <el-col {...{ props: { span: 2 }}}>
+            <div class={styles['tb-option-box']}>
+              {/* 刷新按钮 */}
+              <i class='el-icon-refresh-right' { ...{ on: { click: this.refresh }} } />
+              {/* header选择排序栏 */}
+              {this.renderHeaderSelectionIcon()}
+            </div>
+          </el-col>
+        </el-row>
+        {/* table */}
         <div class={styles['sf-table-content']}>
           <el-table {...{ props: { ...tableProps }, on: {
             'row-click': (row, column, event) => { this.$emit('row-click', row, column, event) },
@@ -137,9 +190,12 @@ export default {
           },
           ref: 'table',
           directives: [{ name: 'loading', value: this.localLoading }] }}>
-            {Object.keys(this.$slots).map(name => (this.$slots[name]))}
+            {/* {Object.keys(this.$slots).map(name => (this.$slots[name]))} */}
+            {tableColumns}
+            {tableAppend}
           </el-table>
         </div>
+        {/* pagination */}
         { this.showPagination ? (<div class={styles['sf-table-pagination']}>
           <el-pagination {...{
             props: { ...this.localPagination },
