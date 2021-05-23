@@ -1,16 +1,18 @@
 import styles from './index.module.scss'
-import { Table as T } from 'element-ui/'
-import draggable from 'vuedraggable'
+import { Table as T } from 'element-ui'
+import ColumnSettingPopover from './column-setting-popover'
+import { findIndex, isEmpty } from 'lodash'
 
 /**
  * Common Table
  */
 export default {
   components: {
-    draggable
+    ColumnSettingPopover
   },
   data() {
     return {
+      // force re draw table
       tableKey: 1,
       localLoading: false,
       localPagination: Object.assign({}, {
@@ -22,7 +24,7 @@ export default {
         currentPage: this.currentPage
       }),
       localDataSource: [],
-      // sort
+      // record sort
       theaderItems: []
     }
   },
@@ -51,7 +53,8 @@ export default {
     }
   }),
   created() {
-    this.initTheaderItem()
+    // init
+    this.theaderItems = this.getTotalTheaderItem().map(e => ({ ...e, checked: true }))
     // 加载数据
     this.loadData()
   },
@@ -119,9 +122,9 @@ export default {
       this.localPagination.currentPage = current
     },
     // init header sort pane
-    initTheaderItem() {
+    getTotalTheaderItem() {
       if (this.$slots['default']) {
-        this.$slots['default']
+        return this.$slots['default']
           .filter(
             vnode =>
               vnode &&
@@ -130,20 +133,38 @@ export default {
               vnode.componentOptions.propsData &&
               vnode.componentOptions.propsData.type !== 'selection'
           )
-          .forEach(vnode => {
-            this.theaderItems.push({
-              prop: vnode.componentOptions.propsData.prop,
-              label: vnode.componentOptions.propsData.label
-            })
-          })
+          .map(vnode => ({
+            prop: vnode.componentOptions.propsData.prop,
+            label: vnode.componentOptions.propsData.label,
+            fixed: isEmpty(vnode.componentOptions.propsData.fixed)
+              ? ''
+              : vnode.componentOptions.propsData.fixed === true ||
+                vnode.componentOptions.propsData.fixed === 'left'
+                ? 'left'
+                : 'right'
+          }))
+      } else {
+        return []
       }
+    },
+    getColumnVnodeIndex(vnode) {
+      const index = findIndex(this.theaderItems, (e) => { return e.label === vnode.componentOptions.propsData.label })
+      // if (vnode.componentOptions.propsData.fixed || vnode.componentOptions.propsData.fixed === 'left') {
+      //   return -100 + index
+      // } else if (vnode.componentOptions.propsData.fixed === 'right') {
+      //   return 100 + index
+      // }
+      return index
     },
     // reader sort
     renderHeaderSelectionIcon() {
       return (
-        <el-popover width='300' placement='bottom-start'>
-          <i slot='reference' class='el-icon-setting' />
-        </el-popover>
+        <column-setting-popover {...{ props: { value: this.theaderItems }, on: {
+          'input': (val) => {
+            this.theaderItems = val
+            this.tableKey += 1
+          }
+        }}} />
       )
     }
   },
@@ -164,7 +185,20 @@ export default {
     }, tableProps, { data: this.localDataSource })
 
     // table slot
-    const tableColumns = (this.$slots['default'] || [])
+    const tableColumns = (this.$slots['default'] || []).filter((vnode) => {
+      const label = vnode.componentOptions.propsData.label
+      const index = findIndex(this.theaderItems, (e) => { return e.label === label })
+      // has type always true
+      if (isEmpty(vnode.componentOptions.propsData.type)) {
+        return this.theaderItems[index].checked
+      } else {
+        return true
+      }
+    }).sort((preVnode, nextVnode) => {
+      const preIndex = this.getColumnVnodeIndex(preVnode)
+      const nextIndex = this.getColumnVnodeIndex(nextVnode)
+      return preIndex - nextIndex
+    })
     const tableAppend = this.$slots['append'] || ''
 
     return (
@@ -183,7 +217,7 @@ export default {
         </el-row>
         {/* table */}
         <div class={styles['sf-table-content']}>
-          <el-table {...{ props: { ...tableProps }, on: {
+          <el-table {...{ key: this.tableKey, props: { ...tableProps }, on: {
             'row-click': (row, column, event) => { this.$emit('row-click', row, column, event) },
             'selection-change': (selection) => { this.$emit('selection-change', selection) },
             'row-contextmenu': (row, column, event) => { this.$emit('row-contextmenu', row, column, event) }
