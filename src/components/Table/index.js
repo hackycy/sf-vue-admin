@@ -243,9 +243,13 @@ export default {
           </div>
           <div class={styles['tb-option-box']}>
             {/* 刷新按钮 */}
-            <i class='el-icon-refresh-right' { ...{ on: { click: this.refresh }} } />
+            <el-tooltip {...{ props: { placement: 'top', content: '刷新' }}}>
+              <i class='el-icon-refresh-right' { ...{ on: { click: this.refresh }} } />
+            </el-tooltip>
             {/* 导出表格 */}
-            <i class='el-icon-upload2' { ...{ on: { click: this.exportDataToExcel }} } />
+            <el-tooltip {...{ props: { placement: 'top', content: '导出表格数据' }}}>
+              <i class='el-icon-upload2' { ...{ on: { click: this.exportDataToExcel }} } />
+            </el-tooltip>
             {/* header选择排序栏 */}
             {this.renderHeaderSelectionIcon()}
           </div>
