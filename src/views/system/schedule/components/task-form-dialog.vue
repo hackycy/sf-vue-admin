@@ -58,6 +58,9 @@ export default {
       }
       this.$refs.formDialog.open({
         title: '编辑任务',
+        dialogProps: {
+          top: '10vh'
+        },
         on: {
           open: (form, op) => { this.handleOpen(updateId, form, op) },
           submit: (data, op) => { this.handleSubmit(updateId, data, op) }
