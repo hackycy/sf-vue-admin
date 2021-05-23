@@ -1,11 +1,10 @@
 <template>
   <div class="sys-menu-container">
     <table-layout>
-      <template v-slot:header>
-        <el-button size="mini" @click="handleRefresh">刷新</el-button>
-        <el-button size="mini" type="primary" :disabled="!$auth('sysRole.add')" @click="handleAdd">新增</el-button>
-      </template>
       <s-table ref="roleTable" :data-request="getRoleList" show-pagination stripe row-key="id" border>
+        <template v-slot:prepend>
+          <el-button size="mini" type="primary" :disabled="!$auth('sysRole.add')" @click="handleAdd">新增</el-button>
+        </template>
         <el-table-column prop="id" label="#" align="center" width="55" />
         <el-table-column prop="name" label="名称" align="center" width="200" />
         <el-table-column prop="label" label="标识" align="center" width="200" />

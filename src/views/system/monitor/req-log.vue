@@ -1,9 +1,6 @@
 <template>
   <div class="sys-monitor-req-log-container">
     <table-layout>
-      <template v-slot:header>
-        <el-button size="mini" @click="handleRefresh">刷新</el-button>
-      </template>
       <s-table ref="logTable" :data-request="getReqLogList" show-pagination stripe row-key="id" border>
         <el-table-column prop="ip" label="请求IP" align="center" />
         <el-table-column prop="userId" label="操作人ID" align="center" width="100" />

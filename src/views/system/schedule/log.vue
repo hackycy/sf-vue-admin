@@ -1,9 +1,6 @@
 <template>
   <div class="sys-task-log-container">
     <table-layout>
-      <template v-slot:header>
-        <el-button size="mini" @click="handleRefresh">刷新</el-button>
-      </template>
       <s-table ref="logTable" :data-request="getTaskLogList" show-pagination border>
         <el-table-column prop="id" label="#" align="center" width="80" />
         <el-table-column prop="taskId" label="任务编号" align="center" width="100" />

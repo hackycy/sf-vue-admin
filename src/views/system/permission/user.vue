@@ -6,25 +6,6 @@
       </template>
       <template #header>
         <div class="user-title">用户管理</div>
-        <el-button size="mini" @click="handleRefresh">刷新</el-button>
-        <el-button
-          size="mini"
-          type="primary"
-          :disabled="!$auth('sysUser.add')"
-          @click="handleAdd"
-        >新增</el-button>
-        <el-button
-          size="mini"
-          type="success"
-          :disabled="!$auth('sysDept.transfer') || hasMultipleSelection"
-          @click="handleTransfer"
-        >转移</el-button>
-        <warning-confirm-button
-          button-type="danger"
-          :closed="handleRefresh"
-          :disabled="!$auth('sysUser.delete') || hasMultipleSelection"
-          @confirm="handleMultipleDelete"
-        >删除</warning-confirm-button>
       </template>
       <template>
         <s-table
@@ -36,6 +17,28 @@
           border
           @selection-change="handleSelectionChange"
         >
+          <template #prepend>
+            <el-button size="mini" @click="handleRefresh">刷新</el-button>
+            <el-button
+              size="mini"
+              type="primary"
+              :disabled="!$auth('sysUser.add')"
+              @click="handleAdd"
+            >新增</el-button>
+            <el-button
+              size="mini"
+              type="success"
+              :disabled="!$auth('sysDept.transfer') || hasMultipleSelection"
+              @click="handleTransfer"
+            >转移</el-button>
+            <warning-confirm-button
+              button-type="danger"
+              :closed="handleRefresh"
+              :disabled="!$auth('sysUser.delete') || hasMultipleSelection"
+              @confirm="handleMultipleDelete"
+            >删除</warning-confirm-button>
+          </template>
+          <!-- column -->
           <el-table-column
             fixed="left"
             type="selection"
@@ -299,7 +302,6 @@ export default {
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 1px;
-    margin-bottom: 5px;
   }
 }
 </style>

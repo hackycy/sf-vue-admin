@@ -1,15 +1,6 @@
 <template>
   <div class="sys-schedule-task-container">
     <table-layout>
-      <template v-slot:header>
-        <el-button size="mini" @click="handleRefresh">刷新</el-button>
-        <el-button
-          size="mini"
-          type="primary"
-          :disabled="!$auth('sysTask.add')"
-          @click="handleAdd"
-        >新增</el-button>
-      </template>
       <s-table
         ref="taskTable"
         :data-request="getTaskList"
@@ -17,6 +8,14 @@
         row-key="id"
         :border="false"
       >
+        <template v-slot:prepend>
+          <el-button
+            size="mini"
+            type="primary"
+            :disabled="!$auth('sysTask.add')"
+            @click="handleAdd"
+          >新增</el-button>
+        </template>
         <el-table-column type="expand">
           <template slot-scope="props">
             <el-form label-position="left" class="task-detail-table-expand">

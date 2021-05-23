@@ -1,9 +1,6 @@
 <template>
   <div class="sys-online-container">
     <table-layout>
-      <template v-slot:header>
-        <el-button size="mini" @click="handleRefresh">刷新</el-button>
-      </template>
       <s-table ref="onlineTable" :data-request="getOnlineList" row-key="id" border>
         <el-table-column prop="username" label="用户名" align="center">
           <template slot-scope="scope">

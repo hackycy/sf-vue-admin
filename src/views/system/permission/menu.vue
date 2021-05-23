@@ -1,10 +1,6 @@
 <template>
   <div class="sys-perm-container">
     <table-layout>
-      <template v-slot:header>
-        <el-button size="mini" @click="handleRefresh">刷新</el-button>
-        <el-button size="mini" type="primary" :disabled="!$auth('sysMenu.add')" @click="handleAdd">新增</el-button>
-      </template>
       <s-table
         ref="menuTable"
         :data-request="getMenuList"
@@ -13,6 +9,9 @@
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         @row-click="handleRowClick"
       >
+        <template v-slot:prepend>
+          <el-button size="mini" type="primary" :disabled="!$auth('sysMenu.add')" @click="handleAdd">新增</el-button>
+        </template>
         <el-table-column prop="name" label="名称" width="240">
           <template slot-scope="scope">
             <span style="margin-right: 16px">{{ scope.row.name }}</span>
