@@ -1,13 +1,28 @@
 <template>
   <el-popover width="280" placement="bottom-end">
     <el-checkbox-group v-model="checkedList" @change="handleChange">
-      <draggable :value="value" draggable=".item" handle=".handle" @input="handleSort">
-        <div v-for="element in value" :key="element.label" class="item">
+      <draggable
+        :value="value"
+        draggable=".s-table-column-setting-item"
+        handle=".handle"
+        @input="handleSort"
+      >
+        <div
+          v-for="element in value"
+          :key="element.label"
+          class="s-table-column-setting-item"
+        >
           <i class="el-icon-rank handle" />
           <el-checkbox class="checkbox" :label="element.label" />
           <span class="fixed-op">
-            <i class="el-icon-download" :class="{ active: element.fixed === 'left' }" />
-            <i class="el-icon-download" :class="{ active: element.fixed === 'right' }" />
+            <i
+              class="el-icon-download"
+              :class="{ active: element.fixed === 'left' }"
+            />
+            <i
+              class="el-icon-download"
+              :class="{ active: element.fixed === 'right' }"
+            />
           </span>
         </div>
       </draggable>
@@ -46,7 +61,9 @@ export default {
       const diff = difference(normal, checked)
       const newList = clone(this.value)
       for (let i = 0; i < normal.length; i++) {
-        const position = findIndex(diff, (notCheckdLable) => { return notCheckdLable === normal[i] })
+        const position = findIndex(diff, notCheckdLable => {
+          return notCheckdLable === normal[i]
+        })
         newList[i].checked = position === -1
       }
       this.$emit('input', newList)
@@ -56,9 +73,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.item {
+.s-table-column-setting-item {
   padding: 4px 0;
   margin: 0 0;
+  color: #000000;
   display: flex;
   display: -webkit-flex;
   flex-direction: row;
@@ -75,21 +93,29 @@ export default {
       cursor: pointer;
 
       &:first-child {
-        transform: rotate(90deg)
+        transform: rotate(90deg);
       }
 
       &:last-child {
-        transform: rotate(-90deg)
+        transform: rotate(-90deg);
       }
     }
 
     .active {
-      color: #409EFF;
+      color: #409eff;
     }
   }
 
   .checkbox {
     flex: 1;
+  }
+}
+</style>
+
+<style lang="scss">
+.s-table-column-setting-item {
+  .el-checkbox__input.is-checked + .el-checkbox__label {
+    color: #606266;
   }
 }
 </style>
