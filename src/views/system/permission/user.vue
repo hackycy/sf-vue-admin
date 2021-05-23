@@ -18,7 +18,6 @@
           @selection-change="handleSelectionChange"
         >
           <template #prepend>
-            <el-button size="mini" @click="handleRefresh">刷新</el-button>
             <el-button
               size="mini"
               type="primary"
