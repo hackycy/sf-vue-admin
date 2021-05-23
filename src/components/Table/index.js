@@ -2,6 +2,7 @@ import styles from './index.module.scss'
 import { Table as T } from 'element-ui'
 import ColumnSettingPopover from './column-setting-popover'
 import { findIndex, isEmpty } from 'lodash'
+import { export_json_to_excel } from '@/vendor/Export2Excel'
 
 /**
  * Common Table
@@ -33,6 +34,7 @@ export default {
       type: Function,
       required: true
     },
+    // 分页配置
     showPagination: {
       type: Boolean,
       default: false
@@ -50,6 +52,19 @@ export default {
       default: function() {
         return [10, 20, 50, 100]
       }
+    },
+    // excel导出配置
+    exportFileName: {
+      type: String,
+      default: 'export'
+    },
+    exportBookType: {
+      type: String,
+      default: 'xlsx'
+    },
+    exportAutoWidth: {
+      type: Boolean,
+      default: true
     }
   }),
   created() {
@@ -147,6 +162,24 @@ export default {
         return []
       }
     },
+    exportDataToExcel() {
+      const theaders = this.theaderItems.filter((e) => {
+        // 过滤没有prop的数据
+        if (isEmpty(e.prop)) {
+          return false
+        }
+        return e.checked
+      })
+      export_json_to_excel({
+        header: theaders.map(e => e.label),
+        data: this.localDataSource.map(v => theaders.map(header => {
+          return v[header.prop]
+        })),
+        filename: this.exportFileName,
+        bookType: this.exportBookType,
+        autoWidth: this.exportAutoWidth
+      })
+    },
     getColumnVnodeIndex(vnode) {
       const index = findIndex(this.theaderItems, (e) => { return e.label === vnode.componentOptions.propsData.label })
       // if (vnode.componentOptions.propsData.fixed || vnode.componentOptions.propsData.fixed === 'left') {
@@ -204,17 +237,19 @@ export default {
     return (
       <div class={styles['sf-table-wrapper']}>
         {/* header */}
-        <el-row type='flex' class={styles['sf-table-header']}>
-          <el-col {...{ props: { span: 22 }}}></el-col>
-          <el-col {...{ props: { span: 2 }}}>
-            <div class={styles['tb-option-box']}>
-              {/* 刷新按钮 */}
-              <i class='el-icon-refresh-right' { ...{ on: { click: this.refresh }} } />
-              {/* header选择排序栏 */}
-              {this.renderHeaderSelectionIcon()}
-            </div>
-          </el-col>
-        </el-row>
+        <div {...{ props: { type: 'flex' }}} class={styles['sf-table-header']}>
+          <div class={styles['prepend-box']}>
+            {this.$slots['prepend'] || ''}
+          </div>
+          <div class={styles['tb-option-box']}>
+            {/* 刷新按钮 */}
+            <i class='el-icon-refresh-right' { ...{ on: { click: this.refresh }} } />
+            {/* 导出表格 */}
+            <i class='el-icon-upload2' { ...{ on: { click: this.exportDataToExcel }} } />
+            {/* header选择排序栏 */}
+            {this.renderHeaderSelectionIcon()}
+          </div>
+        </div>
         {/* table */}
         <div class={styles['sf-table-content']}>
           <el-table {...{ key: this.tableKey, props: { ...tableProps }, on: {
