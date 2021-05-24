@@ -56,7 +56,7 @@ export default {
     // excel导出配置
     exportFileName: {
       type: String,
-      default: 'export'
+      default: '导出数据'
     },
     exportBookType: {
       type: String,
