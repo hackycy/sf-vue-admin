@@ -65,6 +65,10 @@ export default {
     exportAutoWidth: {
       type: Boolean,
       default: true
+    },
+    exportFormatter: {
+      type: Function,
+      default: null
     }
   }),
   created() {
@@ -163,22 +167,37 @@ export default {
       }
     },
     exportDataToExcel() {
-      const theaders = this.theaderItems.filter((e) => {
-        // 过滤没有prop的数据
-        if (isEmpty(e.prop)) {
-          return false
+      if (this.exportFormatter) {
+        const { header, data } = this.exportFormatter(this.theaderItems, this.localDataSource)
+        if (isEmpty(header) || isEmpty(data)) {
+          return
+        } else {
+          export_json_to_excel({
+            header,
+            data,
+            filename: this.exportFileName,
+            bookType: this.exportBookType,
+            autoWidth: this.exportAutoWidth
+          })
         }
-        return e.checked
-      })
-      export_json_to_excel({
-        header: theaders.map(e => e.label),
-        data: this.localDataSource.map(v => theaders.map(header => {
-          return v[header.prop]
-        })),
-        filename: this.exportFileName,
-        bookType: this.exportBookType,
-        autoWidth: this.exportAutoWidth
-      })
+      } else {
+        const theaders = this.theaderItems.filter((e) => {
+          // 过滤没有prop的数据
+          if (isEmpty(e.prop)) {
+            return false
+          }
+          return e.checked
+        })
+        export_json_to_excel({
+          header: theaders.map(e => e.label),
+          data: this.localDataSource.map(v => theaders.map(header => {
+            return v[header.prop]
+          })),
+          filename: this.exportFileName,
+          bookType: this.exportBookType,
+          autoWidth: this.exportAutoWidth
+        })
+      }
     },
     getColumnVnodeIndex(vnode) {
       const index = findIndex(this.theaderItems, (e) => { return e.label === vnode.componentOptions.propsData.label })
