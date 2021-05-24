@@ -251,7 +251,9 @@ export default {
               <i class='el-icon-upload2' { ...{ on: { click: this.exportDataToExcel }} } />
             </el-tooltip>
             {/* header选择排序栏 */}
-            {this.renderHeaderSelectionIcon()}
+            <el-tooltip {...{ props: { placement: 'top', content: '列设置' }}}>
+              {this.renderHeaderSelectionIcon()}
+            </el-tooltip>
           </div>
         </div>
         {/* table */}
