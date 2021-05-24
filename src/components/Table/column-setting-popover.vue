@@ -15,14 +15,18 @@
           <i class="el-icon-rank handle" />
           <el-checkbox class="checkbox" :label="element.label" />
           <span class="fixed-op">
-            <i
-              class="el-icon-download"
-              :class="{ active: element.fixed === 'left' }"
-            />
-            <i
-              class="el-icon-download"
-              :class="{ active: element.fixed === 'right' }"
-            />
+            <el-tooltip placement="top" content="固定在左侧">
+              <i
+                class="el-icon-download"
+                :class="{ active: element.fixed === 'left' }"
+              />
+            </el-tooltip>
+            <el-tooltip placement="top" content="固定在右侧">
+              <i
+                class="el-icon-download"
+                :class="{ active: element.fixed === 'right' }"
+              />
+            </el-tooltip>
           </span>
         </div>
       </draggable>
