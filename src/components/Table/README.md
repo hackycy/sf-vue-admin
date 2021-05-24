@@ -4,7 +4,9 @@
 
 > 基础的使用方式与 API 与 官方基本一致，在其基础上，封装了加载数据的方法。
 >
-> 你无需在你是用表格的页面进行分页逻辑处理，仅需向 Table 组件传递绑定 `:data-request="Promise"` 对象即可
+> 你无需在你是用表格的页面进行分页逻辑处理，仅需向 Table 组件传递绑定 `:data-request="Promise"` 对象即可。
+>
+> 自带刷新，导出表格数据到excel，以及列排序显示隐藏
 
 例子：
 
@@ -73,13 +75,27 @@ export default {
 
 除去`el-table`自带属性外，还而外提供了一些额外属性属性
 
-| 属性           | 说明                                            | 类型    | 默认值            |
-| :------------- | :---------------------------------------------- | ------- | ----------------- |
-| dataRequest    | 加载数据方法 必须为 `Promise` 对象 **必须绑定** | Promise | -                 |
-| showPagination | 显示分页选择器                                  | boolean | false             |
-| currentPage    | 同el-pagination属性                             | number  | 1                 |
-| pageSize       | 同el-pagination属性                             | number  | 10                |
-| pageSizes      | 同el-pagination属性                             | array   | [10, 20, 50, 100] |
+| 属性            | 说明                                            | 类型     | 默认值            |
+| :-------------- | :---------------------------------------------- | -------- | ----------------- |
+| dataRequest     | 加载数据方法 必须为 `Promise` 对象 **必须绑定** | Promise  | -                 |
+| showPagination  | 显示分页选择器                                  | boolean  | false             |
+| currentPage     | 同el-pagination属性                             | number   | 1                 |
+| pageSize        | 同el-pagination属性                             | number   | 10                |
+| pageSizes       | 同el-pagination属性                             | array    | [10, 20, 50, 100] |
+| exportFileName  | 导出的文件名                                    | string   | 导出数据          |
+| exportBookType  | xlsx的booktype                                  | string   | xlsx              |
+| exportAutoWidth | 自动宽度                                        | boolean  | true              |
+| exportFormatter | 自定义数据导出格式                              | function |                   |
+
+##额外的插槽
+
+使用`prepend`插槽可以在表格顶部增加一些内容，例如放一些操作的按钮
+
+```vue
+<template v-slot:prepend>
+ <el-button size="mini" type="primary" :disabled="!$auth('sysMenu.add')" @click="handleAdd">新增</el-button>
+</template>
+```
 
 ## 注意事项
 
