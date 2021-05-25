@@ -16,6 +16,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "echarts": "^4.9.0",
     "element-ui": "^2.15.1",
     "file-saver": "^2.0.5",
     "jszip": "^3.6.0",
@@ -27,6 +28,7 @@
     "screenfull": "^4.2.0",
     "store": "^2.0.12",
     "vue": "^2.6.10",
+    "vue-echarts": "^4.1.0",
     "vue-router": "^3.5.1",
     "vuedraggable": "^2.24.3",
     "vuex": "^3.6.2",
