@@ -9,6 +9,7 @@ import ELTableInfiniteScroll from '@/core/directives/table-infinite-scroll'
 import FormDialog from '@/components/FormDialog'
 import ContextMenu from '@/components/ContextMenu'
 import EventBus from '@/utils/event-bus'
+import VEcharts from '@/components/Echarts'
 
 Vue.use(EventBus)
 // directives
@@ -21,3 +22,4 @@ Vue.use(ELTableInfiniteScroll)
 Vue.use(ElementUI)
 Vue.use(FormDialog)
 Vue.use(ContextMenu)
+Vue.use(VEcharts)

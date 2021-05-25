@@ -29,6 +29,14 @@ module.exports = {
   assetsDir: 'static',
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
+  /**
+   * add vue-echarts fix
+   * https://github.com/ecomfe/vue-echarts/blob/5.x/README.zh_CN.md#%E5%BC%95%E5%85%A5%E6%BA%90%E7%A0%81%E7%89%88%E6%9C%AC
+   */
+  transpileDependencies: [
+    'vue-echarts',
+    'resize-detector'
+  ],
   devServer: {
     port: port,
     open: true,
