@@ -1,7 +1,7 @@
 {
-  "name": "vue-admin-template",
-  "version": "4.4.0",
-  "description": "A vue admin template with Element UI & axios & iconfont & permission control & lint",
+  "name": "sf-vue-admin",
+  "version": "2.0.1",
+  "description": "Fast Write Admin Template",
   "author": "Pan <panfree23@gmail.com>",
   "scripts": {
     "dev": "vue-cli-service serve",
