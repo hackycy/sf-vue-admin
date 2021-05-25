@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
+    "core-js": "^3.12.1",
     "echarts": "^4.9.0",
     "element-ui": "^2.15.1",
     "file-saver": "^2.0.5",
