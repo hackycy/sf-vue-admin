@@ -1,5 +1,7 @@
 'use strict'
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
 const path = require('path')
+
 const defaultSettings = require('./src/config/settings.js')
 
 function resolve(dir) {
@@ -99,6 +101,9 @@ module.exports = {
               inline: /runtime\..*\.js$/
             }])
             .end()
+          // loadsh
+          config.plugin('loadshReplace').use(new LodashModuleReplacementPlugin())
+          // split
           config
             .optimization.splitChunks({
               chunks: 'all',
