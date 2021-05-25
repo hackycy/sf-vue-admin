@@ -36,6 +36,12 @@
   }
 }
 
+.el-drawer {
+  .el-drawer__body {
+    overflow: auto;
+  }
+}
+
 // dropdown
 .el-dropdown-menu {
   a {

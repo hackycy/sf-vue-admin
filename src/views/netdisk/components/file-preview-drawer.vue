@@ -168,6 +168,7 @@ export default {
 .preview-drawer-inner-box {
   width: 100%;
   padding: 0 20px;
+  margin-bottom: 20px;
 
   .image-preview-container {
     padding: 10px;
