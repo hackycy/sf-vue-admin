@@ -118,7 +118,7 @@ import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
 
 export default {
-  name: 'SystemFileSpace',
+  name: 'NetDiskManage',
   components: {
     TableLayout,
     FilePreviewDrawer,

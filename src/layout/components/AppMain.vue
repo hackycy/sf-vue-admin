@@ -42,7 +42,6 @@ export default {
   overflow: hidden;
 
   /* basic */
-  padding: 20px;
   background-color: #eff2f5;
 }
 .fixed-header+.app-main {
