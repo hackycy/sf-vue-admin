@@ -37,11 +37,11 @@ export default {
     async initHeaderData() {
       const { data } = await getDesc()
       const sp = formatSizeUnits(data.spaceSize).split(' ')
-      this.spaceSize = sp[0]
+      this.spaceSize = Number(sp[0])
       this.spaceUnit = sp[1]
       this.fileSize = data.fileSize
       const fs = formatSizeUnits(data.flowSize).split(' ')
-      this.flowSize = fs[0]
+      this.flowSize = Number(fs[0])
       this.flowUnit = fs[1]
       this.hitSize = data.hitSize
     }
