@@ -1,10 +1,26 @@
 <template>
   <div class="netdisk-overview-container">
     <div class="ov-header">
-      <overview-header-item title="已存储量" :value="spaceSize" :suffix="spaceUnit" />
+      <overview-header-item
+        title="存储总量"
+        :value="spaceSize"
+        :suffix="spaceUnit"
+      />
       <overview-header-item title="文件数量" :value="fileSize" suffix="个" />
-      <overview-header-item title="下载流量" :value="flowSize" :suffix="flowUnit" />
+      <overview-header-item
+        title="下载流量"
+        :value="flowSize"
+        :suffix="flowUnit"
+      />
       <overview-header-item title="GET请求次数" :value="hitSize" suffix="次" />
+    </div>
+    <div class="ov-content">
+      <el-card shadow="hover">
+        <el-tabs v-model="actionTabName">
+          <el-tab-pane label="流量趋势" name="flow">流量趋势</el-tab-pane>
+          <el-tab-pane label="下载趋势" name="hit">下载趋势</el-tab-pane>
+        </el-tabs>
+      </el-card>
     </div>
   </div>
 </template>
@@ -27,7 +43,9 @@ export default {
       fileSize: 0,
       flowSize: 0,
       flowUnit: 'B',
-      hitSize: 0
+      hitSize: 0,
+      // content
+      actionTabName: 'flow'
     }
   },
   created() {
@@ -44,7 +62,8 @@ export default {
       this.flowSize = Number(fs[0])
       this.flowUnit = fs[1]
       this.hitSize = data.hitSize
-    }
+    },
+    handleTabClick() {}
   }
 }
 </script>
@@ -58,6 +77,10 @@ export default {
     display: -webkit-flex;
     flex-direction: row;
     margin-left: -20px;
+  }
+
+  .ov-content {
+    margin: 20px 0;
   }
 }
 </style>
