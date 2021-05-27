@@ -38,7 +38,7 @@ export default {
 
 <style lang="scss" scoped>
 .dashboard-container {
-  margin: 0;
+  margin: 20px;
   h4,
   h5 {
     img {
