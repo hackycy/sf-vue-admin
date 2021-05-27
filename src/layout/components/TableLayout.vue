@@ -71,7 +71,7 @@ export default {
 
 .fixed-height {
   /* padding top + bottom = 40px + NavBar 50px + el-card padding = 40px */
-  height: calc(100vh - 40px - 50px - 40px);
+  height: calc(100vh - 40px - 50px - 40px - 34px);
 
   .el-container {
     height: 100%;
