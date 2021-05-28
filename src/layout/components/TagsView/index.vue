@@ -1,6 +1,6 @@
 <template>
   <div id="tags-view-container" class="tags-view-container">
-    <scroll-pane ref="scrollPane" class="tags-view-wrapper" @scroll="handleScroll">
+    <scroll-pane ref="scrollPane" class="tags-view-wrapper">
       <router-link
         v-for="tag in visitedViews"
         ref="tag"
@@ -27,10 +27,8 @@ export default {
   components: { ScrollPane },
   data() {
     return {
-      visible: false,
-      top: 0,
-      left: 0,
-      affixTags: []
+      affixTags: [],
+      selectedTag: {}
     }
   },
   computed: {
@@ -45,13 +43,6 @@ export default {
     $route() {
       this.addTags()
       this.moveToCurrentTag()
-    },
-    visible(value) {
-      if (value) {
-        document.body.addEventListener('click', this.closeMenu)
-      } else {
-        document.body.removeEventListener('click', this.closeMenu)
-      }
     }
   },
   mounted() {
@@ -124,9 +115,11 @@ export default {
         }
       })
     },
-    closeOthersTags(tag) {
-      this.$router.push(tag)
-      this.$store.dispatch('tagsView/delOthersViews', tag).then(() => {
+    closeOthersTags() {
+      if (this.selectedTag.fullPath !== this.$route.fullPath) {
+        this.$router.push(this.selectedTag)
+      }
+      this.$store.dispatch('tagsView/delOthersViews', this.selectedTag).then(() => {
         this.moveToCurrentTag()
       })
     },
@@ -154,9 +147,9 @@ export default {
       }
     },
     openMenu(tag, e) {
-      const menuMinWidth = 135
+      this.selectedTag = tag
       this.$openContextMenu(e, {
-        width: menuMinWidth,
+        width: 135,
         items: [
           {
             title: '重新加载',
@@ -177,7 +170,7 @@ export default {
             title: '关闭其他标签页',
             callback: ({ close }) => {
               close()
-              this.closeOthersTags(tag)
+              this.closeOthersTags()
             }
           },
           {
@@ -203,12 +196,6 @@ export default {
       // this.top = e.clientY
       // this.visible = true
       // this.selectedTag = tag
-    },
-    closeMenu() {
-      this.visible = false
-    },
-    handleScroll() {
-      this.closeMenu()
     }
   }
 }
