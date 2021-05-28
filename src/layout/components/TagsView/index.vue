@@ -159,6 +159,13 @@ export default {
         width: menuMinWidth,
         items: [
           {
+            title: '重新加载',
+            callback: ({ close }) => {
+              close()
+              this.$eventBus.emit('reloadView')
+            }
+          },
+          {
             title: '关闭标签页',
             disabled: this.isAffix(tag),
             callback: ({ close }) => {
