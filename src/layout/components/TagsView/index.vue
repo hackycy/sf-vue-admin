@@ -16,11 +16,6 @@
         <span v-if="!isAffix(tag)" class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)" />
       </router-link>
     </scroll-pane>
-    <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
-      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">关闭</li>
-      <li @click="closeOthersTags">关闭其他</li>
-      <li @click="closeAllTags(selectedTag)">关闭全部</li>
-    </ul>
   </div>
 </template>
 
@@ -35,7 +30,6 @@ export default {
       visible: false,
       top: 0,
       left: 0,
-      selectedTag: {},
       affixTags: []
     }
   },
@@ -130,9 +124,9 @@ export default {
         }
       })
     },
-    closeOthersTags() {
-      this.$router.push(this.selectedTag)
-      this.$store.dispatch('tagsView/delOthersViews', this.selectedTag).then(() => {
+    closeOthersTags(tag) {
+      this.$router.push(tag)
+      this.$store.dispatch('tagsView/delOthersViews', tag).then(() => {
         this.moveToCurrentTag()
       })
     },
@@ -160,21 +154,48 @@ export default {
       }
     },
     openMenu(tag, e) {
-      const menuMinWidth = 105
-      const offsetLeft = this.$el.getBoundingClientRect().left // container margin left
-      const offsetWidth = this.$el.offsetWidth // container width
-      const maxLeft = offsetWidth - menuMinWidth // left boundary
-      const left = e.clientX - offsetLeft + 15 // 15: margin right
+      const menuMinWidth = 135
+      this.$openContextMenu(e, {
+        width: menuMinWidth,
+        items: [
+          {
+            title: '关闭标签页',
+            disabled: this.isAffix(tag),
+            callback: ({ close }) => {
+              close()
+              this.closeSelectedTag(tag)
+            }
+          },
+          {
+            title: '关闭其他标签页',
+            callback: ({ close }) => {
+              close()
+              this.closeOthersTags(tag)
+            }
+          },
+          {
+            title: '关闭所有标签页',
+            callback: ({ close }) => {
+              close()
+              this.closeAllTags(tag)
+            }
+          }
+        ]
+      })
+      // const offsetLeft = this.$el.getBoundingClientRect().left // container margin left
+      // const offsetWidth = this.$el.offsetWidth // container width
+      // const maxLeft = offsetWidth - menuMinWidth // left boundary
+      // const left = e.clientX - offsetLeft + 15 // 15: margin right
 
-      if (left > maxLeft) {
-        this.left = maxLeft
-      } else {
-        this.left = left
-      }
+      // if (left > maxLeft) {
+      //   this.left = maxLeft
+      // } else {
+      //   this.left = left
+      // }
 
-      this.top = e.clientY
-      this.visible = true
-      this.selectedTag = tag
+      // this.top = e.clientY
+      // this.visible = true
+      // this.selectedTag = tag
     },
     closeMenu() {
       this.visible = false
