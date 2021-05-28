@@ -221,11 +221,12 @@ export default {
       cursor: pointer;
       height: 26px;
       line-height: 26px;
-      border: 1px solid #d8dce5;
+      border: 1px solid #d9d9d9;
       color: #495060;
       background: #fff;
       padding: 0 8px;
       font-size: 12px;
+      font-weight: 500;
       margin-left: 5px;
       margin-top: 4px;
       &:first-of-type {
@@ -251,27 +252,6 @@ export default {
       }
     }
   }
-  .contextmenu {
-    margin: 0;
-    background: #fff;
-    z-index: 3000;
-    position: absolute;
-    list-style-type: none;
-    padding: 5px 0;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 400;
-    color: #333;
-    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, .3);
-    li {
-      margin: 0;
-      padding: 7px 16px;
-      cursor: pointer;
-      &:hover {
-        background: #eee;
-      }
-    }
-  }
 }
 </style>
 
@@ -293,7 +273,7 @@ export default {
         vertical-align: -3px;
       }
       &:hover {
-        background-color: #b4bccc;
+        background-color: #595a5c;
         color: #fff;
       }
     }
