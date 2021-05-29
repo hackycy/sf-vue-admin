@@ -21,3 +21,9 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.account-settings-container {
+  margin: 20px;
+}
+</style>
