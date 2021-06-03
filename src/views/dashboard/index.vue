@@ -13,11 +13,18 @@
             <img src="https://img.shields.io/github/stars/hackycy/sf-vue-admin?style=social"></el-link>
         </h5>
         <h5>
-          后端传送门：<el-link
+          Midway版后端传送门：<el-link
             type="primary"
             href="https://github.com/hackycy/sf-midway-admin/"
           >https://github.com/hackycy/sf-midway-admin/
             <img src="https://img.shields.io/github/stars/hackycy/sf-midway-admin?style=social"></el-link>
+        </h5>
+        <h5>
+          Nest版后端传送门：<el-link
+            type="primary"
+            href="https://github.com/hackycy/sf-nest-admin/"
+          >https://github.com/hackycy/sf-nest-admin/
+            <img src="https://img.shields.io/github/stars/hackycy/sf-nest-admin?style=social"></el-link>
         </h5>
         <h6>如果喜欢，不妨点个Star支持一下噢~</h6>
       </div>

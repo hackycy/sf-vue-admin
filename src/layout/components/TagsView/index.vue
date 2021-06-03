@@ -1,6 +1,6 @@
 <template>
   <div id="tags-view-container" class="tags-view-container">
-    <scroll-pane ref="scrollPane" class="tags-view-wrapper" @scroll="handleScroll">
+    <scroll-pane ref="scrollPane" class="tags-view-wrapper">
       <router-link
         v-for="tag in visitedViews"
         ref="tag"
@@ -16,11 +16,6 @@
         <span v-if="!isAffix(tag)" class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)" />
       </router-link>
     </scroll-pane>
-    <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
-      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">关闭</li>
-      <li @click="closeOthersTags">关闭其他</li>
-      <li @click="closeAllTags(selectedTag)">关闭全部</li>
-    </ul>
   </div>
 </template>
 
@@ -32,11 +27,8 @@ export default {
   components: { ScrollPane },
   data() {
     return {
-      visible: false,
-      top: 0,
-      left: 0,
-      selectedTag: {},
-      affixTags: []
+      affixTags: [],
+      selectedTag: {}
     }
   },
   computed: {
@@ -51,13 +43,6 @@ export default {
     $route() {
       this.addTags()
       this.moveToCurrentTag()
-    },
-    visible(value) {
-      if (value) {
-        document.body.addEventListener('click', this.closeMenu)
-      } else {
-        document.body.removeEventListener('click', this.closeMenu)
-      }
     }
   },
   mounted() {
@@ -131,7 +116,9 @@ export default {
       })
     },
     closeOthersTags() {
-      this.$router.push(this.selectedTag)
+      if (this.selectedTag.fullPath !== this.$route.fullPath) {
+        this.$router.push(this.selectedTag)
+      }
       this.$store.dispatch('tagsView/delOthersViews', this.selectedTag).then(() => {
         this.moveToCurrentTag()
       })
@@ -160,27 +147,55 @@ export default {
       }
     },
     openMenu(tag, e) {
-      const menuMinWidth = 105
-      const offsetLeft = this.$el.getBoundingClientRect().left // container margin left
-      const offsetWidth = this.$el.offsetWidth // container width
-      const maxLeft = offsetWidth - menuMinWidth // left boundary
-      const left = e.clientX - offsetLeft + 15 // 15: margin right
-
-      if (left > maxLeft) {
-        this.left = maxLeft
-      } else {
-        this.left = left
-      }
-
-      this.top = e.clientY
-      this.visible = true
       this.selectedTag = tag
-    },
-    closeMenu() {
-      this.visible = false
-    },
-    handleScroll() {
-      this.closeMenu()
+      this.$openContextMenu(e, {
+        width: 135,
+        items: [
+          {
+            title: '重新加载',
+            callback: ({ close }) => {
+              close()
+              this.$eventBus.emit('reloadView')
+            }
+          },
+          {
+            title: '关闭标签页',
+            disabled: this.isAffix(tag),
+            callback: ({ close }) => {
+              close()
+              this.closeSelectedTag(tag)
+            }
+          },
+          {
+            title: '关闭其他标签页',
+            callback: ({ close }) => {
+              close()
+              this.closeOthersTags()
+            }
+          },
+          {
+            title: '关闭所有标签页',
+            callback: ({ close }) => {
+              close()
+              this.closeAllTags(tag)
+            }
+          }
+        ]
+      })
+      // const offsetLeft = this.$el.getBoundingClientRect().left // container margin left
+      // const offsetWidth = this.$el.offsetWidth // container width
+      // const maxLeft = offsetWidth - menuMinWidth // left boundary
+      // const left = e.clientX - offsetLeft + 15 // 15: margin right
+
+      // if (left > maxLeft) {
+      //   this.left = maxLeft
+      // } else {
+      //   this.left = left
+      // }
+
+      // this.top = e.clientY
+      // this.visible = true
+      // this.selectedTag = tag
     }
   }
 }
@@ -200,11 +215,12 @@ export default {
       cursor: pointer;
       height: 26px;
       line-height: 26px;
-      border: 1px solid #d8dce5;
+      border: 1px solid #d9d9d9;
       color: #495060;
       background: #fff;
       padding: 0 8px;
       font-size: 12px;
+      font-weight: 500;
       margin-left: 5px;
       margin-top: 4px;
       &:first-of-type {
@@ -230,27 +246,6 @@ export default {
       }
     }
   }
-  .contextmenu {
-    margin: 0;
-    background: #fff;
-    z-index: 3000;
-    position: absolute;
-    list-style-type: none;
-    padding: 5px 0;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 400;
-    color: #333;
-    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, .3);
-    li {
-      margin: 0;
-      padding: 7px 16px;
-      cursor: pointer;
-      &:hover {
-        background: #eee;
-      }
-    }
-  }
 }
 </style>
 
@@ -272,7 +267,7 @@ export default {
         vertical-align: -3px;
       }
       &:hover {
-        background-color: #b4bccc;
+        background-color: #595a5c;
         color: #fff;
       }
     }

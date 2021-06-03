@@ -131,16 +131,16 @@ export default {
     .item {
       display: flex;
       align-items: center;
-      height: 35px;
-      font-size: 13px;
+      height: 30px;
+      font-size: 12px;
       padding: 0 15px;
       color: #666;
       position: relative;
       margin-bottom: 2px;
 
       span {
-        height: 35px;
-        line-height: 35px;
+        height: 30px;
+        line-height: 30px;
         flex: 1;
       }
     }
