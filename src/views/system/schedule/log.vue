@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     async getTaskLogList({ page, limit }) {
-      const { data } = await getTaskLogList()
+      const { data } = await getTaskLogList({ page, limit })
       return data
     },
     handleRefresh() {
