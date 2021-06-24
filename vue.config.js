@@ -1,5 +1,6 @@
 'use strict'
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
+const CompressionPlugin = require('compression-webpack-plugin')
 const path = require('path')
 
 const defaultSettings = require('./src/config/settings.js')
@@ -103,6 +104,14 @@ module.exports = {
             .end()
           // loadsh
           config.plugin('loadshReplace').use(new LodashModuleReplacementPlugin())
+          // gzipped
+          config.plugin('CompressionPlugin').use(new CompressionPlugin({
+            algorithm: 'gzip',
+            test: /\.(js|css)$/, // 匹配文件名
+            threshold: 10240, // 对超过10k的数据压缩
+            deleteOriginalAssets: false, // 不删除源文件
+            minRatio: 0.8 // 压缩比
+          }))
           // split
           config
             .optimization.splitChunks({
