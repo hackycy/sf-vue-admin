@@ -3,6 +3,8 @@ import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 
+const UNKNOWN_ERROR = '未知错误，请重试'
+
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
@@ -25,7 +27,7 @@ service.interceptors.request.use(
   },
   error => {
     // do something with request error
-    console.log(error) // for debug
+
     return Promise.reject(error)
   }
 )
@@ -48,7 +50,7 @@ service.interceptors.response.use(
     // if the custom code is not 200, it is judged as an error.
     if (res.code !== 200) {
       Message({
-        message: res.message || 'Error',
+        message: res.message || UNKNOWN_ERROR,
         type: 'error',
         duration: 5 * 1000
       })
@@ -66,13 +68,9 @@ service.interceptors.response.use(
           })
         }).catch(() => {})
       }
-      // 无权限操作提示
-      // if (res.code === 11003) {
-      //   MessageBox.alert(res.message || '无权限操作', '警告', { type: 'warning' })
-      // }
 
-      // throw
-      const error = new Error(res.message || 'Error')
+      // throw other
+      const error = new Error(res.message || UNKNOWN_ERROR)
       error.code = res.code
       return Promise.reject(error)
     } else {
@@ -80,8 +78,20 @@ service.interceptors.response.use(
     }
   },
   error => {
+    // 处理 422 或者 500 的错误异常提示
+    let errMsg
+    if (error && error.response) {
+      switch (error.response.status) {
+        case 422:
+          errMsg = `参数错误：${error.response.data.message}`
+          break
+        case 500:
+          errMsg = '服务器异常，请稍后再试！'
+          break
+      }
+    }
     Message({
-      message: error.message,
+      message: errMsg ?? UNKNOWN_ERROR,
       type: 'error',
       duration: 5 * 1000
     })
