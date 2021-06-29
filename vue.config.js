@@ -50,7 +50,7 @@ module.exports = {
         pathRewrite: { '^/api': '' }
       },
       '/ws': {
-        target: 'http://127.0.0.1:7002',
+        target: 'ws://127.0.0.1:7002',
         ws: true
       }
     }
