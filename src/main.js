@@ -17,6 +17,10 @@ import '@/permission' // permission control
 
 Vue.config.productionTip = false
 
+import { SocketIOWrapper } from '@/utils/socket-io'
+
+new SocketIOWrapper()
+
 new Vue({
   el: '#app',
   router,

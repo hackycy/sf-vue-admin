@@ -5,18 +5,27 @@ import { getToken } from './auth'
 export const EVENT_CONNECT = 'connect'
 export const EVENT_DISCONNECT = 'disconnect'
 
-export class ScoketIOWrapper {
+/**
+ * Socket连接状态
+ */
+export const SocketStatus = {
+  // 连接中
+  CONNECTING: 'CONNECTING',
+  // 已连接
+  CONNECTED: 'CONNECTED',
+  // 已关闭
+  CLOSE: 'CLOSE'
+}
+
+export class SocketIOWrapper {
   constructor() {
-    this.closeWs = false
+    this.status = SocketStatus.CONNECTING
     // init
     this._init()
   }
 
-  /**
-   * 是否已经连接成功
-   */
-  isInit() {
-    return !this.closeWs
+  changeStatus(status) {
+    this.status = status
   }
 
   /**
@@ -33,19 +42,18 @@ export class ScoketIOWrapper {
     //   return
     // }
     // 初始化实例
-    this.socketInstance = IO({
-      path: '/ws',
+    this.socketInstance = IO(process.env.VUE_APP_BASE_SOCKET_NSP, {
+      path: process.env.VUE_APP_BASE_SOCKET_PATH,
       query: { token }
     })
     // connect event
     this.socketInstance.on(EVENT_CONNECT, (socket) => {
-      this.id = socket.id
-      console.log(this.id)
+      this.changeStatus(SocketStatus.CONNECTED)
     })
     // 监听服务端发送close事件，则手动关闭
     this.socketInstance.on(EVENT_DISCONNECT, () => {
       // close
-      this.closeWs = true
+      this.changeStatus(SocketStatus.CLOSE)
       this.socketInstance.close()
     })
   }
