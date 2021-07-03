@@ -5,7 +5,7 @@ const state = {
 }
 
 const mutations = {
-  SET_WS_CLIENT(state, client) {
+  SET_CLIENT(state, client) {
     state.client = client
   }
 }
@@ -17,7 +17,7 @@ const actions = {
       return
     }
     const ws = new SocketIOWrapper()
-    commit('SET_WS_CLIENT', ws)
+    commit('SET_CLIENT', ws)
   }
 }
 
