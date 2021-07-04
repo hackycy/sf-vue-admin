@@ -55,8 +55,8 @@ const actions = {
     })
   },
 
-  // get user info
-  getInfo({ commit }) {
+  // 初始化用户及权限信息
+  getInfo({ commit, dispatch }) {
     return new Promise((resolve, reject) => {
       Promise.all([permmenu(), getInfo()]).then((results) => {
         const pm = results[0].data
@@ -67,6 +67,9 @@ const actions = {
         commit('SET_PERMS', perms)
         commit('SET_NAME', info.name)
         commit('SET_AVATAR', info.headImg)
+
+        // init socket
+        dispatch('ws/initSocket', null, { root: true })
 
         resolve({ menus, perms, user: info })
       }).catch(error => {
@@ -85,6 +88,8 @@ const actions = {
 
           // 清除store存储的routes
           dispatch('permission/resetRoutes', null, { root: true })
+          // disconnect socket
+          dispatch('ws/closeSocket', null, { root: true })
 
           // clean vue-router
           resetRouter()
@@ -98,7 +103,7 @@ const actions = {
   },
 
   // 清除token
-  resetToken({ commit, dispatch }) {
+  resetToken({ commit }) {
     return new Promise(resolve => {
       // 清除localstorage存储的token
       removeToken()

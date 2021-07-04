@@ -1,9 +1,10 @@
 import { isEmpty } from 'lodash'
 import IO from 'socket.io-client'
+import {
+  EVENT_CONNECT,
+  EVENT_DISCONNECT
+} from './event-type'
 import { getToken } from '../../utils/auth'
-
-export const EVENT_CONNECT = 'connect'
-export const EVENT_DISCONNECT = 'disconnect'
 
 /**
  * Socket连接状态
@@ -19,56 +20,43 @@ export const SocketStatus = {
 
 export class SocketIOWrapper {
   constructor() {
-    this.status = SocketStatus.CONNECTING
     this.socketInstance = null
     // init
     this._init()
   }
 
-  /**
-   * 获取当前Socket连接状态
-   */
-  getStatus() {
-    return this.status
-  }
-
-  changeStatus(status) {
-    this.status = status
-  }
-
   close() {
-    this.changeStatus(SocketStatus.CLOSE)
-    if (!this.socketInstance) {
+    if (this.socketInstance) {
       this.socketInstance.close()
     }
+    this.socketInstance = null
   }
 
   /**
    * SocketIO 初始化
    */
   _init() {
-    if (this.closeWs) {
-      throw new Error('socket is closed')
+    if (this.socketInstance && this.socketInstance.connected) {
+      throw new Error('socket is connecting')
     }
+    // auth token
     const token = getToken()
     if (isEmpty(token)) {
       // 未登录状态则直接关闭连接
       this.close()
       return
     }
-    // 初始化实例
+    // 初始化SocketIO实例
     this.socketInstance = IO(process.env.VUE_APP_BASE_SOCKET_NSP, {
       path: process.env.VUE_APP_BASE_SOCKET_PATH,
       query: { token }
     })
     // connect event
-    this.socketInstance.on(EVENT_CONNECT, (socket) => {
-      this.changeStatus(SocketStatus.CONNECTED)
+    this.socketInstance.on(EVENT_CONNECT, () => {
+      // TODO
     })
-    // 监听服务端发送close事件，则手动关闭
     this.socketInstance.on(EVENT_DISCONNECT, () => {
-      // close
-      this.close()
+      // TODO
     })
   }
 
