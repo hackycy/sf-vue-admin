@@ -11,5 +11,5 @@ RUN npm run build:prod
 FROM nginx as production
 RUN mkdir /web
 COPY --from=builder /sf-vue-admin/dist/ /web
-COPY --from=builder /sf-vue-admin/build/nginx.conf /etc/nginx/nginx.conf
+COPY --from=builder /sf-vue-admin/nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
