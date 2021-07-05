@@ -1,9 +1,13 @@
 import { isEmpty } from 'lodash'
 import IO from 'socket.io-client'
+import { Notification } from 'element-ui'
 import {
   EVENT_CONNECT,
-  EVENT_DISCONNECT
+  EVENT_DISCONNECT,
+  EVENT_RECONNECTING,
+  EVENT_ERROR
 } from './event-type'
+import store from '@/store'
 import { getToken } from '../../utils/auth'
 
 /**
@@ -23,6 +27,10 @@ export class SocketIOWrapper {
     this.socketInstance = null
     // init
     this._init()
+  }
+
+  isConnected() {
+    return this.socketInstance.connected
   }
 
   close() {
@@ -46,18 +54,38 @@ export class SocketIOWrapper {
       this.close()
       return
     }
+    this.changeStatus(SocketStatus.CONNECTING)
     // 初始化SocketIO实例
     this.socketInstance = IO(process.env.VUE_APP_BASE_SOCKET_NSP, {
       path: process.env.VUE_APP_BASE_SOCKET_PATH,
       query: { token }
     })
     // connect event
-    this.socketInstance.on(EVENT_CONNECT, () => {
-      // TODO
-    })
-    this.socketInstance.on(EVENT_DISCONNECT, () => {
-      // TODO
-    })
+    this.socketInstance.on(EVENT_CONNECT, this.handleConnectEvent.bind(this))
+    this.socketInstance.on(EVENT_DISCONNECT, this.handleDisconnectEvent.bind(this))
+    this.socketInstance.on(EVENT_RECONNECTING, this.handleReconnectingEvent.bind(this))
+    this.socketInstance.on(EVENT_ERROR, this.handleErrorEvent.bind(this))
+  }
+
+  changeStatus(status) {
+    store.commit('ws/SET_STATUS', status)
+  }
+
+  handleReconnectingEvent() {
+    this.changeStatus(SocketStatus.CONNECTING)
+    Notification.warning('Socket连接已断开，尝试重新连接中...')
+  }
+
+  handleConnectEvent() {
+    this.changeStatus(SocketStatus.CONNECTED)
+  }
+
+  handleDisconnectEvent() {
+    this.changeStatus(SocketStatus.CLOSE)
+  }
+
+  handleErrorEvent() {
+    this.changeStatus(SocketStatus.CLOSE)
   }
 
   /**

@@ -6,6 +6,7 @@
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
+        <socket-status id="socketstatus" :status="socketStatus" class="right-menu-item hover-effect" />
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
       </template>
 
@@ -31,6 +32,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import SocketStatus from '@/components/SocketStatus'
 import Screenfull from '@/components/Screenfull'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
@@ -39,13 +41,15 @@ export default {
   components: {
     Breadcrumb,
     Hamburger,
-    Screenfull
+    Screenfull,
+    SocketStatus
   },
   computed: {
     ...mapGetters([
       'sidebar',
       'avatar',
-      'device'
+      'device',
+      'socketStatus'
     ])
   },
   methods: {
