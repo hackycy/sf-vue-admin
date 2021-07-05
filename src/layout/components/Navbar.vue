@@ -6,7 +6,9 @@
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
+        <!-- socket连接状态显示 -->
         <socket-status id="socketstatus" :status="socketStatus" class="right-menu-item hover-effect" />
+        <!-- 全屏按钮控件 -->
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
       </template>
 
