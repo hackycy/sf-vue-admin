@@ -25,6 +25,12 @@ export const SocketStatus = {
 export class SocketIOWrapper {
   constructor() {
     this.socketInstance = null
+    this.emitQueue = []
+    // flush will using
+    this.runningQueue = []
+    this.handleIndex = 0
+    this.flushing = false
+    this.waiting = false
     // 防止重复显示重连提示
     this.needShowReconnectingNotify = true
     // init
@@ -88,6 +94,14 @@ export class SocketIOWrapper {
     if (!this.needShowReconnectingNotify) {
       this.needShowReconnectingNotify = true
     }
+    // flush queue
+    if (this.emitQueue.length > 0) {
+      // copy
+      const queue = this.emitQueue.slice()
+      for (let i = 0; i < queue.length; i++) {
+        this.queueEmit(queue[i])
+      }
+    }
   }
 
   handleDisconnectEvent() {
@@ -106,6 +120,51 @@ export class SocketIOWrapper {
    * reconnect_failed、removeListener、ping、pong
    */
   emit(eventName, ...args) {
-    this.socketInstance.emit(eventName, args)
+    if (!this.isConnected()) {
+      // 未连接状态，则缓存，在重新连接时则会执行该队列
+      this.emitQueue.push({ eventName, args })
+    } else {
+      // 连接成功状态
+      this.socketInstance.emit(eventName, args)
+    }
+  }
+
+  resetState() {
+    this.handleIndex = 0
+    this.waiting = this.flushing = false
+    this.runningQueue = []
+  }
+
+  queueEmit(item) {
+    if (!this.flushing) {
+      this.runningQueue.push(item)
+    } else {
+      // if flushing
+      let i = this.runningQueue.length - 1
+      while (i > this.handleIndex) {
+        i--
+      }
+      this.runningQueue.splice(i + 1, 0, item)
+    }
+    // queue the flush
+    if (!this.waiting) {
+      this.waiting = true
+      setTimeout(() => {
+        this.flushQueue()
+      }, 0)
+    }
+  }
+
+  flushQueue() {
+    this.flushing = true
+    let item
+    // emit
+    for (this.handleIndex = 0; this.handleIndex < this.runningQueue.length; this.handleIndex++) {
+      item = this.runningQueue[this.handleIndex]
+      // re emit
+      this.emit(item.eventName, item.args)
+    }
+
+    this.resetState()
   }
 }
