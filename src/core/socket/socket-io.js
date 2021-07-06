@@ -25,6 +25,8 @@ export const SocketStatus = {
 export class SocketIOWrapper {
   constructor() {
     this.socketInstance = null
+    // 防止重复显示重连提示
+    this.needShowReconnectingNotify = true
     // init
     this._init()
   }
@@ -73,11 +75,19 @@ export class SocketIOWrapper {
 
   handleReconnectingEvent() {
     this.changeStatus(SocketStatus.CONNECTING)
-    Notification.warning('Socket连接已断开，尝试重新连接中...')
+    if (this.needShowReconnectingNotify) {
+      // 等待下次连接成功时重置
+      this.needShowReconnectingNotify = false
+      Notification.warning('Socket连接已断开，尝试重新连接中...')
+    }
   }
 
   handleConnectEvent() {
     this.changeStatus(SocketStatus.CONNECTED)
+    // 重置状态
+    if (!this.needShowReconnectingNotify) {
+      this.needShowReconnectingNotify = true
+    }
   }
 
   handleDisconnectEvent() {
