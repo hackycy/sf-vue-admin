@@ -32,7 +32,7 @@ const actions = {
 
   // 关闭Socket连接
   closeSocket({ commit, state }) {
-    if (state.client && state.client.getStatus() === SocketStatus.CONNECTED) {
+    if (state.client && state.client.isConnected()) {
       state.client.close()
     }
     commit('SET_CLIENT', null)
