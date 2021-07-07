@@ -1,6 +1,5 @@
-import { isEmpty } from 'lodash'
+import { isEmpty, isFunction } from 'lodash'
 import IO from 'socket.io-client'
-import { Notification } from 'element-ui'
 import {
   EVENT_CONNECT,
   EVENT_DISCONNECT,
@@ -23,16 +22,36 @@ export const SocketStatus = {
 }
 
 export class SocketIOWrapper {
+  /**
+   * socket.io-client reserved event keywords
+   * @type {string[]}
+   */
+  static staticEvents = [
+    'connect',
+    'error',
+    'disconnect',
+    'reconnect',
+    'reconnect_attempt',
+    'reconnecting',
+    'reconnect_error',
+    'reconnect_failed',
+    'connect_error',
+    'connect_timeout',
+    'connecting',
+    'ping',
+    'pong'
+  ]
+
   constructor() {
+    // socket io client instance
     this.socketInstance = null
+    // emit cache queue
     this.emitQueue = []
     // flush will using
     this.runningQueue = []
     this.handleIndex = 0
     this.flushing = false
     this.waiting = false
-    // 防止重复显示重连提示
-    this.needShowReconnectingNotify = true
     // init
     this._init()
   }
@@ -68,32 +87,56 @@ export class SocketIOWrapper {
       path: process.env.VUE_APP_BASE_SOCKET_PATH,
       query: { token }
     })
-    // connect event
+    // register default event
     this.socketInstance.on(EVENT_CONNECT, this.handleConnectEvent.bind(this))
     this.socketInstance.on(EVENT_DISCONNECT, this.handleDisconnectEvent.bind(this))
     this.socketInstance.on(EVENT_RECONNECTING, this.handleReconnectingEvent.bind(this))
     this.socketInstance.on(EVENT_ERROR, this.handleErrorEvent.bind(this))
   }
 
+  /**
+   * on custom event
+   */
+  subscribe(eventName, fn) {
+    if (isEmpty(eventName) || !isFunction(fn)) {
+      throw new TypeError('param must correct type')
+    }
+    // register
+    this.socketInstance.on(eventName, fn)
+  }
+
+  /**
+   * off custom event
+   */
+  unsubscribe(eventName, fn) {
+    if (isEmpty(eventName)) {
+      throw new TypeError('param must correct type')
+    }
+    if (SocketIOWrapper.staticEvents.includes(eventName) && !isFunction(fn)) {
+      throw new Error('default event remove must has second param')
+    }
+    this.socketInstance.off(eventName, fn)
+  }
+
+  /**
+   * 派发事件通知Socket状态
+   */
   changeStatus(status) {
     store.commit('ws/SET_STATUS', status)
   }
 
+  /**
+   * 默认事件处理
+   */
   handleReconnectingEvent() {
     this.changeStatus(SocketStatus.CONNECTING)
-    if (this.needShowReconnectingNotify) {
-      // 等待下次连接成功时重置
-      this.needShowReconnectingNotify = false
-      Notification.warning('Socket连接已断开，尝试重新连接中...')
-    }
   }
 
+  /**
+   * 默认事件处理
+   */
   handleConnectEvent() {
     this.changeStatus(SocketStatus.CONNECTED)
-    // 重置状态
-    if (!this.needShowReconnectingNotify) {
-      this.needShowReconnectingNotify = true
-    }
     // flush queue
     if (this.emitQueue.length > 0) {
       // copy
@@ -106,10 +149,16 @@ export class SocketIOWrapper {
     }
   }
 
+  /**
+   * 默认事件处理
+   */
   handleDisconnectEvent() {
     this.changeStatus(SocketStatus.CLOSE)
   }
 
+  /**
+   * 默认事件处理
+   */
   handleErrorEvent() {
     this.changeStatus(SocketStatus.CLOSE)
   }
@@ -122,6 +171,10 @@ export class SocketIOWrapper {
    * reconnect_failed、removeListener、ping、pong
    */
   emit(eventName, data) {
+    // 检查event名称
+    if (isEmpty(eventName) || SocketIOWrapper.staticEvents.includes(eventName)) {
+      throw new TypeError('event is not allow emit')
+    }
     if (!this.isConnected()) {
       // 未连接状态，则缓存，在重新连接时则会执行该队列
       this.emitQueue.push({ eventName, data })
@@ -131,6 +184,9 @@ export class SocketIOWrapper {
     }
   }
 
+  /**
+   * 重置队列标志状态
+   */
   resetState() {
     this.handleIndex = 0
     this.runningQueue = []
@@ -159,7 +215,11 @@ export class SocketIOWrapper {
     this.flushing = true
     let item
     // emit
-    for (this.handleIndex = 0; this.handleIndex < this.runningQueue.length; this.handleIndex++) {
+    for (
+      this.handleIndex = 0;
+      this.handleIndex < this.runningQueue.length;
+      this.handleIndex++
+    ) {
       item = this.runningQueue[this.handleIndex]
       // re emit
       this.emit(item.eventName, item.data)
