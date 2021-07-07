@@ -18,6 +18,9 @@ export default {
   mounted() {
     this.$registerSocketEvent()
   },
+  beforeDestroy() {
+    this.$unregisterSocketEvent()
+  },
   methods: {
     '$registerSocketEvent'() {
       if (this.$options[SOCKET_HOOK_KEY]) {
