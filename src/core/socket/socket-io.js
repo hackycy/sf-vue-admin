@@ -98,6 +98,8 @@ export class SocketIOWrapper {
     if (this.emitQueue.length > 0) {
       // copy
       const queue = this.emitQueue.slice()
+      // clean
+      this.emitQueue = []
       for (let i = 0; i < queue.length; i++) {
         this.queueEmit(queue[i])
       }
@@ -119,20 +121,20 @@ export class SocketIOWrapper {
    * disconnecting、newListener、reconnect_attempt、reconnecting、reconnect_error、
    * reconnect_failed、removeListener、ping、pong
    */
-  emit(eventName, ...args) {
+  emit(eventName, data) {
     if (!this.isConnected()) {
       // 未连接状态，则缓存，在重新连接时则会执行该队列
-      this.emitQueue.push({ eventName, args })
+      this.emitQueue.push({ eventName, data })
     } else {
       // 连接成功状态
-      this.socketInstance.emit(eventName, args)
+      this.socketInstance.emit(eventName, data)
     }
   }
 
   resetState() {
     this.handleIndex = 0
-    this.waiting = this.flushing = false
     this.runningQueue = []
+    this.waiting = this.flushing = false
   }
 
   queueEmit(item) {
@@ -149,9 +151,7 @@ export class SocketIOWrapper {
     // queue the flush
     if (!this.waiting) {
       this.waiting = true
-      setTimeout(() => {
-        this.flushQueue()
-      }, 0)
+      setTimeout(this.flushQueue.bind(this), 0)
     }
   }
 
@@ -162,7 +162,7 @@ export class SocketIOWrapper {
     for (this.handleIndex = 0; this.handleIndex < this.runningQueue.length; this.handleIndex++) {
       item = this.runningQueue[this.handleIndex]
       // re emit
-      this.emit(item.eventName, item.args)
+      this.emit(item.eventName, item.data)
     }
 
     this.resetState()
