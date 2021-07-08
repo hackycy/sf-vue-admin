@@ -1,11 +1,5 @@
 import { isEmpty, isFunction } from 'lodash'
 import IO from 'socket.io-client'
-import {
-  EVENT_CONNECT,
-  EVENT_DISCONNECT,
-  EVENT_RECONNECTING,
-  EVENT_ERROR
-} from './event-type'
 import store from '@/store'
 import { getToken } from '../../utils/auth'
 
@@ -27,17 +21,19 @@ export class SocketIOWrapper {
    * @type {string[]}
    */
   static staticEvents = [
+    // socket instance listen
     'connect',
-    'error',
+    'connect_error',
     'disconnect',
+    'disconnecting',
+    'newListener',
+    'removeListener',
+    // Manager listen
+    'error',
     'reconnect',
     'reconnect_attempt',
-    'reconnecting',
     'reconnect_error',
     'reconnect_failed',
-    'connect_error',
-    'connect_timeout',
-    'connecting',
     'ping',
     'pong'
   ]
@@ -52,6 +48,8 @@ export class SocketIOWrapper {
     this.handleIndex = 0
     this.flushing = false
     this.waiting = false
+    // is server disconnect
+    this.closeByServer = false
     // init
     this._init()
   }
@@ -89,10 +87,11 @@ export class SocketIOWrapper {
       query: { token }
     })
     // register default event
-    this.socketInstance.on(EVENT_CONNECT, this.handleConnectEvent.bind(this))
-    this.socketInstance.on(EVENT_DISCONNECT, this.handleDisconnectEvent.bind(this))
-    this.socketInstance.on(EVENT_RECONNECTING, this.handleReconnectingEvent.bind(this))
-    this.socketInstance.on(EVENT_ERROR, this.handleErrorEvent.bind(this))
+    this.socketInstance.on(SocketIOWrapper.staticEvents[0], this.handleConnectEvent.bind(this))
+    this.socketInstance.on(SocketIOWrapper.staticEvents[1], this.handleErrorEvent.bind(this))
+    this.socketInstance.on(SocketIOWrapper.staticEvents[2], this.handleDisconnectEvent.bind(this))
+    // reconnecting
+    this.socketInstance.io.on(SocketIOWrapper.staticEvents[8], this.handleReconnectAttemptEvent.bind(this))
   }
 
   /**
@@ -129,13 +128,6 @@ export class SocketIOWrapper {
   /**
    * 默认事件处理
    */
-  handleReconnectingEvent() {
-    this.changeStatus(SocketStatus.CONNECTING)
-  }
-
-  /**
-   * 默认事件处理
-   */
   handleConnectEvent() {
     this.changeStatus(SocketStatus.CONNECTED)
     // flush queue
@@ -153,15 +145,27 @@ export class SocketIOWrapper {
   /**
    * 默认事件处理
    */
-  handleDisconnectEvent() {
-    this.changeStatus(SocketStatus.CLOSE)
+  handleReconnectAttemptEvent() {
+    this.changeStatus(SocketStatus.CONNECTING)
+  }
+
+  /**
+   * 默认事件处理
+   */
+  handleDisconnectEvent(reason) {
+    if (reason === 'io server disconnect') {
+      this.closeByServer = true
+      this.changeStatus(SocketStatus.CLOSE)
+    }
   }
 
   /**
    * 默认事件处理
    */
   handleErrorEvent() {
-    this.changeStatus(SocketStatus.CLOSE)
+    if (this.closeByServer) {
+      this.changeStatus(SocketStatus.CLOSE)
+    }
   }
 
   /**
