@@ -85,6 +85,7 @@ export class SocketIOWrapper {
     // 初始化SocketIO实例
     this.socketInstance = IO(process.env.VUE_APP_BASE_SOCKET_NSP, {
       path: process.env.VUE_APP_BASE_SOCKET_PATH,
+      transports: ['websocket'],
       query: { token }
     })
     // register default event
