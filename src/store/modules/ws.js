@@ -1,4 +1,6 @@
+import { EVENT_KICK, EVETN_ONLINE } from '@/core/socket/event-type'
 import { SocketIOWrapper, SocketStatus } from '@/core/socket/socket-io'
+import { Notification } from 'element-ui'
 
 const state = {
   // socket wrapper 实例
@@ -27,14 +29,20 @@ const actions = {
       return
     }
     const ws = new SocketIOWrapper()
+    // register global event
+    ws.subscribe(EVETN_ONLINE, (result) => {
+      const { data } = result
+      Notification.success(`管理员${data.account}已上线`)
+    })
+    ws.subscribe(EVENT_KICK, () => {
+      Notification.warning('您已被强制下线！')
+    })
     commit('SET_CLIENT', ws)
   },
 
   // 关闭Socket连接
   closeSocket({ commit, state }) {
-    if (state.client && state.client.isConnected()) {
-      state.client.close()
-    }
+    state.client && state.client.close()
     commit('SET_CLIENT', null)
   }
 }

@@ -54,10 +54,26 @@ export class SocketIOWrapper {
     this._init()
   }
 
+  /**
+   * 获取当前连接的clientid
+   */
+  getClientId() {
+    if (this.socketInstance) {
+      return this.socketInstance.id
+    }
+    return undefined
+  }
+
+  /**
+   * 获取真实的Socket连接状态
+   */
   isConnected() {
     return this.socketInstance.connected
   }
 
+  /**
+   * 主动关闭连接
+   */
   close() {
     if (this.socketInstance) {
       this.socketInstance.close()
