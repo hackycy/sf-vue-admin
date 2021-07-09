@@ -24,9 +24,16 @@ export default {
   methods: {
     '$registerSocketEvent'() {
       if (this.$options[SOCKET_HOOK_KEY]) {
+        // mounted map, cache wrapper func
+        if (!this.$socket) {
+          this.$socket = new Map()
+        }
         Object.keys(this.$options[SOCKET_HOOK_KEY]).forEach(e => {
           if (this.socketClient) {
-            this.socketClient.subscribe(e, this.$options[SOCKET_HOOK_KEY][e])
+            // bind this
+            const wrapFunc = this.$options[SOCKET_HOOK_KEY][e].bind(this)
+            this.$socket.set(e, wrapFunc)
+            this.socketClient.subscribe(e, wrapFunc)
           }
         })
       }
@@ -34,8 +41,9 @@ export default {
     '$unregisterSocketEvent'() {
       if (this.$options[SOCKET_HOOK_KEY]) {
         Object.keys(this.$options[SOCKET_HOOK_KEY]).forEach(e => {
-          if (this.socketClient) {
-            this.socketClient.unsubscribe(e, this.$options[SOCKET_HOOK_KEY][e])
+          // 增加判断避免被移除掉所有事件
+          if (this.socketClient && this.$socket && this.$socket.has(e)) {
+            this.socketClient.unsubscribe(e, this.$socket.get(e))
           }
         })
       }
