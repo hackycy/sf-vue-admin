@@ -79,19 +79,9 @@ service.interceptors.response.use(
   },
   error => {
     // 处理 422 或者 500 的错误异常提示
-    let errMsg
-    if (error && error.response) {
-      switch (error.response.status) {
-        case 422:
-          errMsg = `参数错误：${error.response.data.message}`
-          break
-        case 500:
-          errMsg = '服务器异常，请稍后再试！'
-          break
-      }
-    }
+    const errMsg = (error && error.response && error.response.data) ? error.response.data.message : UNKNOWN_ERROR
     Message({
-      message: errMsg ?? UNKNOWN_ERROR,
+      message: errMsg,
       type: 'error',
       duration: 5 * 1000
     })
