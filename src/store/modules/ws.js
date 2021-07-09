@@ -1,4 +1,4 @@
-import { EVENT_KICK, EVETN_ONLINE } from '@/core/socket/event-type'
+import { EVENT_KICK } from '@/core/socket/event-type'
 import { SocketIOWrapper, SocketStatus } from '@/core/socket/socket-io'
 import { Notification } from 'element-ui'
 
@@ -29,11 +29,6 @@ const actions = {
       return
     }
     const ws = new SocketIOWrapper()
-    // register global event
-    ws.subscribe(EVETN_ONLINE, (result) => {
-      const { data } = result
-      Notification.success(`管理员${data.account}已上线`)
-    })
     ws.subscribe(EVENT_KICK, () => {
       Notification.warning('您已被强制下线！')
     })
