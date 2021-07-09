@@ -40,6 +40,7 @@
 </template>
 
 <script>
+import SocketHookMixin, { SOCKET_HOOK_KEY } from '@/core/mixins/socket-hook'
 import TableLayout from '@/layout/components/TableLayout'
 import STable from '@/components/Table'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
@@ -51,6 +52,13 @@ export default {
     TableLayout,
     STable,
     WarningConfirmButton
+  },
+  mixins: [SocketHookMixin],
+  [SOCKET_HOOK_KEY]: {
+    connect() {
+      // connect auto refresh
+      this.handleRefresh()
+    }
   },
   methods: {
     async getOnlineList() {
