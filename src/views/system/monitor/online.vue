@@ -52,6 +52,13 @@ export default {
     connect() {
       // connect auto refresh
       this.handleRefresh()
+    },
+    online() {
+      // online event auto refresh
+      this.handleRefresh()
+    },
+    offline() {
+      this.handleRefresh()
     }
   },
   methods: {
