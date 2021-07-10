@@ -2,6 +2,7 @@
   <div class="sys-online-container">
     <table-layout>
       <s-table ref="onlineTable" :data-request="getOnlineList" row-key="id" border>
+        <el-table-column prop="id" show-overflow-tooltip label="#" align="center" width="80" />
         <el-table-column prop="username" label="用户名" align="center">
           <template slot-scope="scope">
             <span style="margin-right: 16px">{{ scope.row.username }}</span>
@@ -17,20 +18,13 @@
         <el-table-column prop="time" show-overflow-tooltip label="登录时间" align="center" />
         <el-table-column prop="os" show-overflow-tooltip label="操作系统" align="center" />
         <el-table-column prop="browser" show-overflow-tooltip label="浏览器" align="center" />
-        <el-table-column prop="status" label="状态" width="90" align="center">
-          <template slot-scope="scope">
-            <el-tag size="small" type="dark">{{
-              getStatusType(scope.row.status)
-            }}</el-tag>
-          </template>
-        </el-table-column>
         <el-table-column label="操作" width="150" align="center" fixed="right">
           <template slot-scope="scope">
             <warning-confirm-button
               :closed="handleRefresh"
               content="确定下线该用户吗?"
               :disabled="!$auth('sysOnline.kick') || scope.row.disable"
-              @confirm="(o) => { handleDelete(scope.row, o) }"
+              @confirm="(o) => { handleKick(scope.row, o) }"
             >下线</warning-confirm-button>
           </template>
         </el-table-column>
@@ -68,18 +62,11 @@ export default {
     handleRefresh() {
       this.$refs.onlineTable.refresh()
     },
-    async handleDelete(row, { close }) {
+    async handleKick(row, { close }) {
       try {
         await kickUser({ id: row.id })
       } finally {
         close()
-      }
-    },
-    getStatusType(status) {
-      if (status === 1) {
-        return '在线'
-      } else {
-        return '未知'
       }
     }
   }
