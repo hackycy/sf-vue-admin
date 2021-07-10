@@ -1,6 +1,6 @@
 import { EVENT_KICK } from '@/core/socket/event-type'
 import { SocketIOWrapper, SocketStatus } from '@/core/socket/socket-io'
-import { Notification } from 'element-ui'
+import { MessageBox } from 'element-ui'
 
 const state = {
   // socket wrapper 实例
@@ -23,14 +23,23 @@ const mutations = {
 
 const actions = {
   // 初始化Socket
-  initSocket({ commit, state }) {
+  initSocket({ commit, state, dispatch }) {
     // check is init
     if (state.client && state.client.isConnected()) {
       return
     }
     const ws = new SocketIOWrapper()
-    ws.subscribe(EVENT_KICK, () => {
-      Notification.warning('您已被强制下线！')
+    ws.subscribe(EVENT_KICK, async(data) => {
+      // reset token
+      await dispatch('user/resetToken', null, { root: true })
+      MessageBox.confirm(`您已被管理员${data.operater}踢下线！`, '警告', {
+        confirmButtonText: '重新登录',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).finally(() => {
+        // 刷新页面
+        window.location.reload()
+      })
     })
     commit('SET_CLIENT', ws)
   },
