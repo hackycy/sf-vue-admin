@@ -1,5 +1,6 @@
 'use strict'
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
+const CompressionPlugin = require('compression-webpack-plugin')
 const path = require('path')
 
 const defaultSettings = require('./src/config/settings.js')
@@ -33,12 +34,9 @@ module.exports = {
   productionSourceMap: false,
   /**
    * add vue-echarts fix
-   * https://github.com/ecomfe/vue-echarts/blob/5.x/README.zh_CN.md#%E5%BC%95%E5%85%A5%E6%BA%90%E7%A0%81%E7%89%88%E6%9C%AC
+   * https://github.com/ecomfe/vue-echarts/blob/5.x/README.zh_CN.md#引入源码版本
    */
-  transpileDependencies: [
-    'vue-echarts',
-    'resize-detector'
-  ],
+  transpileDependencies: ['vue-echarts', 'resize-detector'],
   devServer: {
     port: port,
     open: true,
@@ -46,7 +44,16 @@ module.exports = {
       warnings: false,
       errors: true
     },
-    proxy: 'http://127.0.0.1:7001'
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:7001',
+        pathRewrite: { '^/api': '' }
+      },
+      '/ws': {
+        target: 'ws://127.0.0.1:7002',
+        ws: true
+      }
+    }
   },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that
@@ -90,47 +97,55 @@ module.exports = {
       })
       .end()
 
-    config
-      .when(process.env.NODE_ENV !== 'development',
-        config => {
-          config
-            .plugin('ScriptExtHtmlWebpackPlugin')
-            .after('html')
-            .use('script-ext-html-webpack-plugin', [{
+    config.when(process.env.NODE_ENV !== 'development', config => {
+      config
+        .plugin('ScriptExtHtmlWebpackPlugin')
+        .after('html')
+        .use('script-ext-html-webpack-plugin', [
+          {
             // `runtime` must same as runtimeChunk name. default is `runtime`
-              inline: /runtime\..*\.js$/
-            }])
-            .end()
-          // loadsh
-          config.plugin('loadshReplace').use(new LodashModuleReplacementPlugin())
-          // split
-          config
-            .optimization.splitChunks({
-              chunks: 'all',
-              cacheGroups: {
-                libs: {
-                  name: 'chunk-libs',
-                  test: /[\\/]node_modules[\\/]/,
-                  priority: 10,
-                  chunks: 'initial' // only package third parties that are initially dependent
-                },
-                elementUI: {
-                  name: 'chunk-elementUI', // split elementUI into a single package
-                  priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
-                  test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
-                },
-                commons: {
-                  name: 'chunk-commons',
-                  test: resolve('src/components'), // can customize your rules
-                  minChunks: 3, //  minimum common number
-                  priority: 5,
-                  reuseExistingChunk: true
-                }
-              }
-            })
-          // https:// webpack.js.org/configuration/optimization/#optimizationruntimechunk
-          config.optimization.runtimeChunk('single')
-        }
+            inline: /runtime\..*\.js$/
+          }
+        ])
+        .end()
+      // loadsh
+      config.plugin('loadshReplace').use(new LodashModuleReplacementPlugin())
+      // gzipped
+      config.plugin('CompressionPlugin').use(
+        new CompressionPlugin({
+          algorithm: 'gzip',
+          test: /\.(js|css)$/, // 匹配文件名
+          threshold: 10240, // 对超过10k的数据压缩
+          deleteOriginalAssets: false, // 不删除源文件
+          minRatio: 0.8 // 压缩比
+        })
       )
+      // split
+      config.optimization.splitChunks({
+        chunks: 'all',
+        cacheGroups: {
+          libs: {
+            name: 'chunk-libs',
+            test: /[\\/]node_modules[\\/]/,
+            priority: 10,
+            chunks: 'initial' // only package third parties that are initially dependent
+          },
+          elementUI: {
+            name: 'chunk-elementUI', // split elementUI into a single package
+            priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+            test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
+          },
+          commons: {
+            name: 'chunk-commons',
+            test: resolve('src/components'), // can customize your rules
+            minChunks: 3, //  minimum common number
+            priority: 5,
+            reuseExistingChunk: true // 表示是否使用已有的 chunk，如果为 true 则表示如果当前的 chunk 包含的模块已经被抽取出去了，那么将不会重新生成新的。
+          }
+        }
+      })
+      // https:// webpack.js.org/configuration/optimization/#optimizationruntimechunk
+      config.optimization.runtimeChunk('single')
+    })
   }
 }
