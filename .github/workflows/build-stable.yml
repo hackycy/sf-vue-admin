@@ -3,7 +3,8 @@ name: Build Stable Image
 on:
   push:
     branches:
-      - '*'
+      - 'nest'
+      - 'midway'
 
 jobs:
   docker:
@@ -28,6 +29,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sfvueadmin:${{ steps.vars.outputs.short_ref }}:stable
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sfvueadmin:${{ steps.vars.outputs.short_ref }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
