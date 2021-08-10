@@ -20,7 +20,7 @@
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
           <router-link to="/account/about">
             <el-dropdown-item>
-              关于项目
+              关于
             </el-dropdown-item>
           </router-link>
           <router-link to="/account/settings">
