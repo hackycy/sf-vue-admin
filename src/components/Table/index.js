@@ -130,11 +130,7 @@ export default {
     return (
       <div class={styles['sf-table-wrapper']}>
         <div class={styles['sf-table-content']}>
-          <el-table {...{ props: { ...tableProps }, on: {
-            'row-click': (row, column, event) => { this.$emit('row-click', row, column, event) },
-            'selection-change': (selection) => { this.$emit('selection-change', selection) },
-            'row-contextmenu': (row, column, event) => { this.$emit('row-contextmenu', row, column, event) }
-          },
+          <el-table {...{ props: { ...tableProps }, on: this.$listeners,
           ref: 'table',
           directives: [{ name: 'loading', value: this.localLoading }] }}>
             {Object.keys(this.$slots).map(name => (this.$slots[name]))}
