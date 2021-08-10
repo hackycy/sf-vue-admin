@@ -69,12 +69,20 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/account/settings',
     hidden: true,
-    children: [{
-      path: 'settings',
-      name: 'Settings',
-      component: () => import('@/views/account/settings'),
-      meta: { title: '个人设置' }
-    }]
+    children: [
+      {
+        path: 'settings',
+        name: 'Settings',
+        component: () => import('@/views/account/settings'),
+        meta: { title: '个人设置' }
+      },
+      {
+        path: 'about',
+        name: 'about',
+        component: () => import('@/views/account/about'),
+        meta: { title: '关于' }
+      }
+    ]
   }
 
   // {
