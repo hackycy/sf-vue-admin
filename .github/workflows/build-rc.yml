@@ -28,6 +28,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sfvueadmin:${{ steps.vars.outputs.short_ref }}:rc
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sfvueadmin:rc
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
