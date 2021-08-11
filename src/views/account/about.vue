@@ -4,7 +4,9 @@
       <div class="title">
         <b>关于</b>
       </div>
-      sf-admin 是一个为后台项目开发提供现成的开箱解决方案，原则上不会限制任何代码用于商用。
+      <code>sf-nest-admin</code>或<code>sf-midway-admin</code>的前端项目是基于<code>vue-admin-template</code>开发，
+      内置了动态路由、权限验证、并提供了常用的功能组件，帮助你快速搭建企业级中后台产品原型。
+      原则上不会限制任何代码用于商用。
     </div>
     <el-card class="m-20">
       <div slot="header">
