@@ -1,15 +1,25 @@
 'use strict'
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
 const CompressionPlugin = require('compression-webpack-plugin')
+const formatDate = require('date-fns').format
 const path = require('path')
-
 const defaultSettings = require('./src/config/settings.js')
+const { dependencies, devDependencies, version } = require('./package')
+
+// app name
+const name = defaultSettings.title || 'SF Admin Template' // page title
 
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
-const name = defaultSettings.title || 'vue Admin Template' // page title
+// inject info
+const __SFADMIN_INFO__ = {
+  pkg: { dependencies, devDependencies, version, name },
+  lastBuildTime: formatDate(new Date(), 'yyyy-MM-dd HH:mm:ss')
+}
+
+process.env.VUE_APP_SFADMIN_INFO = JSON.stringify(__SFADMIN_INFO__)
 
 // If your port is set to 80,
 // use administrator privileges to execute the command line.
