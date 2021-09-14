@@ -79,7 +79,7 @@ service.interceptors.response.use(
   },
   error => {
     // 处理 422 或者 500 的错误异常提示
-    const errMsg = (error && error.response && error.response.data) ? error.response.data.message : UNKNOWN_ERROR
+    const errMsg = (error && error.response && error.response.data && error.response.data.message) ? error.response.data.message : UNKNOWN_ERROR
     Message({
       message: errMsg,
       type: 'error',
