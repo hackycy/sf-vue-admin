@@ -113,7 +113,7 @@ export default {
 
 | 参数   | 说明               | 类型                                                       | 可选值 | 默认值 |
 | ------ | ------------------ | ---------------------------------------------------------- | ------ | ------ |
-| open   | 当表单打开时       | function(form, { showLoading, hideLoading, $refs, close }) |        |        |
+| open   | 当表单打开时       | function(form, { showLoading, hideLoading, $refs, close, rebind }) |        |        |
 | close  | 关闭窗口时触发     | function({ close })                                        |        |        |
 | submit | 表单校验通过后触发 | function(data, { done, close, $refs })                     |        |        |
 
