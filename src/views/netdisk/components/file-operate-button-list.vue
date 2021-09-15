@@ -111,6 +111,7 @@ export default {
       required: true
     }
   },
+  inject: ['updateOperateStatus'],
   data() {
     return {
       // cur & copy 两者对立，不能存在两个都为true
@@ -179,28 +180,33 @@ export default {
       this.pasteFileList = []
     },
     async handlePaste() {
-      const opData = {
-        files: this.pasteFileList,
-        originPath: this.pasteOriginPath,
-        toPath: this.parsePath()
+      try {
+        this.updateOperateStatus(true)
+        const opData = {
+          files: this.pasteFileList,
+          originPath: this.pasteOriginPath,
+          toPath: this.parsePath()
+        }
+        let notifyMsg
+        if (this.cutMode && !this.copyMode) {
+          // cut
+          await cutFiles(opData)
+          notifyMsg = '剪切'
+          this.cutMode = false
+        } else if (!this.cutMode && this.copyMode) {
+          // copy
+          await copyFiles(opData)
+          notifyMsg = '复制'
+          this.copyMode = false
+        } else {
+          throw new Error('unsupport operate')
+        }
+        this.clearPasteCache()
+        this.$message.success(`${notifyMsg}成功`)
+        this.$emit('changed')
+      } finally {
+        this.updateOperateStatus(false)
       }
-      let notifyMsg
-      if (this.cutMode && !this.copyMode) {
-        // cut
-        await cutFiles(opData)
-        notifyMsg = '剪切'
-        this.cutMode = false
-      } else if (!this.cutMode && this.copyMode) {
-        // copy
-        await copyFiles(opData)
-        notifyMsg = '复制'
-        this.copyMode = false
-      } else {
-        throw new Error('unsupport operate')
-      }
-      this.clearPasteCache()
-      this.$message.success(`${notifyMsg}成功`)
-      this.$emit('changed')
     },
 
     async handleDelete({ close, done }) {

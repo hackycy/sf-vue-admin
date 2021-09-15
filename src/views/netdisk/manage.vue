@@ -39,6 +39,9 @@
         :key="tableKey"
         ref="fileTable"
         v-el-table-infinite-scroll="loadData"
+        v-loading="isOperating"
+        element-loading-text="操作执行中，请稍后..."
+        element-loading-spinner="el-icon-loading"
         infinite-scroll-distance="10"
         infinite-scroll-disabled="loadMoreDisabled"
         empty-text="暂无文件"
@@ -144,6 +147,11 @@ export default {
     FilePreviewDrawer,
     FileOperateButtonList
   },
+  provide: function() {
+    return {
+      updateOperateStatus: this.updateOperateStatus
+    }
+  },
   data() {
     return {
       fileList: [],
@@ -154,6 +162,7 @@ export default {
       selectedFileList: [],
       // 菊花加载
       isLoading: false,
+      isOperating: false,
       tableKey: 1,
       // 防止滚动加载速度过快导致出现数据不同步
       lock: false
@@ -400,6 +409,11 @@ export default {
         new RegExp(`${this.localSearchKey}`, 'g'),
         `<span style='color: red;'>${this.localSearchKey}</span>`
       )
+    },
+    updateOperateStatus(showing) {
+      if (this.isOperating !== showing) {
+        this.isOperating = showing
+      }
     }
   }
 }
