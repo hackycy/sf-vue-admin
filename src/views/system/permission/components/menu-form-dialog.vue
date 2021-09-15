@@ -86,7 +86,7 @@ export default {
     getViewFiles() {
       return Object.keys(constantRouterComponents)
     },
-    handleOpen(form, { showLoading, hideLoading, close, set }) {
+    handleOpen(form, { showLoading, hideLoading, close, rebind }) {
       if (this.menuId !== -1) {
         // update mode
         showLoading()
@@ -98,11 +98,7 @@ export default {
               name: parentMenu ? parentMenu.name : '一级菜单'
             }
             // merge
-            for (const fk in form) {
-              if (menu[fk]) {
-                form[fk] = menu[fk]
-              }
-            }
+            rebind(menu)
 
             hideLoading()
           })
