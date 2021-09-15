@@ -243,23 +243,31 @@ export default {
           {
             label: '是否缓存',
             prop: 'keepalive',
-            value: true,
+            value: 1,
             hidden: ({ scope }) => {
               return scope.type !== 1
             },
             component: {
               name: 'el-switch'
+            },
+            props: {
+              'active-value': '1',
+              'inactive-value': '0'
             }
           },
           {
             label: '是否显示',
             prop: 'isShow',
-            value: true,
+            value: 1,
             hidden: ({ scope }) => {
               return scope.type === 2
             },
             component: {
               name: 'el-switch'
+            },
+            props: {
+              'active-value': '1',
+              'inactive-value': '0'
             }
           },
           {
