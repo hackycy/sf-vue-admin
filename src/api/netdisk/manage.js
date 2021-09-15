@@ -48,14 +48,6 @@ export function getToken() {
   })
 }
 
-export function checkTaskStatus(data) {
-  return request({
-    url: ManageApi.check,
-    method: 'post',
-    data
-  })
-}
-
 export function getFileDetailInfo(data) {
   return request({
     url: ManageApi.info,

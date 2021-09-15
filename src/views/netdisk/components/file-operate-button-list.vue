@@ -15,7 +15,12 @@
         content="注意：复制或剪切时会覆盖重名文件"
         placement="top"
       >
-        <el-button :disabled="disabledMultiOperateButton" type="warning" size="mini" style="margin: 0 10px;">
+        <el-button
+          :disabled="disabledMultiOperateButton"
+          type="warning"
+          size="mini"
+          style="margin: 0 10px;"
+        >
           <i class="el-icon-s-operation" />批量操作
         </el-button>
       </el-tooltip>
@@ -76,10 +81,14 @@
 </template>
 
 <script>
-import { createDir, deleteFileOrDir, cutFiles, copyFiles } from '@/api/netdisk/manage'
+import {
+  createDir,
+  deleteFileOrDir,
+  cutFiles,
+  copyFiles
+} from '@/api/netdisk/manage'
 import FileUploadDrawer from './file-upload-drawer'
 import MessageBoxMixin from '@/core/mixins/message-box'
-import PollingMixin from '../mixins/polling'
 import { clone, isEmpty } from 'lodash'
 
 export default {
@@ -87,7 +96,7 @@ export default {
   components: {
     FileUploadDrawer
   },
-  mixins: [MessageBoxMixin, PollingMixin],
+  mixins: [MessageBoxMixin],
   props: {
     selectedFileList: {
       type: Array,
@@ -148,11 +157,13 @@ export default {
         this.cutMode = true
       } else if (command === 'delete') {
         // delete
-        this.openLoadingConfirm({ on: {
-          confirm: (op) => {
-            this.handleDelete(op)
+        this.openLoadingConfirm({
+          on: {
+            confirm: op => {
+              this.handleDelete(op)
+            }
           }
-        }})
+        })
       } else if (command === 'cancel') {
         this.cutMode = false
         this.copyMode = false
@@ -168,74 +179,40 @@ export default {
       this.pasteFileList = []
     },
     async handlePaste() {
-      try {
-        const opData = {
-          files: this.pasteFileList,
-          originPath: this.pasteOriginPath,
-          toPath: this.parsePath()
-        }
-        let result
-        if (this.cutMode && !this.copyMode) {
-          // cut
-          result = await cutFiles(opData)
-          this.cutMode = false
-        } else if (!this.cutMode && this.copyMode) {
-          // copy
-          result = await copyFiles(opData)
-          this.copyMode = false
-        } else {
-          throw new Error('un support')
-        }
-        this.clearPasteCache()
-        const { data } = result
-        if (!data.bgMode) {
-          this.$emit('changed')
-        } else {
-          this.pollingCheckStatus('copy', data.taskId, {
-            success: () => {
-              this.$message.success('复制成功')
-              this.$emit('changed')
-            },
-            fail: (e) => {
-              this.$notify.error({
-                title: '复制失败',
-                message: e,
-                duration: 3000
-              })
-            }
-          })
-        }
-      } catch (e) {
-        // nothing to do
+      const opData = {
+        files: this.pasteFileList,
+        originPath: this.pasteOriginPath,
+        toPath: this.parsePath()
       }
+      let notifyMsg
+      if (this.cutMode && !this.copyMode) {
+        // cut
+        await cutFiles(opData)
+        notifyMsg = '剪切'
+        this.cutMode = false
+      } else if (!this.cutMode && this.copyMode) {
+        // copy
+        await copyFiles(opData)
+        notifyMsg = '复制'
+        this.copyMode = false
+      } else {
+        throw new Error('unsupport operate')
+      }
+      this.clearPasteCache()
+      this.$message.success(`${notifyMsg}成功`)
+      this.$emit('changed')
     },
 
     async handleDelete({ close, done }) {
       try {
         const path = this.parsePath()
         const files = clone(this.selectedFileList)
-        const { data } = await deleteFileOrDir({
+        await deleteFileOrDir({
           path,
           files
         })
-        if (!data.bgMode) {
-          this.$message.success('已删除该文件')
-          this.$emit('changed')
-        } else {
-          this.pollingCheckStatus('delete', data.taskId, {
-            success: () => {
-              this.$message.success('已删除所选列表')
-              this.$emit('changed')
-            },
-            fail: (e) => {
-              this.$notify.error({
-                title: '删除所选列表失败',
-                message: e,
-                duration: 3000
-              })
-            }
-          })
-        }
+        this.$message.success('已删除指定列表')
+        this.$emit('changed')
         done()
         close()
       } catch {
@@ -318,7 +295,7 @@ export default {
               trigger: 'blur',
               validator: (rule, value, callback) => {
                 // 不可同时存在 // 此种路径
-                if (value && !(value.includes('/'))) {
+                if (value && !value.includes('/')) {
                   callback()
                 } else {
                   callback(new Error('请输入合法的文件夹路径'))
@@ -344,7 +321,7 @@ export default {
   display: inline-block;
 
   i {
-      margin-right: 5px;
+    margin-right: 5px;
   }
 }
 </style>
