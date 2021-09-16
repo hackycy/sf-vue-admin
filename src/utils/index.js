@@ -139,7 +139,7 @@ export function toLine(name) {
 }
 
 export function getFileExtension(filename) {
-  return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename)[0] : undefined
+  return /[.]/.exec(filename) ? /[^.]+$/.exec(filename)[0] : undefined
 }
 /**
  * 将文件文件名转为文件类型后缀
@@ -172,16 +172,37 @@ export function parseMimeTypeToIconName(fileName) {
   if (['pptx', 'ppt', 'pptm'].includes(ext)) {
     return 'file-type-ppt'
   }
-  if (['zip', 'rar', '7z', 'tar', 'gz', 'tgz', 'tar.gz', 'tar.xz'].includes(ext)) {
+  if (
+    ['zip', 'rar', '7z', 'tar', 'gz', 'tgz', 'tar.gz', 'tar.xz'].includes(ext)
+  ) {
     return 'file-type-zip'
   }
-  if (['mp4', 'avi', 'wmv', 'rmvb', '3gp', 'mov', 'm4v', 'flv', 'mkv'].includes(ext)) {
+  if (
+    ['mp4', 'avi', 'wmv', 'rmvb', '3gp', 'mov', 'm4v', 'flv', 'mkv'].includes(
+      ext
+    )
+  ) {
     return 'file-type-video'
   }
   if (['mp3', 'wav'].includes(ext)) {
     return 'file-type-music'
   }
-  if (['vue', 'js', 'go', 'java', 'ts', 'css', 'html', 'php', 'c', 'cpp', 'swift', 'kt'].includes(ext)) {
+  if (
+    [
+      'vue',
+      'js',
+      'go',
+      'java',
+      'ts',
+      'css',
+      'html',
+      'php',
+      'c',
+      'cpp',
+      'swift',
+      'kt'
+    ].includes(ext)
+  ) {
     return 'file-type-code'
   }
   return 'file-type-unknown'
@@ -220,4 +241,45 @@ export function printANSI() {
  #    # #            #    # #    # #    # # #   ##
   ####  #            #    # #####  #    # # #    #
 `)
+}
+
+/**
+ * 判断操作系统
+ */
+export function detectOS() {
+  const sUserAgent = navigator.userAgent
+  const isWin = navigator.platform === 'Win32' || navigator.platform === 'Windows'
+  const isMac =
+    navigator.platform === 'Mac68K' ||
+    navigator.platform === 'MacPPC' ||
+    navigator.platform === 'Macintosh' ||
+    navigator.platform === 'MacIntel'
+  if (isMac) return 'Mac'
+  var isUnix = navigator.platform === 'X11' && !isWin && !isMac
+  if (isUnix) return 'Unix'
+  var isLinux = String(navigator.platform).indexOf('Linux') > -1
+  if (isLinux) return 'Linux'
+  if (isWin) {
+    var isWin2K =
+      sUserAgent.indexOf('Windows NT 5.0') > -1 ||
+      sUserAgent.indexOf('Windows 2000') > -1
+    if (isWin2K) return 'Win2000'
+    var isWinXP =
+      sUserAgent.indexOf('Windows NT 5.1') > -1 ||
+      sUserAgent.indexOf('Windows XP') > -1
+    if (isWinXP) return 'WinXP'
+    var isWin2003 =
+      sUserAgent.indexOf('Windows NT 5.2') > -1 ||
+      sUserAgent.indexOf('Windows 2003') > -1
+    if (isWin2003) return 'Win2003'
+    var isWinVista =
+      sUserAgent.indexOf('Windows NT 6.0') > -1 ||
+      sUserAgent.indexOf('Windows Vista') > -1
+    if (isWinVista) return 'WinVista'
+    var isWin7 =
+      sUserAgent.indexOf('Windows NT 6.1') > -1 ||
+      sUserAgent.indexOf('Windows 7') > -1
+    if (isWin7) return 'Win7'
+  }
+  return 'Unknown'
 }
