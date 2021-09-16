@@ -1,6 +1,8 @@
 import request from '@/utils/request'
 import ManageApi from '@/core/permission/modules/netdisk/manage'
 
+const NETDISK_TIMEOUT_INTERVAL = 60000
+
 export function getFileList(query) {
   return request({
     url: ManageApi.list,
@@ -13,7 +15,8 @@ export function createDir(data) {
   return request({
     url: ManageApi.mkdir,
     method: 'post',
-    data
+    data,
+    timeout: NETDISK_TIMEOUT_INTERVAL
   })
 }
 
@@ -21,7 +24,8 @@ export function renameDirOrFile(data) {
   return request({
     url: ManageApi.rename,
     method: 'post',
-    data
+    data,
+    timeout: NETDISK_TIMEOUT_INTERVAL
   })
 }
 
@@ -37,7 +41,8 @@ export function deleteFileOrDir(data) {
   return request({
     url: ManageApi.delete,
     method: 'post',
-    data
+    data,
+    timeout: NETDISK_TIMEOUT_INTERVAL
   })
 }
 
@@ -68,7 +73,8 @@ export function cutFiles(data) {
   return request({
     url: ManageApi.cut,
     method: 'post',
-    data
+    data,
+    timeout: NETDISK_TIMEOUT_INTERVAL
   })
 }
 
@@ -76,6 +82,7 @@ export function copyFiles(data) {
   return request({
     url: ManageApi.copy,
     method: 'post',
-    data
+    data,
+    timeout: NETDISK_TIMEOUT_INTERVAL
   })
 }
