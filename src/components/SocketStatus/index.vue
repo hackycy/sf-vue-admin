@@ -40,18 +40,17 @@
         :label-style="{ width: '150px' }"
         :content-style="{ flex: 1 }"
       >
-        <el-descriptions-item label="服务器连接情况" :content-style="{ color: statusTextColor }">{{
-          info.name
-        }}</el-descriptions-item>
-        <el-descriptions-item label="WebSocket连接情况" :content-style="{ color: statusTextColor }">{{
-          statusText
-        }}</el-descriptions-item>
+        <el-descriptions-item
+          label="服务器连接情况"
+          :content-style="{ color: statusTextColor }"
+        >延迟 （{{ delay }}ms）</el-descriptions-item>
+        <el-descriptions-item
+          label="WebSocket连接情况"
+          :content-style="{ color: statusTextColor }"
+        >{{ statusText }}</el-descriptions-item>
       </el-descriptions>
       <span slot="footer">
-        <el-button
-          type="plain"
-          size="mini"
-        >重新诊断</el-button>
+        <el-button type="plain" size="mini" @click="checkDelay">重新诊断</el-button>
       </span>
     </el-dialog>
   </div>
@@ -77,7 +76,11 @@ export default {
       info: Object.freeze({
         name: detectOS(navigator.userAgent),
         ua: navigator.userAgent
-      })
+      }),
+      // 延迟检测
+      delay: 1,
+      startCheckTime: 0,
+      imageObj: null
     }
   },
   computed: {
@@ -108,11 +111,29 @@ export default {
       } else {
         return 'red'
       }
+    },
+    imageUrl() {
+      return `${location.protocol}//${location.host}/?start=${this.startCheckTime}`
     }
+  },
+  created() {
+    this.checkDelay()
   },
   methods: {
     handleClick() {
       this.visible = true
+    },
+    checkDelay() {
+      this.isChecking = true
+      this.imageObj = new Image()
+      this.imageObj.onerror = () => {
+        const loadEndTime = new Date().getTime()
+        this.delay = loadEndTime - this.startCheckTime
+        this.isChecking = false
+        this.imageObj = null
+      }
+      this.startCheckTime = new Date().getTime()
+      this.imageObj.src = this.imageUrl
     }
   }
 }
