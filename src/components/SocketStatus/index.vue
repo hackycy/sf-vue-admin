@@ -42,8 +42,8 @@
       >
         <el-descriptions-item
           label="服务器连接情况"
-          :content-style="{ color: statusTextColor }"
-        >延迟 （{{ delay }}ms）</el-descriptions-item>
+          :content-style="{ color: delayTextColor }"
+        >{{ delayStatus }}</el-descriptions-item>
         <el-descriptions-item
           label="WebSocket连接情况"
           :content-style="{ color: statusTextColor }"
@@ -53,6 +53,7 @@
         <el-button
           type="plain"
           size="mini"
+          :loading="isChecking"
           @click="checkDelay"
         >重新诊断</el-button>
       </span>
@@ -82,9 +83,11 @@ export default {
         ua: navigator.userAgent
       }),
       // 延迟检测
-      delay: 1,
+      delay: 0,
       startCheckTime: 0,
-      imageObj: null
+      imageObj: null,
+      online: true,
+      intervalID: null
     }
   },
   computed: {
@@ -116,9 +119,41 @@ export default {
         return 'red'
       }
     },
+    delayTextColor() {
+      if (this.online) {
+        return '#50af33'
+      }
+      return 'red'
+    },
+    delayStatus() {
+      if (this.online) {
+        return `正常 (${this.delay}ms)`
+      }
+      return `已断开`
+    },
     imageUrl() {
-      return `${location.protocol}//${location.host}/?start=${this.startCheckTime}`
+      // 错误图片的链接，使得走onerror回调
+      return `${location.protocol}//${location.host}/delay-start-${this.startCheckTime}`
     }
+  },
+  watch: {
+    visible(newVal) {
+      if (newVal) {
+        this.intervalID = setInterval(this.checkDelay, 2000)
+        return
+      }
+      if (this.intervalID) {
+        clearInterval(this.intervalID)
+      }
+    }
+  },
+  created() {
+    window.addEventListener('online', this.onOnlineEvent)
+    window.addEventListener('offline', this.onOfflineEvent)
+  },
+  destroyed() {
+    window.removeEventListener('online', this.onOnlineEvent)
+    window.removeEventListener('offline', this.onOfflineEvent)
   },
   methods: {
     handleClick() {
@@ -131,15 +166,25 @@ export default {
     },
     checkDelay() {
       this.isChecking = true
-      this.imageObj = new Image()
-      this.imageObj.onerror = () => {
-        const loadEndTime = new Date().getTime()
-        this.delay = loadEndTime - this.startCheckTime
-        this.isChecking = false
-        this.imageObj = null
+      if (!this.imageObj) {
+        this.imageObj = new Image()
+        this.imageObj.onerror = () => {
+          const loadEndTime = new Date().getTime()
+          this.delay = loadEndTime - this.startCheckTime
+          this.isChecking = false
+          this.imageObj = null
+        }
       }
+      // 发起请求
       this.startCheckTime = new Date().getTime()
       this.imageObj.src = this.imageUrl
+    },
+    // 监听网络连接状态
+    onOnlineEvent() {
+      this.online = true
+    },
+    onOfflineEvent() {
+      this.online = false
     }
   }
 }
