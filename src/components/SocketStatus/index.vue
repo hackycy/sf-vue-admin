@@ -33,7 +33,6 @@
       </el-descriptions>
       <el-divider class="socket-status-dialog__divider" />
       <el-descriptions
-        v-loading="isChecking"
         title="在线服务网络诊断"
         :column="1"
         :colon="false"
@@ -53,7 +52,6 @@
         <el-button
           type="plain"
           size="mini"
-          :loading="isChecking"
           @click="checkDelay"
         >重新诊断</el-button>
       </span>
@@ -77,7 +75,6 @@ export default {
   data() {
     return {
       visible: false,
-      isChecking: false,
       info: Object.freeze({
         name: detectOS(navigator.userAgent),
         ua: navigator.userAgent
@@ -165,13 +162,11 @@ export default {
       })
     },
     checkDelay() {
-      this.isChecking = true
       if (!this.imageObj) {
         this.imageObj = new Image()
         this.imageObj.onerror = () => {
           const loadEndTime = new Date().getTime()
           this.delay = loadEndTime - this.startCheckTime
-          this.isChecking = false
           this.imageObj = null
         }
       }
