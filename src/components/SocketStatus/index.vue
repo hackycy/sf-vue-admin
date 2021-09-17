@@ -116,12 +116,14 @@ export default {
       return `${location.protocol}//${location.host}/?start=${this.startCheckTime}`
     }
   },
-  created() {
-    this.checkDelay()
-  },
   methods: {
     handleClick() {
       this.visible = true
+      // check delay
+      this.$nextTick(() => {
+        // 打开时自动检测
+        this.checkDelay()
+      })
     },
     checkDelay() {
       this.isChecking = true
