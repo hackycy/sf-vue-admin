@@ -21,7 +21,7 @@
       <el-descriptions
         :column="1"
         :colon="false"
-        :label-style="{ width: '150px' }"
+        :label-style="{ width: '250px' }"
         :content-style="{ flex: 1 }"
       >
         <el-descriptions-item label="操作系统">{{
@@ -37,7 +37,7 @@
         title="在线服务网络诊断"
         :column="1"
         :colon="false"
-        :label-style="{ width: '150px' }"
+        :label-style="{ width: '250px' }"
         :content-style="{ flex: 1 }"
       >
         <el-descriptions-item
