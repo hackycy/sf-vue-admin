@@ -50,7 +50,11 @@
         >{{ statusText }}</el-descriptions-item>
       </el-descriptions>
       <span slot="footer">
-        <el-button type="plain" size="mini" @click="checkDelay">重新诊断</el-button>
+        <el-button
+          type="plain"
+          size="mini"
+          @click="checkDelay"
+        >重新诊断</el-button>
       </span>
     </el-dialog>
   </div>
@@ -107,7 +111,7 @@ export default {
       if (this.status === SocketStatus.CONNECTED) {
         return '#50af33'
       } else if (this.status === SocketStatus.CONNECTING) {
-        return 'yellow'
+        return 'orange'
       } else {
         return 'red'
       }
@@ -142,33 +146,37 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.wifi-box {
+.wifi-wrapper {
   height: 100%;
-  width: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
-  .center-box {
-    position: relative;
-    width: 100%;
-    height: 18px;
+  .wifi-box {
+    height: 100%;
+    width: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    .wifi-1,
-    .wifi-2,
-    .wifi-3 {
-      top: 0;
-      left: 0;
-      position: absolute;
-      display: block;
-    }
+    .center-box {
+      position: relative;
+      width: 100%;
+      height: 18px;
 
-    .wifi-3 {
-      animation: signal3 1s steps(1) infinite;
-    }
+      .wifi-1,
+      .wifi-2,
+      .wifi-3 {
+        top: 0;
+        left: 0;
+        position: absolute;
+        display: block;
+      }
 
-    .wifi-2 {
-      animation: signal2 1s steps(1) infinite;
+      .wifi-3 {
+        animation: signal3 1s steps(1) infinite;
+      }
+
+      .wifi-2 {
+        animation: signal2 1s steps(1) infinite;
+      }
     }
   }
 }
