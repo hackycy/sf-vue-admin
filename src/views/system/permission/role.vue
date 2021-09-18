@@ -9,8 +9,8 @@
         <el-table-column prop="name" label="名称" align="center" width="200" />
         <el-table-column prop="label" label="标识" align="center" width="200" />
         <el-table-column prop="remark" label="备注" align="center" />
-        <el-table-column prop="createTime" label="创建时间" align="center" />
-        <el-table-column prop="updateTime" label="更新时间" align="center" />
+        <el-table-column prop="createdAt" label="创建时间" align="center" />
+        <el-table-column prop="updatedAt" label="更新时间" align="center" />
         <el-table-column label="操作" width="150" align="center" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" type="text" :disabled="!$auth('sysRole.update')" @click="handleEdit(scope.row)">编辑</el-button>

@@ -18,7 +18,7 @@
             }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="执行时间" align="center" width="220" />
+        <el-table-column prop="createdAt" label="执行时间" align="center" width="220" />
       </s-table>
     </table-layout>
   </div>

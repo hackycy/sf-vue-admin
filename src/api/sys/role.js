@@ -19,7 +19,8 @@ export function getRoleList() {
 export function getRoleListByPage(query) {
   return request({
     url: RoleApi.page,
-    method: 'get'
+    method: 'get',
+    params: query
   })
 }
 

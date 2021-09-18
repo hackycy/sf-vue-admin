@@ -255,6 +255,8 @@ export default {
 
 .sys-schedule-task-container {
   .task-detail-table-expand {
+    padding-left: 40px;
+
     .op-m-5 {
       margin-left: 5px;
       margin-right: 5px;

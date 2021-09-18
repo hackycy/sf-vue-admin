@@ -3,16 +3,25 @@
     <table-layout :wrap="false">
       <template #header>
         <div class="space-header">
-          <i :class="isLoading ? 'el-icon-loading' : 'el-icon-folder'" style="margin-right: 16px;margin-left: 16px;" />
+          <i
+            :class="isLoading ? 'el-icon-loading' : 'el-icon-folder'"
+            style="margin-right: 16px;margin-left: 16px;"
+          />
           <!-- 目录列表 -->
           <div class="breadcrumb">
             <el-breadcrumb v-show="!isSearching" separator="/">
-              <el-breadcrumb-item><el-link :underline="false" @click="handleJumpPath(-1)">根目录</el-link></el-breadcrumb-item>
+              <el-breadcrumb-item><el-link
+                :underline="false"
+                @click="handleJumpPath(-1)"
+              >根目录</el-link></el-breadcrumb-item>
               <el-breadcrumb-item
                 v-for="(item, index) in currentPathList"
                 :key="index"
               >
-                <el-link :underline="false" @click="handleJumpPath(index, item)">{{ item }}</el-link>
+                <el-link
+                  :underline="false"
+                  @click="handleJumpPath(index, item)"
+                >{{ item }}</el-link>
               </el-breadcrumb-item>
             </el-breadcrumb>
           </div>
@@ -30,6 +39,9 @@
         :key="tableKey"
         ref="fileTable"
         v-el-table-infinite-scroll="loadData"
+        v-loading="isOperating"
+        element-loading-text="操作执行中，请稍后..."
+        element-loading-spinner="el-icon-loading"
         infinite-scroll-distance="10"
         infinite-scroll-disabled="loadMoreDisabled"
         empty-text="暂无文件"
@@ -40,19 +52,22 @@
         @row-contextmenu="handleRowContextMenu"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column
-          align="center"
-          type="selection"
-          width="50"
-        />
+        <el-table-column align="center" type="selection" width="50" />
         <el-table-column show-overflow-tooltip label="文件名">
           <template slot-scope="scope">
             <el-link
-              :disabled="scope.row.type === 'file' && !$auth('netdiskManage.info')"
+              :disabled="
+                scope.row.type === 'file' && !$auth('netdiskManage.info')
+              "
               :underline="false"
               @click="handleClickFileItem(scope.row)"
-            ><svg-icon :icon-class="parseType(scope.row.name, scope.row.type)" />
-              <span v-if="isSearching" v-html="hignlightSearchKey(scope.row.name)" />
+            ><svg-icon
+               :icon-class="parseType(scope.row.name, scope.row.type)"
+             />
+              <span
+                v-if="isSearching"
+                v-html="hignlightSearchKey(scope.row.name)"
+              />
               <span v-else>{{ scope.row.name }}</span>
             </el-link>
           </template>
@@ -85,7 +100,9 @@
         >
           <template slot-scope="scope">
             <el-link
-              :disabled="scope.row.type === 'file' && !$auth('netdiskManage.info')"
+              :disabled="
+                scope.row.type === 'file' && !$auth('netdiskManage.info')
+              "
               :underline="false"
               type="info"
               @click="handleClickBelong(scope.row)"
@@ -97,7 +114,10 @@
         <template v-if="!loadMoreDisabled" slot="append">
           <el-row type="flex" justify="center">
             <span style="line-height: 50px;">
-              <i class="el-icon-loading" style="font-size: 16px; margin-right: 10px;" />
+              <i
+                class="el-icon-loading"
+                style="font-size: 16px; margin-right: 10px;"
+              />
               <span style="font-size: 14px;">加载中...</span>
             </span>
           </el-row>
@@ -112,8 +132,11 @@
 import TableLayout from '@/layout/components/TableLayout'
 import FileOperateButtonList from './components/file-operate-button-list'
 import FilePreviewDrawer from './components/file-preview-drawer'
-import PollingMixin from './mixins/polling'
-import { getFileList, renameDirOrFile, getDownloadLink } from '@/api/netdisk/manage'
+import {
+  getFileList,
+  renameDirOrFile,
+  getDownloadLink
+} from '@/api/netdisk/manage'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
 
@@ -124,7 +147,11 @@ export default {
     FilePreviewDrawer,
     FileOperateButtonList
   },
-  mixins: [PollingMixin],
+  provide: function() {
+    return {
+      updateOperateStatus: this.updateOperateStatus
+    }
+  },
   data() {
     return {
       fileList: [],
@@ -135,6 +162,7 @@ export default {
       selectedFileList: [],
       // 菊花加载
       isLoading: false,
+      isOperating: false,
       tableKey: 1,
       // 防止滚动加载速度过快导致出现数据不同步
       lock: false
@@ -245,7 +273,10 @@ export default {
         }
       } else {
         if (this.isSearching) {
-          this.$refs.previewDrawer.open(row.name, isEmpty(row.belongTo) ? '' : `${row.belongTo}/`)
+          this.$refs.previewDrawer.open(
+            row.name,
+            isEmpty(row.belongTo) ? '' : `${row.belongTo}/`
+          )
         } else {
           this.$refs.previewDrawer.open(row.name, this.parsePath())
         }
@@ -274,32 +305,15 @@ export default {
           submit: async(form, { close, done }) => {
             try {
               const path = this.parsePath()
-              const { data } = await renameDirOrFile({
+              await renameDirOrFile({
                 type: row.type,
                 toName: form.toName,
                 name: row.name,
                 path
               })
               // reload
-              if (data.bgMode) {
-                this.pollingCheckStatus('delete', data.taskId, {
-                  success: () => {
-                    this.$message.success('重命名文件夹成功')
-                    this.refresh()
-                  },
-                  fail: (e) => {
-                    this.$notify.error({
-                      title: '重命名文件夹失败',
-                      message: e,
-                      duration: 3000
-                    })
-                  }
-                })
-                close()
-              } else {
-                close()
-                this.refresh()
-              }
+              close()
+              this.refresh()
             } catch {
               done()
             }
@@ -319,7 +333,13 @@ export default {
                 } else if (value && !value.includes('/')) {
                   callback()
                 } else {
-                  callback(new Error(`请输入合法${row.type === 'dir' ? '文件夹' : '文件'}的名称`))
+                  callback(
+                    new Error(
+                      `请输入合法${
+                        row.type === 'dir' ? '文件夹' : '文件'
+                      }的名称`
+                    )
+                  )
                 }
               }
             },
@@ -342,7 +362,8 @@ export default {
         items: [
           {
             title: '下载',
-            disabled: row.type === 'dir' || !this.$auth('netdiskManage.download'),
+            disabled:
+              row.type === 'dir' || !this.$auth('netdiskManage.download'),
             callback: ({ close }) => {
               close()
               this.handleDownload(row)
@@ -360,7 +381,9 @@ export default {
       })
     },
     handleSelectionChange(rows) {
-      this.selectedFileList = rows.map((item) => { return { type: item.type, name: item.name } })
+      this.selectedFileList = rows.map(item => {
+        return { type: item.type, name: item.name }
+      })
     },
     parsePath() {
       let path = ''
@@ -382,7 +405,15 @@ export default {
       return '-'
     },
     hignlightSearchKey(name) {
-      return name.replace(new RegExp(`${this.localSearchKey}`, 'g'), `<span style='color: red;'>${this.localSearchKey}</span>`)
+      return name.replace(
+        new RegExp(`${this.localSearchKey}`, 'g'),
+        `<span style='color: red;'>${this.localSearchKey}</span>`
+      )
+    },
+    updateOperateStatus(showing) {
+      if (this.isOperating !== showing) {
+        this.isOperating = showing
+      }
     }
   }
 }
