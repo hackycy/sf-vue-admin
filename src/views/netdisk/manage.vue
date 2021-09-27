@@ -263,7 +263,7 @@ export default {
     handleClickFileItem(row) {
       if (row.type === 'dir') {
         if (this.isSearching) {
-          const pathList = isEmpty(row.belongTo) ? [] : pathList.split('/')
+          const pathList = isEmpty(row.belongTo) ? [] : row.belongTo.split('/')
           pathList.push(row.name)
           // clear search key
           this.localSearchKey = ''
