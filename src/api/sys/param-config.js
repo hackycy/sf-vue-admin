@@ -24,3 +24,19 @@ export function createParamConfig(data) {
     data
   })
 }
+
+export function updateParamConfig(data) {
+  return request({
+    url: ParamConfigApi.update,
+    method: 'post',
+    data
+  })
+}
+
+export function deleteParamConfig(data) {
+  return request({
+    url: ParamConfigApi.delete,
+    method: 'post',
+    data
+  })
+}

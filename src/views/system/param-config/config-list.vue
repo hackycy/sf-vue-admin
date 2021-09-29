@@ -8,6 +8,7 @@
         stripe
         row-key="id"
         border
+        @selection-change="handleSelectionChange"
       >
         <template v-slot:prepend>
           <el-button
@@ -16,12 +17,16 @@
             :disabled="!$auth('sysParamConfig.add')"
             @click="handleAdd"
           >新增</el-button>
-          <el-button
-            size="mini"
-            type="danger"
-            :disabled="!$auth('sysParamConfig.delete')"
-            @click="handleDelete"
-          >删除</el-button>
+          <warning-confirm-button
+            button-type="danger"
+            :closed="handleRefresh"
+            :disabled="!$auth('sysParamConfig.delete') || disableMultiDelete"
+            @confirm="
+              o => {
+                handleDelete(null, o)
+              }
+            "
+          >删除</warning-confirm-button>
         </template>
         <el-table-column
           fixed="left"
@@ -100,7 +105,9 @@ import WarningConfirmButton from '@/components/WarningConfirmButton'
 import {
   getParamConfigList,
   getParamConfigInfo,
-  createParamConfig
+  createParamConfig,
+  updateParamConfig,
+  deleteParamConfig
 } from '@/api/sys/param-config'
 
 export default {
@@ -110,6 +117,16 @@ export default {
     STable,
     WarningConfirmButton
   },
+  data() {
+    return {
+      selectionId: []
+    }
+  },
+  computed: {
+    disableMultiDelete() {
+      return this.selectionId.length <= 0
+    }
+  },
   methods: {
     handleRefresh() {
       this.$refs.configTable.refresh()
@@ -118,10 +135,20 @@ export default {
       const { data } = await getParamConfigList({ page, limit })
       return data
     },
+    handleSelectionChange(rows) {
+      this.selectionId = rows.map(e => e.id)
+    },
     handleAdd() {
       this.createFormDialog()
     },
-    handleDelete() {},
+    async handleDelete(row, { done, close }) {
+      try {
+        await deleteParamConfig({ ids: row ? [row.id] : this.selectionId })
+        close()
+      } catch (e) {
+        done()
+      }
+    },
     handleEdit(row) {
       this.createFormDialog(row.id)
     },
@@ -153,11 +180,13 @@ export default {
               if (configId === -1) {
                 // 新增
                 await createParamConfig(form)
-                close()
-                this.handleRefresh()
-                return
+              } else {
+                delete form.key
+                await updateParamConfig({ id: configId, ...form })
               }
-              // 更新
+
+              close()
+              this.handleRefresh()
             } catch (e) {
               done()
             }
