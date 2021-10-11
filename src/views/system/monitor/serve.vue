@@ -11,4 +11,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.sys-server-stat-container {
+  padding: 20px;
+  column-count: 2;
+  column-gap: 10px;
+
+  .stat-card {
+    margin-bottom: 10px;
+    break-inside: avoid;
+  }
+}
 </style>
