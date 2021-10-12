@@ -29,10 +29,10 @@
         <el-descriptions-item label="详细">{{
           parseCpuInfo
         }}</el-descriptions-item>
-        <el-descriptions-item label="总使用率">
+        <el-descriptions-item label="负载">
           <el-progress :percentage="formarPercentage(cpu.rawCurrentLoad, cpu.rawCurrentLoadIdle + cpu.rawCurrentLoad)" :color="custonProgressColor" />
         </el-descriptions-item>
-        <el-descriptions-item v-for="(item, index) in cpu.coresLoad" :key="index" :label="`核心${index + 1} 使用率`">
+        <el-descriptions-item v-for="(item, index) in cpu.coresLoad" :key="index" :label="`核心${index + 1} 负载`">
           <el-progress :percentage="formarPercentage(item.rawLoad, item.rawLoad + item.rawLoadIdle)" :color="custonProgressColor" />
         </el-descriptions-item>
       </el-descriptions>
@@ -171,7 +171,7 @@ export default {
     // 10秒自动刷新
     this.intervalId = setInterval(this.refresh, 10000)
   },
-  destroyed() {
+  beforeDestroy() {
     clearInterval(this.intervalId)
   },
   methods: {
