@@ -116,8 +116,7 @@ export default {
       },
       memory: {
         total: 0,
-        free: 0,
-        used: 0
+        available: 0
       },
       cpu: {
         // Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz
@@ -144,8 +143,8 @@ export default {
     formatMemoryUnit() {
       return {
         total: formatSizeUnits(this.memory.total),
-        free: formatSizeUnits(this.memory.free),
-        used: formatSizeUnits(this.memory.used)
+        free: formatSizeUnits(this.memory.available),
+        used: formatSizeUnits(this.memory.total - this.memory.available)
       }
     },
     parseDiskPercentage() {
@@ -158,10 +157,10 @@ export default {
       if (this.memory.total <= 0) {
         return 0
       }
-      return Math.floor((this.memory.used / this.memory.total) * 100)
+      return Math.floor(((this.memory.total - this.memory.available) / this.memory.total) * 100)
     },
     parseCpuInfo() {
-      return `${this.cpu.manufacturer} ${this.cpu.brand} @ ${this.cpu.speed}GHz  ${this.cpu.speedMax}Ghz`
+      return `${this.cpu.manufacturer} ${this.cpu.brand} @ ${this.cpu.speed}GHz`
     }
   },
   created() {
