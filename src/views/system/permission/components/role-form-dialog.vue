@@ -4,7 +4,6 @@
 
 <script>
 import PermissionMixin from '@/core/mixins/permission'
-import { getDeptList } from '@/api/sys/dept'
 import { getMenuList } from '@/api/sys/menu'
 import { getRoleInfo, createRole, updateRole } from '@/api/sys/role'
 
@@ -15,7 +14,7 @@ export default {
     async handleOpen(updateId, form, { showLoading, hideLoading, close, $refs }) {
       try {
         showLoading()
-        const { data: deptsData } = await getDeptList()
+        const { data: deptsData } = await this.$api.sys.dept.list()
         const { data: menusData } = await getMenuList()
         form.menus.data = this.filterMenuHasPermsToTree(menusData, null)
         form.depts.data = this.filterDeptToTree(deptsData, null)
