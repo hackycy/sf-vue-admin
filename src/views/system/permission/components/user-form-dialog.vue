@@ -49,7 +49,6 @@
 </template>
 
 <script>
-import { getRoleList } from '@/api/sys/role'
 import { isNumber } from 'lodash'
 
 export default {
@@ -88,7 +87,7 @@ export default {
     async handleOpen(depts, form, { showLoading, hideLoading, close, rebind }) {
       try {
         showLoading()
-        const { data: roleData } = await getRoleList()
+        const { data: roleData } = await this.$api.sys.role.list()
         if (this.updateId === -1) {
           // create
           form.roles.data = roleData

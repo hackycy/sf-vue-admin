@@ -5,7 +5,6 @@
 <script>
 import PermissionMixin from '@/core/mixins/permission'
 import { getMenuList } from '@/api/sys/menu'
-import { getRoleInfo, createRole, updateRole } from '@/api/sys/role'
 
 export default {
   name: 'SystemPermissionRoleFormDialog',
@@ -21,7 +20,7 @@ export default {
 
         if (updateId !== -1) {
           // get role data
-          const { data: result } = await getRoleInfo({ roleId: updateId })
+          const { data: result } = await this.$api.sys.role.info({ roleId: updateId })
 
           // set
           form.name = result.roleInfo.name
@@ -66,10 +65,10 @@ export default {
 
       if (updateId === -1) {
         // create
-        req = createRole(data)
+        req = this.$api.sys.role.add(data)
       } else {
         data.roleId = updateId
-        req = updateRole(data)
+        req = this.$api.sys.role.update(data)
       }
       req
         .then(_ => {
