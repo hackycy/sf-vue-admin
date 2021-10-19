@@ -4,7 +4,6 @@
 
 <script>
 import PermissionMixin from '@/core/mixins/permission'
-import { getMenuList } from '@/api/sys/menu'
 
 export default {
   name: 'SystemPermissionRoleFormDialog',
@@ -14,7 +13,7 @@ export default {
       try {
         showLoading()
         const { data: deptsData } = await this.$api.sys.dept.list()
-        const { data: menusData } = await getMenuList()
+        const { data: menusData } = await this.$api.sys.menu.list()
         form.menus.data = this.filterMenuHasPermsToTree(menusData, null)
         form.depts.data = this.filterDeptToTree(deptsData, null)
 

@@ -35,7 +35,9 @@ export default {
   },
   created() {
     const options = []
-    this.flatPerms().forEach(arr => {
+    this.flatPerms(this.$api).forEach(item => {
+      // sys:dept:add 需要转换成数组 [ sys, dept, add ]
+      const arr = item.split(':')
       this.filterPermToCascader(0, arr, options)
     })
     this.options = options

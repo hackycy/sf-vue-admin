@@ -10,7 +10,7 @@
         @row-click="handleRowClick"
       >
         <template v-slot:prepend>
-          <el-button size="mini" type="primary" :disabled="!$auth('sysMenu.add')" @click="handleAdd">新增</el-button>
+          <el-button size="mini" type="primary" :disabled="!$auth('sys.menu.add')" @click="handleAdd">新增</el-button>
         </template>
         <el-table-column prop="name" label="名称" width="240">
           <template slot-scope="scope">
@@ -91,14 +91,14 @@
         <el-table-column label="操作" width="150" align="center" fixed="right">
           <template slot-scope="scope">
             <el-button
-              :disabled="!$auth('sysMenu.update')"
+              :disabled="!$auth('sys.menu.update')"
               size="mini"
               type="text"
               @click.stop="handleEdit(scope.row)"
             >编辑</el-button>
             <warning-confirm-button
               :closed="handleRefresh"
-              :disabled="!$auth('sysMenu.delete')"
+              :disabled="!$auth('sys.menu.delete')"
               @confirm="(o) => { handleDelete(scope.row, o) }"
             >删除</warning-confirm-button>
           </template>
@@ -114,7 +114,6 @@
 import STable from '@/components/Table'
 import MenuFormDialog from './components/menu-form-dialog'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
-import { getMenuList, deleteMenu } from '@/api/sys/menu'
 import PermissionMixin from '@/core/mixins/permission'
 import TableLayout from '@/layout/components/TableLayout.vue'
 
@@ -134,7 +133,7 @@ export default {
   },
   methods: {
     async getMenuList() {
-      const { data } = await getMenuList()
+      const { data } = await this.$api.sys.menu.list()
 
       // clean
       if (this.menutree && this.menutree.length > 0) {
@@ -174,7 +173,7 @@ export default {
     },
     async handleDelete(row, { close, done }) {
       try {
-        await deleteMenu({ menuId: row.id })
+        await this.$api.sys.menu.delete({ menuId: row.id })
         close()
       } catch (e) {
         done()

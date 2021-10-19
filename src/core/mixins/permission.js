@@ -29,28 +29,28 @@ export default {
       return join(arr, ',')
     },
     /**
-     * 遍历获取$service下定义的权限的值并合并到一个数组后返回
-     * 例如： [ 'sys:user:add', 'sys:menu:add', .... ]
+     * 遍历获取$api下定义的权限的值并合并到一个数组后返回
      */
-    flatPerms() {
-      let list = []
-      Object.keys(this.$api).forEach(i => {
-        const { _permission: permission } = this.$api[i]
+    flatPerms(api) {
+      let perms = []
+      // 展平权限 例如 [ 'sys:user:add', 'sys:menu:add', .... ]
+      Object.keys(api).forEach(i => {
+        const { _permission: permission } = api[i]
         if (permission) {
-          list = concat(list, [Object.values(permission)].flat())
+          perms = concat(perms, [Object.values(permission)].flat())
         } else {
-          const tmp = this.flatPerms(this.$api[i])
+          const tmp = this.flatPerms(api[i])
           if (tmp && tmp.length > 0) {
-            list = concat(list, tmp)
+            perms = concat(perms, tmp)
           }
         }
       })
-      return list
+      return perms
     },
     /**
      * 将权限渲染到级联选择器
      * @param {Number} start 起始
-     * @param {Array} arr 单个权限数组
+     * @param {Array} arr 单个权限数组, 例如 [ 'sys', 'dept', 'add' ]
      * @param {Array} op options
      */
     filterPermToCascader(start, arr, op) {
