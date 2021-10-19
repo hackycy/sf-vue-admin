@@ -27,7 +27,6 @@
 <script>
 import STable from '@/components/Table'
 import TableLayout from '@/layout/components/TableLayout'
-import { getTaskLogList } from '@/api/sys/log'
 
 export default {
   name: 'SystemScheduleTaskLog',
@@ -37,7 +36,7 @@ export default {
   },
   methods: {
     async getTaskLogList({ page, limit }) {
-      const { data } = await getTaskLogList({ page, limit })
+      const { data } = await this.$api.sys.log.taskPage({ page, limit })
       return data
     },
     handleRefresh() {
