@@ -12,7 +12,7 @@
           <el-button
             size="mini"
             type="primary"
-            :disabled="!$auth('sysTask.add')"
+            :disabled="!$auth('sys.task.add')"
             @click="handleAdd"
           >新增</el-button>
         </template>
@@ -44,7 +44,7 @@
                 <warning-confirm-button
                   :closed="handleRefresh"
                   content="确认手动执行一次该任务吗"
-                  :disabled="!$auth('sysTask.once')"
+                  :disabled="!$auth('sys.task.once')"
                   @confirm="
                     o => {
                       handleOnce(props.row, o)
@@ -54,7 +54,7 @@
                 <warning-confirm-button
                   :closed="handleRefresh"
                   content="确认运行该任务吗"
-                  :disabled="!$auth('sysTask.start') || !(props.row.status === 0)"
+                  :disabled="!$auth('sys.task.start') || !(props.row.status === 0)"
                   @confirm="
                     o => {
                       handleStart(props.row, o)
@@ -64,7 +64,7 @@
                 <warning-confirm-button
                   :closed="handleRefresh"
                   content="确认停止该任务吗"
-                  :disabled="!$auth('sysTask.stop') || !(props.row.status === 1)"
+                  :disabled="!$auth('sys.task.stop') || !(props.row.status === 1)"
                   @confirm="
                     o => {
                       handleStop(props.row, o)
@@ -128,12 +128,12 @@
             <el-button
               size="mini"
               type="text"
-              :disabled="!$auth('sysTask.update')"
+              :disabled="!$auth('sys.task.update')"
               @click="handleEdit(scope.row)"
             >编辑</el-button>
             <warning-confirm-button
               :closed="handleRefresh"
-              :disabled="!$auth('sysTask.delete')"
+              :disabled="!$auth('sys.task.delete')"
               @confirm="
                 o => {
                   handleDelete(scope.row, o)
@@ -153,7 +153,6 @@ import SystemScheduleTaskFormDialog from './components/task-form-dialog'
 import TableLayout from '@/layout/components/TableLayout'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
 import STable from '@/components/Table'
-import { getTaskList, deleteTask, execOnceTask, startTask, stopTask } from '@/api/sys/task'
 
 export default {
   name: 'SystemScheduleTask',
@@ -165,7 +164,7 @@ export default {
   },
   methods: {
     async getTaskList({ page, limit }) {
-      const { data } = await getTaskList({ page, limit })
+      const { data } = await this.$api.sys.task.page({ page, limit })
       return data
     },
     handleRefresh() {
@@ -179,7 +178,7 @@ export default {
     },
     async handleDelete(row, { done, close }) {
       try {
-        await deleteTask({ id: row.id })
+        await this.$api.sys.task.delete({ id: row.id })
         close()
       } catch {
         done()
@@ -187,7 +186,7 @@ export default {
     },
     async handleOnce(row, { done, close }) {
       try {
-        await execOnceTask({ id: row.id })
+        await this.$api.sys.task.once({ id: row.id })
         close()
       } catch {
         done()
@@ -195,7 +194,7 @@ export default {
     },
     async handleStart(row, { done, close }) {
       try {
-        await startTask({ id: row.id })
+        await this.$api.sys.task.start({ id: row.id })
         close()
       } catch {
         done()
@@ -203,7 +202,7 @@ export default {
     },
     async handleStop(row, { done, close }) {
       try {
-        await stopTask({ id: row.id })
+        await this.$api.sys.task.stop({ id: row.id })
         close()
       } catch {
         done()

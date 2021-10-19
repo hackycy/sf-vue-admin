@@ -17,7 +17,6 @@
 
 <script>
 import { isNumber } from 'lodash'
-import { getTaskInfo, createTask, updateTask } from '@/api/sys/task'
 
 export default {
   name: 'SystemScheduleTaskFormDialog',
@@ -26,7 +25,7 @@ export default {
       if (updateId !== -1) {
         try {
           showLoading()
-          const { data } = await getTaskInfo({ id: updateId })
+          const { data } = await this.$api.sys.task.info({ id: updateId })
           rebind(data)
           hideLoading()
         } catch {
@@ -38,10 +37,10 @@ export default {
       let req = null
       if (updateId === -1) {
         // create
-        req = createTask(data)
+        req = this.$api.sys.task.add(data)
       } else {
         data.id = updateId
-        req = updateTask(data)
+        req = this.$api.sys.task.update(data)
       }
       req
         .then(_ => {
