@@ -28,21 +28,21 @@
         <el-dropdown-item
           icon="el-icon-document-copy"
           command="copy"
-          :disabled="!$auth('netdiskManage.copy')"
+          :disabled="!$auth('netdisk.manage.copy')"
         >
           复制所选
         </el-dropdown-item>
         <el-dropdown-item
           icon="el-icon-scissors"
           command="cut"
-          :disabled="!$auth('netdiskManage.cut')"
+          :disabled="!$auth('netdisk.manage.cut')"
         >
           剪切所选
         </el-dropdown-item>
         <el-dropdown-item
           icon="el-icon-folder-remove"
           command="delete"
-          :disabled="!$auth('netdiskManage.delete')"
+          :disabled="!$auth('netdisk.manage.delete')"
         >
           删除所选
         </el-dropdown-item>
@@ -60,7 +60,7 @@
       :plain="isSearching"
       type="success"
       size="mini"
-      :disabled="!$auth('netdiskManage.list')"
+      :disabled="!$auth('netdisk.manage.list')"
       @click="handleSearch"
     ><i class="el-icon-search" />
       {{ isSearching ? '取消搜索' : '全盘搜索' }}
@@ -68,12 +68,12 @@
     <el-button
       type="primary"
       size="mini"
-      :disabled="!$auth('netdiskManage.token')"
+      :disabled="!$auth('netdisk.manage.token')"
       @click="handleUpload"
     ><i class="el-icon-upload" />上传文件</el-button>
     <el-button
       size="mini"
-      :disabled="!$auth('netdiskManage.mkdir')"
+      :disabled="!$auth('netdisk.manage.mkdir')"
       @click="handleMkdir"
     ><i class="el-icon-folder-add" />创建文件夹</el-button>
     <file-upload-drawer ref="uploadDrawer" @changed="$emit('changed')" />
@@ -81,12 +81,6 @@
 </template>
 
 <script>
-import {
-  createDir,
-  deleteFileOrDir,
-  cutFiles,
-  copyFiles
-} from '@/api/netdisk/manage'
 import FileUploadDrawer from './file-upload-drawer'
 import MessageBoxMixin from '@/core/mixins/message-box'
 import { clone, isEmpty } from 'lodash'
@@ -190,12 +184,12 @@ export default {
         let notifyMsg
         if (this.cutMode && !this.copyMode) {
           // cut
-          await cutFiles(opData)
+          await this.$api.netdisk.manage.cut(opData)
           notifyMsg = '剪切'
           this.cutMode = false
         } else if (!this.cutMode && this.copyMode) {
           // copy
-          await copyFiles(opData)
+          await this.$api.netdisk.manage.copy(opData)
           notifyMsg = '复制'
           this.copyMode = false
         } else {
@@ -213,7 +207,7 @@ export default {
       try {
         const path = this.parsePath()
         const files = clone(this.selectedFileList)
-        await deleteFileOrDir({
+        await this.$api.netdisk.manage.delete({
           path,
           files
         })
@@ -280,7 +274,7 @@ export default {
         on: {
           submit: async(data, { close, done }) => {
             try {
-              await createDir({
+              await this.$api.netdisk.manage.mkdir({
                 path: this.parsePath(),
                 dirName: data.dirName
               })

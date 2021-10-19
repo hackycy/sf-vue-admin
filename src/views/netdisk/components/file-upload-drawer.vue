@@ -39,7 +39,6 @@
 
 <script>
 import { isEmpty } from 'lodash'
-import { getToken } from '@/api/netdisk/manage'
 import * as qiniu from 'qiniu-js'
 
 export default {
@@ -70,7 +69,7 @@ export default {
       this.$nextTick(() => {
         this.loading = true
         // get qiniu upload token
-        getToken()
+        this.$api.netdisk.manage.token()
           .then(res => {
             const { data } = res
             this.token = data.token

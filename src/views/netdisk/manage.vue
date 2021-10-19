@@ -57,7 +57,7 @@
           <template slot-scope="scope">
             <el-link
               :disabled="
-                scope.row.type === 'file' && !$auth('netdiskManage.info')
+                scope.row.type === 'file' && !$auth('netdisk.manage.info')
               "
               :underline="false"
               @click="handleClickFileItem(scope.row)"
@@ -101,7 +101,7 @@
           <template slot-scope="scope">
             <el-link
               :disabled="
-                scope.row.type === 'file' && !$auth('netdiskManage.info')
+                scope.row.type === 'file' && !$auth('netdisk.manage.info')
               "
               :underline="false"
               type="info"
@@ -132,11 +132,6 @@
 import TableLayout from '@/layout/components/TableLayout'
 import FileOperateButtonList from './components/file-operate-button-list'
 import FilePreviewDrawer from './components/file-preview-drawer'
-import {
-  getFileList,
-  renameDirOrFile,
-  getDownloadLink
-} from '@/api/netdisk/manage'
 import { parseMimeTypeToIconName, formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
 
@@ -206,7 +201,7 @@ export default {
       }
       this.lock = true
       const path = this.parsePath()
-      const { data } = await getFileList({
+      const { data } = await this.$api.netdisk.manage.list({
         marker: this.marker.trim() || '',
         path: path,
         key: this.localSearchKey
@@ -285,7 +280,7 @@ export default {
     async handleDownload(row) {
       try {
         this.isLoading = true
-        const { data } = await getDownloadLink({
+        const { data } = await this.$api.netdisk.manage.download({
           path: this.parsePath(),
           name: row.name
         })
@@ -305,7 +300,7 @@ export default {
           submit: async(form, { close, done }) => {
             try {
               const path = this.parsePath()
-              await renameDirOrFile({
+              await this.$api.netdisk.manage.rename({
                 type: row.type,
                 toName: form.toName,
                 name: row.name,
@@ -363,7 +358,7 @@ export default {
           {
             title: '下载',
             disabled:
-              row.type === 'dir' || !this.$auth('netdiskManage.download'),
+              row.type === 'dir' || !this.$auth('netdisk.manage.download'),
             callback: ({ close }) => {
               close()
               this.handleDownload(row)
@@ -371,7 +366,7 @@ export default {
           },
           {
             title: '重命名',
-            disabled: !this.$auth('netdiskManage.rename'),
+            disabled: !this.$auth('netdisk.manage.rename'),
             callback: ({ close }) => {
               close()
               this.handleRename(row)
