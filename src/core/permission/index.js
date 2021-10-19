@@ -7,7 +7,7 @@ import { checkPermission } from './check-permission'
  * path -> ./modules/user
  * <a-button v-if="$auth('user.add')">Button</a-button>
  * path -> ./modules/sys/user
- * <a-button v-if="$auth('sysUser.add')">Button</a-button>
+ * <a-button v-if="$auth('sys.user.add')">Button</a-button>
  * @param Vue
  */
 function plugin(Vue) {
