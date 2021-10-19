@@ -11,12 +11,18 @@ export function checkPermission(perm) {
     const pms = perm.split('.')
     let permissionName = null
     let cur = store.$api
+
+    // 遍历查找最后所属的权限名称
     for (let i = 0; i < pms.length; i++) {
       if (i < pms.length - 1) {
         cur = cur[pms[i]]
       } else {
         permissionName = cur._permission[pms[i]]
       }
+    }
+
+    if (typeof permissionName !== 'string') {
+      return false
     }
 
     // 判断是否存在
