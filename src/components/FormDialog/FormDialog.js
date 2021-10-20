@@ -33,8 +33,8 @@ export default {
           center: true
         },
         op: {
-          saveButtonText: '保存',
-          cancelButtonText: '取消'
+          saveButtonText: '保 存',
+          cancelButtonText: '取 消'
         },
         /**
          * example
@@ -266,10 +266,10 @@ export default {
       return (
         <el-row type='flex' justify='end'>
           <el-button { ...{ props: { size: 'mini' }, on: { click: () => { this._beforeClose() } }} }>
-            取 消
+            { this.conf.op.cancelButtonText }
           </el-button>
           <el-button { ...{ props: { size: 'mini', type: 'success', loading: this.saving }, on: { click: () => { this._submit() } }} }>
-            确 定
+            { this.conf.op.saveButtonText }
           </el-button>
         </el-row>
       )
