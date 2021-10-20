@@ -4,7 +4,7 @@
       <div class="title">组织架构</div>
       <div class="op-container">
         <el-tooltip effect="dark" content="点击新增" placement="top-start">
-          <i v-permission="$permission.sysUser.add" class="el-icon-plus" @click="handleAdd" />
+          <i v-permission="'sys.dept.add'" class="el-icon-plus" @click="handleAdd" />
         </el-tooltip>
         <el-tooltip effect="dark" content="点击刷新" placement="top-start">
           <i class="el-icon-refresh-right" @click="refresh" />
@@ -22,7 +22,7 @@
         <span v-if="isDrag">
           <warning-confirm-button
             content="确定保存当前更改的操作？"
-            :disabled="!$auth('sysDept.move')"
+            :disabled="!$auth('sys.dept.move')"
             @confirm="handleSave"
           >保存</warning-confirm-button>
           <el-button
@@ -84,7 +84,6 @@ import { findIndex, isNumber, flattenDeep } from 'lodash'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
 import MessageBoxMixin from '@/core/mixins/message-box'
 import PermissionMixin from '@/core/mixins/permission'
-import { getDeptList, moveDeptList, deleteDept, createDept, updateDept, getDeptInfo, transferDept } from '@/api/sys/dept'
 import FormDialog from '@/components/FormDialog'
 
 export default {
@@ -158,7 +157,7 @@ export default {
     async refresh() {
       this.loading = true
       try {
-        const { data } = await getDeptList()
+        const { data } = await this.$api.sys.dept.list()
         this.depts = data || []
       } finally {
         this.loading = false
@@ -181,7 +180,7 @@ export default {
       })
       try {
         if (data.length > 0) {
-          await moveDeptList({ depts: data })
+          await this.$api.sys.dept.move({ depts: data })
         }
         close()
         this.isDrag = false
@@ -201,7 +200,7 @@ export default {
         on: {
           confirm: async({ done, close }) => {
             try {
-              await deleteDept({ departmentId: deptId })
+              await this.$api.sys.dept.delete({ departmentId: deptId })
               done()
               close()
             } catch {
@@ -254,13 +253,13 @@ export default {
         meta: data,
         items: [
           {
-            disabled: !this.$auth('sysDept.update'),
+            disabled: !this.$auth('sys.dept.update'),
             title: '编辑',
             icon: 'el-icon-edit',
             callback: this.handleContextMenuClick
           },
           {
-            disabled: !this.$auth('sysDept.delete'),
+            disabled: !this.$auth('sys.dept.delete'),
             title: '删除',
             icon: 'el-icon-delete',
             callback: this.handleContextMenuClick
@@ -282,7 +281,7 @@ export default {
       if (this.updateDeptId !== -1) {
         // update mode
         showLoading()
-        getDeptInfo({ departmentId: this.updateDeptId })
+        this.$api.sys.dept.info({ departmentId: this.updateDeptId })
           .then(res => {
             const { department, parentDepartment } = res.data
             department.parentNode = {
@@ -308,10 +307,10 @@ export default {
 
       if (this.updateDeptId === -1) {
         // create
-        req = createDept(data)
+        req = this.$api.sys.dept.add(data)
       } else {
         data.id = this.updateDeptId
-        req = updateDept(data)
+        req = this.$api.sys.dept.update(data)
       }
       req
         .then(_ => {
@@ -326,7 +325,7 @@ export default {
     async handleTransferFormSubmit(ids, data, { close, done }) {
       const { parentNode } = data
       try {
-        await transferDept({
+        await this.$api.sys.dept.transfer({
           departmentId: parentNode.id,
           userIds: ids
         })

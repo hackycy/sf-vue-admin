@@ -49,8 +49,6 @@
 </template>
 
 <script>
-import { getRoleList } from '@/api/sys/role'
-import { createUser, getUserInfo, updateUser } from '@/api/sys/user'
 import { isNumber } from 'lodash'
 
 export default {
@@ -72,10 +70,10 @@ export default {
 
       if (this.updateId === -1) {
         // create
-        req = createUser(data)
+        req = this.$api.sys.user.add(data)
       } else {
         data.id = this.updateId
-        req = updateUser(data)
+        req = this.$api.sys.user.update(data)
       }
       req
         .then(_ => {
@@ -89,13 +87,13 @@ export default {
     async handleOpen(depts, form, { showLoading, hideLoading, close, rebind }) {
       try {
         showLoading()
-        const { data: roleData } = await getRoleList()
+        const { data: roleData } = await this.$api.sys.role.list()
         if (this.updateId === -1) {
           // create
           form.roles.data = roleData
         } else {
           // update
-          const { data: userData } = await getUserInfo({
+          const { data: userData } = await this.$api.sys.user.info({
             userId: this.updateId
           })
           const { roles } = userData

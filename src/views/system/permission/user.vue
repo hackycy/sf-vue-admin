@@ -21,19 +21,19 @@
             <el-button
               size="mini"
               type="primary"
-              :disabled="!$auth('sysUser.add')"
+              :disabled="!$auth('sys.user.add')"
               @click="handleAdd"
             >新增</el-button>
             <el-button
               size="mini"
               type="success"
-              :disabled="!$auth('sysDept.transfer') || hasMultipleSelection"
+              :disabled="!$auth('sys.dept.transfer') || hasMultipleSelection"
               @click="handleTransfer"
             >转移</el-button>
             <warning-confirm-button
               button-type="danger"
               :closed="handleRefresh"
-              :disabled="!$auth('sysUser.delete') || hasMultipleSelection"
+              :disabled="!$auth('sys.user.delete') || hasMultipleSelection"
               @confirm="handleMultipleDelete"
             >删除</warning-confirm-button>
           </template>
@@ -142,18 +142,18 @@
               <el-button
                 type="text"
                 size="small"
-                :disabled="!$auth('sysUser.update')"
+                :disabled="!$auth('sys.user.update')"
                 @click.stop="handleEdit(scope.row)"
               >编辑</el-button>
               <el-button
                 type="text"
                 size="small"
-                :disabled="!$auth('sysUser.password')"
+                :disabled="!$auth('sys.user.password')"
                 @click.stop="handleUpdatePassword(scope.row)"
               >改密</el-button>
               <warning-confirm-button
                 :closed="handleRefresh"
-                :disabled="!$auth('sysUser.delete')"
+                :disabled="!$auth('sys.user.delete')"
                 @confirm="(o) => { handleDelete(scope.row, o) }"
               >删除</warning-confirm-button>
             </template>
@@ -166,7 +166,6 @@
 </template>
 
 <script>
-import { getUserListPage, deleteUsers, updateUserPassword } from '@/api/sys/user'
 import STable from '@/components/Table'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
 import TableLayout from '@/layout/components/TableLayout'
@@ -201,7 +200,7 @@ export default {
   methods: {
     async getUserList({ page, limit }) {
       const queryAll = this.currentDeptId === -1
-      const { data } = await getUserListPage({
+      const { data } = await this.$api.sys.user.page({
         page,
         limit,
         departmentIds: queryAll
@@ -235,7 +234,7 @@ export default {
         on: {
           submit: async(data, { close, done }) => {
             try {
-              await updateUserPassword({
+              await this.$api.sys.user.password({
                 userId: row.id,
                 password: data.password
               })
@@ -270,7 +269,7 @@ export default {
     },
     async handleDelete(row, { close, done }) {
       try {
-        await deleteUsers({ userIds: [row.id] })
+        await this.$api.sys.user.delete({ userIds: [row.id] })
         close()
       } catch {
         done()
@@ -278,7 +277,7 @@ export default {
     },
     async handleMultipleDelete({ close, done }) {
       try {
-        await deleteUsers({ userIds: [...this.selectionUserList] })
+        await this.$api.sys.user.delete({ userIds: [...this.selectionUserList] })
         close()
       } catch {
         done()

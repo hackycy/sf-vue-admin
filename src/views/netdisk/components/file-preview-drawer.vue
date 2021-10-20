@@ -39,7 +39,7 @@
         <el-col :span="20">
           <el-input
             v-model="mark"
-            :disabled="!$auth('netdiskManage.mark')"
+            :disabled="!$auth('netdisk.manage.mark')"
             type="textarea"
             placeholder="请输入文件备注"
             maxlength="100"
@@ -48,14 +48,13 @@
           /></el-col>
       </el-row>
       <el-row type="flex" justify="end">
-        <el-button :loading="updateMarkLoading" :disabled="!$auth('netdiskManage.mark')" type="primary" size="mini" @click="updateMark">更新</el-button>
+        <el-button :loading="updateMarkLoading" :disabled="!$auth('netdisk.manage.mark')" type="primary" size="mini" @click="updateMark">更新</el-button>
       </el-row>
     </div>
   </el-drawer>
 </template>
 
 <script>
-import { getFileDetailInfo, getDownloadLink, updateFileMark } from '@/api/netdisk/manage'
 import { formatSizeUnits } from '@/utils'
 import { isEmpty } from 'lodash'
 import noPreviewImage from '@/assets/no-preview.png'
@@ -114,7 +113,7 @@ export default {
             name,
             path
           }
-          const { data } = await getFileDetailInfo(fileInfo)
+          const { data } = await this.$api.netdisk.manage.info(fileInfo)
           this.detailInfos.push(name)
           this.mark = data.mark
           for (let i = 1; i < this.detailKeys.length; i++) {
@@ -125,11 +124,11 @@ export default {
             }
           }
           if (
-            this.$auth('netdiskManage.download') &&
+            this.$auth('netdisk.manage.download') &&
             data.mimeType.includes('image/')
           ) {
             // 可预览
-            const { data: url } = await getDownloadLink(fileInfo)
+            const { data: url } = await this.$api.netdisk.manage.download(fileInfo)
             this.previewSrc = url
           }
         } catch {
@@ -142,7 +141,7 @@ export default {
     async updateMark() {
       try {
         this.updateMarkLoading = true
-        await updateFileMark({
+        await this.$api.netdisk.manage.mark({
           name: this.name,
           path: this.path,
           mark: this.mark

@@ -15,7 +15,6 @@
 <script>
 import TableLayout from '@/layout/components/TableLayout'
 import STable from '@/components/Table'
-import { getLoginLogList } from '@/api/sys/log'
 
 export default {
   name: 'SystemMonitorLoginLog',
@@ -25,7 +24,7 @@ export default {
   },
   methods: {
     async getLoginLogList({ page, limit }) {
-      const { data } = await getLoginLogList({ page, limit })
+      const { data } = await this.$api.sys.log.loginPage({ page, limit })
       return data
     },
     handleRefresh() {

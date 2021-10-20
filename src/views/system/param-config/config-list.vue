@@ -14,13 +14,13 @@
           <el-button
             size="mini"
             type="primary"
-            :disabled="!$auth('sysParamConfig.add')"
+            :disabled="!$auth('sys.paramConfig.add')"
             @click="handleAdd"
           >新增</el-button>
           <warning-confirm-button
             button-type="danger"
             :closed="handleRefresh"
-            :disabled="!$auth('sysParamConfig.delete') || disableMultiDelete"
+            :disabled="!$auth('sys.paramConfig.delete') || disableMultiDelete"
             @confirm="
               o => {
                 handleDelete(null, o)
@@ -77,14 +77,14 @@
         <el-table-column label="操作" width="150" align="center" fixed="right">
           <template slot-scope="scope">
             <el-button
-              :disabled="!$auth('sysParamConfig.update')"
+              :disabled="!$auth('sys.paramConfig.update')"
               size="mini"
               type="text"
               @click.stop="handleEdit(scope.row)"
             >编辑</el-button>
             <warning-confirm-button
               :closed="handleRefresh"
-              :disabled="!$auth('sysParamConfig.delete')"
+              :disabled="!$auth('sys.paramConfig.delete')"
               @confirm="
                 o => {
                   handleDelete(scope.row, o)
@@ -102,13 +102,6 @@
 import TableLayout from '@/layout/components/TableLayout'
 import STable from '@/components/Table'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
-import {
-  getParamConfigList,
-  getParamConfigInfo,
-  createParamConfig,
-  updateParamConfig,
-  deleteParamConfig
-} from '@/api/sys/param-config'
 
 export default {
   name: 'SystemParamConfig',
@@ -132,7 +125,7 @@ export default {
       this.$refs.configTable.refresh()
     },
     async getConfigList({ page, limit }) {
-      const { data } = await getParamConfigList({ page, limit })
+      const { data } = await this.$api.sys.paramConfig.page({ page, limit })
       return data
     },
     handleSelectionChange(rows) {
@@ -143,7 +136,7 @@ export default {
     },
     async handleDelete(row, { done, close }) {
       try {
-        await deleteParamConfig({ ids: row ? [row.id] : this.selectionId })
+        await this.$api.sys.paramConfig.delete({ ids: row ? [row.id] : this.selectionId })
         close()
       } catch (e) {
         done()
@@ -167,7 +160,7 @@ export default {
               // 编辑
               try {
                 showLoading()
-                const { data } = await getParamConfigInfo({ id: configId })
+                const { data } = await this.$api.sys.paramConfig.info({ id: configId })
                 rebind(data)
                 hideLoading()
               } catch (e) {
@@ -179,10 +172,10 @@ export default {
             try {
               if (configId === -1) {
                 // 新增
-                await createParamConfig(form)
+                await this.$api.sys.paramConfig.add(form)
               } else {
                 delete form.key
-                await updateParamConfig({ id: configId, ...form })
+                await this.$api.sys.paramConfig.update({ id: configId, ...form })
               }
 
               close()

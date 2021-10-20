@@ -1,4 +1,4 @@
-import { isEmpty, join, findIndex, uniq } from 'lodash'
+import { isEmpty, join, findIndex, concat } from 'lodash'
 
 /**
  * permisson op mixin
@@ -29,22 +29,28 @@ export default {
       return join(arr, ',')
     },
     /**
-     * 遍历获取$service下定义的权限的值并合并到一个数组后返回
-     * 例如： [ 'sys:user:add', 'sys:menu:add', .... ]
+     * 遍历获取$api下定义的权限的值并合并到一个数组后返回
      */
-    flatPerms() {
+    flatPerms(api) {
       let perms = []
-      Object.keys(this.$permission).forEach(key => {
-        const module = this.$permission[key]
-        perms = perms.concat([Object.keys(module).map(e => module[e])].flat())
+      // 展平权限 例如 [ 'sys:user:add', 'sys:menu:add', .... ]
+      Object.keys(api).forEach(i => {
+        const { _permission: permission } = api[i]
+        if (permission) {
+          perms = concat(perms, [Object.values(permission)].flat())
+        } else {
+          const tmp = this.flatPerms(api[i])
+          if (tmp && tmp.length > 0) {
+            perms = concat(perms, tmp)
+          }
+        }
       })
-      const d = uniq(perms).filter(e => e.includes(':')).map(e => e.split(':'))
-      return d
+      return perms
     },
     /**
      * 将权限渲染到级联选择器
      * @param {Number} start 起始
-     * @param {Array} arr 单个权限数组
+     * @param {Array} arr 单个权限数组, 例如 [ 'sys', 'dept', 'add' ]
      * @param {Array} op options
      */
     filterPermToCascader(start, arr, op) {
@@ -89,17 +95,29 @@ export default {
           const childMenu = this.filterMenuToTable(menus, menu)
           realMenu = { ...menu }
           realMenu.children = childMenu
-        } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 1) {
+        } else if (
+          parentMenu &&
+          parentMenu.id === menu.parentId &&
+          menu.type === 1
+        ) {
           // 子菜单下继续找是否有子菜单
           const childMenu = this.filterMenuToTable(menus, menu)
           realMenu = { ...menu }
           realMenu.children = childMenu
-        } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 0) {
+        } else if (
+          parentMenu &&
+          parentMenu.id === menu.parentId &&
+          menu.type === 0
+        ) {
           // 如果还是目录，继续递归
           const childMenu = this.filterMenuToTable(menus, menu)
           realMenu = { ...menu }
           realMenu.children = childMenu
-        } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 2) {
+        } else if (
+          parentMenu &&
+          parentMenu.id === menu.parentId &&
+          menu.type === 2
+        ) {
           realMenu = { ...menu }
         }
         // add curent route
@@ -131,10 +149,18 @@ export default {
           const childNode = this.filterMenuToTree(menus, menu)
           node = { label: menu.name }
           node.children = childNode
-        } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 1) {
+        } else if (
+          parentMenu &&
+          parentMenu.id === menu.parentId &&
+          menu.type === 1
+        ) {
           // 子菜单则停止
           node = { label: menu.name }
-        } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 0) {
+        } else if (
+          parentMenu &&
+          parentMenu.id === menu.parentId &&
+          menu.type === 0
+        ) {
           // 如果还是目录，继续递归
           const childNode = this.filterMenuToTree(menus, menu)
           node = { label: menu.name }
@@ -165,17 +191,29 @@ export default {
           const childNode = this.filterMenuHasPermsToTree(menus, menu)
           node = { label: menu.name }
           node.children = childNode
-        } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 1) {
+        } else if (
+          parentMenu &&
+          parentMenu.id === menu.parentId &&
+          menu.type === 1
+        ) {
           // 子菜单则停止
           const childNode = this.filterMenuHasPermsToTree(menus, menu)
           node = { label: menu.name }
           node.children = childNode
-        } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 0) {
+        } else if (
+          parentMenu &&
+          parentMenu.id === menu.parentId &&
+          menu.type === 0
+        ) {
           // 如果还是目录，继续递归
           const childNode = this.filterMenuHasPermsToTree(menus, menu)
           node = { label: menu.name }
           node.children = childNode
-        } else if (parentMenu && parentMenu.id === menu.parentId && menu.type === 2) {
+        } else if (
+          parentMenu &&
+          parentMenu.id === menu.parentId &&
+          menu.type === 2
+        ) {
           // 权限停止递归
           node = { label: menu.name }
         }

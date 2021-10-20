@@ -57,7 +57,6 @@ import { constantRouterComponents } from '@/router'
 import PermissionCascader from './permission-cascader'
 import MenuIconSelector from './menu-icon-selector'
 import { isNumber } from 'lodash'
-import { getMenuInfo, createMenu, updateMenu } from '@/api/sys/menu'
 import PermissionMixin from '@/core/mixins/permission'
 
 export default {
@@ -90,7 +89,7 @@ export default {
       if (this.menuId !== -1) {
         // update mode
         showLoading()
-        getMenuInfo({ menuId: this.menuId })
+        this.$api.sys.menu.info({ menuId: this.menuId })
           .then(res => {
             const { menu, parentMenu } = res.data
             menu.parentNode = {
@@ -113,10 +112,10 @@ export default {
 
       if (this.menuId === -1) {
         // create
-        req = createMenu(data)
+        req = this.$api.sys.menu.add(data)
       } else {
         data.menuId = this.menuId
-        req = updateMenu(data)
+        req = this.$api.sys.menu.update(data)
       }
       req
         .then(_ => {

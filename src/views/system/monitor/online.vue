@@ -23,7 +23,7 @@
             <warning-confirm-button
               :closed="handleRefresh"
               content="确定下线该用户吗?"
-              :disabled="!$auth('sysOnline.kick') || scope.row.disable"
+              :disabled="!$auth('sys.online.kick') || scope.row.disable"
               @confirm="(o) => { handleKick(scope.row, o) }"
             >下线</warning-confirm-button>
           </template>
@@ -38,7 +38,6 @@ import SocketHookMixin, { SOCKET_HOOK_KEY } from '@/core/mixins/socket-hook'
 import TableLayout from '@/layout/components/TableLayout'
 import STable from '@/components/Table'
 import WarningConfirmButton from '@/components/WarningConfirmButton'
-import { getOnlineList, kickUser } from '@/api/sys/online'
 
 export default {
   name: 'SystemMonitorOnline',
@@ -63,7 +62,7 @@ export default {
   },
   methods: {
     async getOnlineList() {
-      const { data } = await getOnlineList()
+      const { data } = await this.$api.sys.online.list()
       return { list: data }
     },
     handleRefresh() {
@@ -71,7 +70,7 @@ export default {
     },
     async handleKick(row, { close }) {
       try {
-        await kickUser({ id: row.id })
+        await this.$api.sys.online.kick({ id: row.id })
       } finally {
         close()
       }
