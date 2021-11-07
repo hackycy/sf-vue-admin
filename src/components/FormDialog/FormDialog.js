@@ -1,5 +1,6 @@
 import { cloneDeep, merge, isFunction, isBoolean } from 'lodash'
 import { renderVNode } from './vnode'
+import styles from './formdialog.module.scss'
 
 export default {
   provide() {
@@ -30,6 +31,8 @@ export default {
         dialogProps: {
           'close-on-click-modal': false,
           'append-to-body': true,
+          // 默认不全屏
+          fullscreen: false,
           center: true
         },
         op: {
@@ -107,6 +110,9 @@ export default {
         this.$refs.form.clearValidate()
       }
     },
+    toggleFullScreen() {
+      this.conf.dialogProps.fullscreen = !this.conf.dialogProps.fullscreen
+    },
     _create(options) {
       // 合并配置
       for (const name in this.conf) {
@@ -133,7 +139,11 @@ export default {
       // 表单默认值
       this.conf.items.forEach(e => {
         if (e.prop) {
-          this.$set(this.form, e.prop, this.form[e.prop] ? this.form[e.prop] : cloneDeep(e.value))
+          this.$set(
+            this.form,
+            e.prop,
+            this.form[e.prop] ? this.form[e.prop] : cloneDeep(e.value)
+          )
         }
       })
 
@@ -222,34 +232,49 @@ export default {
       return (
         <el-form
           ref='form'
-          {
-            ...{
-              props: {
-                ...formProps,
-                disabled: this.saving,
-                model: this.form
-              }
+          {...{
+            props: {
+              ...formProps,
+              disabled: this.saving,
+              model: this.form
             }
-          }
+          }}
         >
-          <el-row gutter={10} { ...{ directives: [{ name: 'loading', value: this.loading }] } }>
+          <el-row
+            gutter={10}
+            {...{ directives: [{ name: 'loading', value: this.loading }] }}
+          >
             {/* 渲染表单列表 */}
             {items.map(e => {
               return (
                 <el-col
                   key={`form-item-${e.prop}`}
-                  {
-                    ...{
-                      props: {
-                        span: e.span || 24
-                      }
+                  {...{
+                    props: {
+                      span: e.span || 24
                     }
-                  }
+                  }}
                 >
-                  {e.component && !this._parseHidden({ value: e.hidden, scope: this.form }) && (
-                    <el-form-item { ...{ props: { label: e.label, prop: e.prop, rules: e.rules }} }>
+                  {e.component &&
+                    !this._parseHidden({
+                      value: e.hidden,
+                      scope: this.form
+                    }) && (
+                    <el-form-item
+                      {...{
+                        props: {
+                          label: e.label,
+                          prop: e.prop,
+                          rules: e.rules
+                        }
+                      }}
+                    >
                       {/* 将函数this绑定当前组件树实例。如果当前实例没有父实例，此实例将会是其自己。 */}
-                      {renderVNode.call(this, e.component, { scope: this.form, $scopedSlots: this.$scopedSlots, prop: e.prop })}
+                      {renderVNode.call(this, e.component, {
+                        scope: this.form,
+                        $scopedSlots: this.$scopedSlots,
+                        prop: e.prop
+                      })}
                     </el-form-item>
                   )}
                 </el-col>
@@ -260,16 +285,56 @@ export default {
       )
     },
     /**
+     * 渲染标题区域
+     */
+    renderHeader() {
+      return (
+        <div class={styles['s-formdialog__header']}>
+          <span>{this.conf.title}</span>
+          <i
+            class={[
+              this.conf.dialogProps.fullscreen ? 'el-icon-minus' : 'el-icon-full-screen',
+              styles['s-formdialog__header-icon'],
+              styles['s-formdialog__header-icon--fullscreen']
+            ]}
+            {...{ on: { click: this.toggleFullScreen }}}
+          ></i>
+          <i
+            class={['el-icon-close', styles['s-formdialog__header-icon']]}
+            {...{ on: { click: this._beforeClose }}}
+          ></i>
+        </div>
+      )
+    },
+    /**
      * 渲染底部按钮
      */
     renderFooter() {
       return (
         <el-row type='flex' justify='end'>
-          <el-button { ...{ props: { size: 'mini' }, on: { click: () => { this._beforeClose() } }} }>
-            { this.conf.op.cancelButtonText }
+          <el-button
+            {...{
+              props: { size: 'mini' },
+              on: {
+                click: () => {
+                  this._beforeClose()
+                }
+              }
+            }}
+          >
+            {this.conf.op.cancelButtonText}
           </el-button>
-          <el-button { ...{ props: { size: 'mini', type: 'success', loading: this.saving }, on: { click: () => { this._submit() } }} }>
-            { this.conf.op.saveButtonText }
+          <el-button
+            {...{
+              props: { size: 'mini', type: 'success', loading: this.saving },
+              on: {
+                click: () => {
+                  this._submit()
+                }
+              }
+            }}
+          >
+            {this.conf.op.saveButtonText}
           </el-button>
         </el-row>
       )
@@ -279,31 +344,31 @@ export default {
    * render
    */
   render() {
-    const { title, width, dialogProps } = this.conf
+    const { width, dialogProps } = this.conf
     return (
       <el-dialog
-        title={title}
         width={width}
         visible={this.visible}
-        {
-          ...{
-            props: {
-              ...dialogProps,
-              'before-close': this._beforeClose
+        {...{
+          props: {
+            ...dialogProps,
+            'show-close': false,
+            'before-close': this._beforeClose,
+            'custom-class': styles['s-formdialog']
+          },
+          on: {
+            'update:visible': v => {
+              this.visible = v
             },
-            on: {
-              'update:visible': (v) => { this.visible = v },
-              closed: this._onClosed
-            },
-            directives: [{ name: 'el-drag-dialog' }]
-          }
-        }
+            closed: this._onClosed
+          },
+          directives: [{ name: 'el-drag-dialog', arg: dialogProps.fullscreen ? 'fullscreen' : null }]
+        }}
       >
+        <template slot='title'>{this.renderHeader()}</template>
         {this.renderForm()}
         {/* footer */}
-        <div slot='footer'>
-          {this.renderFooter()}
-        </div>
+        <template slot='footer'>{this.renderFooter()}</template>
       </el-dialog>
     )
   }

@@ -1,0 +1,29 @@
+.s-formdialog {
+  display: flex;
+  flex-direction: column;
+
+  &__header {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &-icon {
+      display: inline-block;
+      cursor: pointer;
+      position: absolute;
+      top: 0;
+      right: 0;
+      color: #909399;
+
+      &--fullscreen {
+        right: 16px;
+        margin-right: 10px;
+      }
+    }
+  }
+
+  & :global(.el-dialog__body) {
+    flex: 1;
+  }
+}
