@@ -2,7 +2,7 @@
 
 .el-breadcrumb__inner,
 .el-breadcrumb__inner a {
-  font-weight: 400 !important;
+  font-weight: 500 !important;
 }
 
 .el-upload {
@@ -46,4 +46,10 @@
 // to fix el-date-picker css style
 .el-range-separator {
   box-sizing: content-box;
+}
+
+.el-table {
+  .el-table__cell {
+    font-weight: 500 !important;
+  }
 }
