@@ -4,6 +4,7 @@
 
 - 使用文档：[https://blog.si-yee.com/sf-admin-cli/](https://blog.si-yee.com/sf-admin-cli/)
 - 演示地址：[http://opensource.admin.si-yee.com](http://opensource.admin.si-yee.com/)
+- Vue3版演示地址：[http://next.admin.si-yee.com](http://next.admin.si-yee.com/)
 
 演示环境账号密码：
 
